@@ -2,6 +2,7 @@ using BudgetFlowAPi.DTO;
 using BudgetFlowAPi.Models;
 using BudgetFlowAPi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BudgetFlowAPi.Controllers;
 
@@ -10,21 +11,22 @@ namespace BudgetFlowAPi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
-    public AuthController(IUserService userService) {
+    private readonly IAuthService _authService;
+    public AuthController(IUserService userService, IAuthService authService)
+    {
         _userService = userService;
+        _authService = authService;
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
     {
-        var user = await _userService.GetByEmailAsync(loginRequest.Email);
-        if (user == null)
+        var token = await _authService.AuthenticateAsync(loginRequest);
+        if (token.IsNullOrEmpty())
         {
-            return NotFound("User not found");
+            return Unauthorized("Invalid email or password");
         }
-        
-        // TODO: continue implementation
-        return Ok(user);
+        return Ok(new { Token = token });
     }
 
     [HttpPost("register")]
@@ -36,7 +38,7 @@ public class AuthController : ControllerBase
             return BadRequest("Email already in use");
         }
 
-        var createdUser = await _userService.RegisterAsync(registerRequest);
+        var createdUser = await _authService.RegisterAsync(registerRequest);
 
         return Ok(new
         {
