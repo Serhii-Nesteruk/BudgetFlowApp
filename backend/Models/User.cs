@@ -25,4 +25,6 @@ public class User
     [StringLength(255)]
     [Required]
     public string PasswordHash { get; set; } = String.Empty;
+
+    public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }
