@@ -11,30 +11,25 @@ namespace BudgetFlowAPi.Controllers;
 [Route("transactions")]
 public class TransactionsController : ControllerBase
 {
-    private ITransactionService _transactionService;
+    private readonly ITransactionService _transactionService;
     public TransactionsController(ITransactionService transactionService)
     {
         _transactionService = transactionService;
     }
 
     [Authorize]
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<IActionResult> GetAllTransactions()
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
         
         var transactions = await _transactionService.GetByUserIdAsync(userId);
-        if (transactions == null)
-        {
-            return NotFound();
-        }
-
 
         return Ok(TransactionMapping.ToDtoList(transactions));
     }
 
     [Authorize]
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetTransactionDetails(int id)
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
@@ -49,7 +44,7 @@ public class TransactionsController : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteTransaction(int id)
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
@@ -62,11 +57,11 @@ public class TransactionsController : ControllerBase
 
         await _transactionService.DeleteAsync(transaction.Id);
 
-        return Ok();
+        return NoContent();
     }
 
     [Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateTransaction(int id, [FromBody] TransactionDto dto)
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
@@ -97,6 +92,11 @@ public class TransactionsController : ControllerBase
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
         var createdTransaction = await _transactionService.AddAsync(dto, userId);
-        return Ok(TransactionMapping.ToDto(createdTransaction));
+        return CreatedAtAction
+        (
+            nameof(GetTransactionDetails), 
+            new { id = createdTransaction.Id },
+            TransactionMapping.ToDto(createdTransaction)
+        );
     }
 }

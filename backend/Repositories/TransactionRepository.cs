@@ -24,6 +24,6 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<Transaction?> GetByIdForUserIdAsync(int id, int userId)
     {
-        return await _context.Transactions.Where(t => t.Id == id && t.UserId == userId).FirstOrDefaultAsync();  
+        return await _context.Transactions.Where(t => t.Id == id && t.UserId == userId).Include(t => t.User).FirstOrDefaultAsync();  
     }
 }

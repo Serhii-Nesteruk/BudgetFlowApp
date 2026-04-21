@@ -40,14 +40,14 @@ public static class TransactionMapping
     {
         return new TransactionDto
         {
+            Id = transaction.Id,
             Amount = transaction.Amount,
             Type = transaction.Type,
             Counterparty = transaction.Counterparty,
+            Title = transaction.Title,
             Description = transaction.Description,
             Currency = transaction.Currency,
             Date = transaction.Date,
-            UserId = transaction.UserId,
-            UserName = transaction.User.Name
         };
-    }
+    }   
 }
