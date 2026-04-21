@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using BudgetFlowAPi.Mappings;
 using BudgetFlowAPi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,8 @@ public class TransactionsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(transactions);
+
+        return Ok(TransactionMapping.ToDtoList(transactions));
     }
 
     [Authorize]
@@ -43,7 +44,7 @@ public class TransactionsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(transaction);
+        return Ok(TransactionMapping.ToDto(transaction));
     }
 
 
