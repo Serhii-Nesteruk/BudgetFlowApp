@@ -12,9 +12,9 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
         _context = context;
     }
 
-    public async Task<IEnumerable<Transaction>> GetByReceiverAsync(string receiver)
+    public async Task<IEnumerable<Transaction>> GetByCounterpartyAsync(string counterparty)
     {
-        return await _context.Transactions.Where(t => t.Receiver == receiver).ToListAsync();
+        return await _context.Transactions.Where(t => t.Counterparty == counterparty).ToListAsync();
     }
 
     public async Task<IEnumerable<Transaction>> GetByUserIdAsync(int userId)

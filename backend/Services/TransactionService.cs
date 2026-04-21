@@ -11,9 +11,9 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
         _transactionRepository = transactionRepository;
     }
 
-    public async Task<IEnumerable<Transaction>> GetByReceiverAsync(string receiver)
+    public async Task<IEnumerable<Transaction>> GetByCounterpartyAsync(string counterparty)
     {
-        return await _transactionRepository.GetByReceiverAsync(receiver);
+        return await _transactionRepository.GetByCounterpartyAsync(counterparty);
     }    
 
     public async Task<IEnumerable<Transaction>> GetByUserIdAsync(int userId)
