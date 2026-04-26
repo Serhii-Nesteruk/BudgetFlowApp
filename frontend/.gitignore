@@ -9,3 +9,4 @@ build/
 server.js
 data.json
 vite.config.js
+seed-transactions.sh
