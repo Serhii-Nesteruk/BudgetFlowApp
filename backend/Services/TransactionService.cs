@@ -39,6 +39,7 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
         transaction.Counterparty = dto.Counterparty;
         transaction.Title = dto.Title;
         transaction.Description = dto.Description;
+        transaction.Details = dto.Details;
         transaction.Amount = dto.Amount;
         transaction.Currency = dto.Currency;
         transaction.Date = dto.Date;

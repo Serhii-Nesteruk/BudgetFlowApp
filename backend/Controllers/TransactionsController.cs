@@ -99,4 +99,15 @@ public class TransactionsController : ControllerBase
             TransactionMapping.ToDto(createdTransaction)
         );
     }
+
+    [Authorize]
+    [HttpGet("grouped")]
+    public async Task<IActionResult> GetGroupedTransactions()
+    {
+        var userId = ClaimsPrincipalExtensions.GetUserId(User);
+
+        var transactions = await _transactionService.GetByUserIdAsync(userId);
+
+        return Ok(TransactionMapping.ToGroupedDtoList(transactions));
+    }
 }

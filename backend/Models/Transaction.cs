@@ -26,6 +26,9 @@ public class Transaction
     [Column("description")]
     public string Description { get; set; } = string.Empty;
 
+    [Column("details")]
+    public string Details { get; set; } = string.Empty;
+
     [Required]
     [Column("amount")]
     public decimal Amount { get; set; }
