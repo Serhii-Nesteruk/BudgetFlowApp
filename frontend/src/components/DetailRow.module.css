@@ -1,0 +1,50 @@
+.row > td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  background: #fafbff;
+}
+.inner {
+  padding: 14px 16px 14px 42px;
+  border-top: 2px solid #c7d9f8;
+}
+.heading {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.dtable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.dtable th {
+  background: var(--surface2);
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.dtable td {
+  padding: 7px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.dtable tr:last-child td {
+  border-bottom: none;
+}
+.dtable tbody tr:hover td {
+  background: rgba(26, 86, 219, 0.03);
+}
+.place { color: var(--accent); font-weight: 600; }
+.amount { font-family: var(--mono); font-weight: 600; color: var(--danger); }
+.detail { color: var(--text); }
+.notes { color: var(--muted); font-style: italic; font-size: 11px; }

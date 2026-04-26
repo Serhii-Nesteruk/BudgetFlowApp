@@ -1,0 +1,56 @@
+.btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.4;
+}
+.btn:hover { background: var(--surface2); border-color: #b0b8c4; }
+
+.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.primary:hover { background: #1648c0; border-color: #1648c0; }
+
+.danger { color: var(--danger); border-color: #e8b4b0; }
+.danger:hover { background: var(--danger-bg); }
+
+.ghost { background: none; border-color: transparent; color: var(--muted); }
+.ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+
+.sm { padding: 3px 9px; font-size: 11px; }
+
+.tag {
+  display: inline-block;
+  background: #e8f0fe;
+  border: 1px solid #c7d9f8;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 7px;
+  border-radius: 100px;
+  margin: 1px;
+}
+
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: var(--font);
+}
+.chip:hover { border-color: #b0b8c4; color: var(--text); }
+.chipActive { background: var(--accent-bg); border-color: #c7d9f8; color: var(--accent); }
