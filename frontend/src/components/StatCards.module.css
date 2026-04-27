@@ -1,3 +1,10 @@
+:root {
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --fg: #111827;
+  --r: 8px;
+}
+
 .bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -27,4 +34,52 @@
   font-size: 11px;
   color: var(--muted);
   margin-top: 2px;
+}
+
+.timelineWrap {
+  position: relative;
+}
+
+.timelineWrap canvas {
+  display: block;
+  width: 100%;
+}
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  color: #111827;
+  font-size: 12px;
+  pointer-events: none;
+}
+.tooltipDate {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tooltipTotal {
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.tooltipList {
+  display: grid;
+  gap: 4px;
+}
+.tooltipPlace {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tooltipPlace span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tooltipPlace strong {
+  white-space: nowrap;
 }
