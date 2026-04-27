@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useExpenses } from "./hooks/useExpenses";
 import Header from "./components/Header";
 import StatCards from "./components/StatCards";
+import ScanReceiptModal from "./components/ScanReceiptModal";
 import Toolbar from "./components/Toolbar";
 import ExpenseTable from "./components/ExpenseTable";
 import StatsTab from "./components/StatsTab";
@@ -12,6 +13,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("table");
   const [modalOpen, setModalOpen] = useState(false);
   const [editEntry, setEditEntry] = useState(null);
+  const [scanOpen, setScanOpen] = useState(false);
 
   const {
     data, loading, error, filtered, allPlaces,
@@ -45,7 +47,13 @@ export default function App() {
 
   return (
     <>
-      <Header activeTab={activeTab} onTabChange={setActiveTab} onAdd={openAdd} />
+      <Header activeTab={activeTab} onTabChange={setActiveTab} onAdd={openAdd} onScanReceipt={() => setScanOpen(true)} />
+      {scanOpen && (
+        <ScanReceiptModal
+          onClose={() => setScanOpen(false)}
+          onSuccess={(data) => console.log("Розпізнано:", data)}
+        />
+      )}
 
       <div className={styles.container}>
         {error && (
