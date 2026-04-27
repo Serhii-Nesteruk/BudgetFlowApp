@@ -1,5 +1,6 @@
 import { useLoginForm } from "../../hooks/useLoginForm";
 import styles from "./Auth.module.css";
+import { Link } from "react-router-dom";
 
 export default function LoginForm() {
   const {
@@ -37,6 +38,10 @@ export default function LoginForm() {
       <button disabled={loading} className={styles.button}>
         {loading ? "Вхід..." : "Увійти"}
       </button>
+
+      <div className={styles.switch}>
+        Немає акаунту? <Link to="/register">Зареєструватися</Link>
+      </div>
     </form>
   );
 }
