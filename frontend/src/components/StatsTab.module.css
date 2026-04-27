@@ -40,3 +40,113 @@
 .topDate { font-size: 11px; color: var(--muted); }
 .topTags { font-size: 11px; color: var(--accent); }
 .topAmount { font-family: var(--mono); font-weight: 600; color: var(--danger); font-size: 13px; }
+
+
+.rangeSlider {
+  position: relative;
+  height: 44px;
+  margin-top: 10px;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.rangeSlider::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.rangeDim {
+  position: absolute;
+  top: 12px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.75); 
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.rangeActive {
+  position: absolute;
+  top: 12px;
+  height: 8px;
+  background: #1a56db;
+  opacity: 0.35;
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.rangeHandle {
+  position: absolute;
+  top: 4px;
+  width: 3px;
+  height: 24px;
+  background: #1a56db;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  cursor: ew-resize;
+  z-index: 2;
+}
+
+.rangeLabel {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: var(--mono);
+  color: #1a56db;
+  white-space: nowrap;
+}
+
+.timelineWrap {
+  position: relative;
+}
+
+.timelineWrap canvas {
+  display: block;
+  width: 100%;
+}
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  color: #111827;
+  font-size: 12px;
+  pointer-events: none;
+}
+.tooltipDate {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tooltipTotal {
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.tooltipList {
+  display: grid;
+  gap: 4px;
+}
+.tooltipPlace {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tooltipPlace span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tooltipPlace strong {
+  white-space: nowrap;
+}

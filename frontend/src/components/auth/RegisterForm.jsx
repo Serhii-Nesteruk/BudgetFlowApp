@@ -1,4 +1,5 @@
 import { useRegisterForm } from "../../hooks/useRegisterForm";
+import styles from "./Auth.module.css";
 
 export default function RegisterForm() {
   const {
@@ -14,15 +15,16 @@ export default function RegisterForm() {
   } = useRegisterForm();
 
   return (
-    <form onSubmit={submit}>
-      <h1>Реєстрація</h1>
+    <form onSubmit={submit} className={styles.form}>
+      <h1 className={styles.title}>Реєстрація</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className={styles.error}>{error}</p>}
 
       <input
         placeholder="Імʼя"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className={styles.input}
       />
 
       <input
@@ -30,6 +32,7 @@ export default function RegisterForm() {
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        className={styles.input}
       />
 
       <input
@@ -37,9 +40,10 @@ export default function RegisterForm() {
         placeholder="Пароль"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        className={styles.input}
       />
 
-      <button disabled={loading}>
+      <button disabled={loading} className={styles.button}>
         {loading ? "Реєстрація..." : "Зареєструватися"}
       </button>
     </form>

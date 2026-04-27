@@ -1,4 +1,5 @@
 import { useLoginForm } from "../../hooks/useLoginForm";
+import styles from "./Auth.module.css";
 
 export default function LoginForm() {
   const {
@@ -12,16 +13,17 @@ export default function LoginForm() {
   } = useLoginForm();
 
   return (
-    <form onSubmit={submit}>
-      <h1>Вхід</h1>
+    <form onSubmit={submit} className={styles.form}>
+      <h1 className={styles.title}>Вхід</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className={styles.error}>{error}</p>}
 
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        className={styles.input}
       />
 
       <input
@@ -29,9 +31,10 @@ export default function LoginForm() {
         placeholder="Пароль"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        className={styles.input}
       />
 
-      <button disabled={loading}>
+      <button disabled={loading} className={styles.button}>
         {loading ? "Вхід..." : "Увійти"}
       </button>
     </form>

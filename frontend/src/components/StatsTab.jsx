@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { entryTotal, fmtDate } from "../data/store";
 import styles from "./StatsTab.module.css";
 
@@ -21,6 +20,10 @@ export default function StatsTab({ data }) {
   const donutRef = useRef(null);
   const pointsRef = useRef([]);
 
+  const [range, setRange] = useState([0, 1]);
+  const sliderRef = useRef(null);
+  const dragRef = useRef(null); // 'left' | 'right' | null
+
   const [tooltip, setTooltip] = useState(null);
 
   const total = data.reduce((s, e) => s + entryTotal(e), 0);
@@ -37,6 +40,12 @@ export default function StatsTab({ data }) {
       placeCount[p.name] = (placeCount[p.name] || 0) + 1;
     })
   );
+
+  const allDates = [...new Set(data.map((e) => e.date))].sort();
+  const fromDate = allDates[Math.floor(range[0] * (allDates.length - 1))];
+  const toDate = allDates[Math.floor(range[1] * (allDates.length - 1))];
+  const filteredData = data.filter((e) => e.date >= fromDate && e.date <= toDate);
+
 
   const sp = Object.entries(placeTotals).sort((a, b) => b[1] - a[1]);
   const mv = sp[0]?.[1] || 1;
@@ -79,6 +88,25 @@ export default function StatsTab({ data }) {
   }, [data, sp]);
 
   useEffect(() => {
+    const onMove = (e) => {
+      if (!dragRef.current || !sliderRef.current) return;
+      const rect = sliderRef.current.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+      setRange((prev) => {
+        if (dragRef.current === 'left') return [Math.min(x, prev[1] - 0.01), prev[1]];
+        return [prev[0], Math.max(x, prev[0] + 0.01)];
+      });
+    };
+    const onUp = () => { dragRef.current = null; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, []);
+  
+  useEffect(() => {
     const canvas = timelineRef.current;
     if (!canvas) return;
 
@@ -92,7 +120,7 @@ export default function StatsTab({ data }) {
       const ctx = canvas.getContext("2d");
       const byDate = {};
 
-      data.forEach((entry) => {
+      filteredData.forEach((entry) => {
         byDate[entry.date] = {
           total: (byDate[entry.date]?.total || 0) + entryTotal(entry),
           entries: [...(byDate[entry.date]?.entries || []), entry],
@@ -191,7 +219,7 @@ export default function StatsTab({ data }) {
     return () => {
       ro.disconnect();
     };
-  }, [data]);
+  }, [filteredData]);
 
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;
@@ -229,7 +257,7 @@ export default function StatsTab({ data }) {
     setTooltip(null);
   }
 
-  const topEntries = [...data]
+  const topEntries = [...filteredData]
     .sort((a, b) => entryTotal(b) - entryTotal(a))
     .slice(0, 10);
 
@@ -265,6 +293,33 @@ export default function StatsTab({ data }) {
                 onMouseMove={handleTimelineMove}
                 onMouseLeave={handleTimelineLeave}
               />
+                {/* Range slider */}
+              <div className={styles.rangeSlider} ref={sliderRef}
+                onMouseDown={(e) => {
+                  const rect = sliderRef.current.getBoundingClientRect();
+                  const x = (e.clientX - rect.left) / rect.width;
+                  const distLeft = Math.abs(x - range[0]);
+                  const distRight = Math.abs(x - range[1]);
+                  dragRef.current = distLeft < distRight ? 'left' : 'right';
+                }}
+              >
+       
+                <div className={styles.rangeDim} style={{ left: 0, width: `${range[0] * 100}%` }} />
+               
+                <div className={styles.rangeDim} style={{ left: `${range[1] * 100}%`, right: 0 }} />
+           
+                <div className={styles.rangeActive}
+                  style={{ left: `${range[0] * 100}%`, width: `${(range[1] - range[0]) * 100}%` }}
+                />
+             
+                <div className={styles.rangeHandle} style={{ left: `${range[0] * 100}%` }}>
+                  <div className={styles.rangeLabel}>{fmtDate(fromDate)}</div>
+                </div>
+              
+                <div className={styles.rangeHandle} style={{ left: `${range[1] * 100}%` }}>
+                  <div className={styles.rangeLabel}>{fmtDate(toDate)}</div>
+                </div>
+              </div>
             </div>
           </div>
 
