@@ -1,35 +1,84 @@
-:root {
-  --border2: #e5e7eb;
-  --accent: #1a56db;
-}
-
 .bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin-bottom: 18px;
+  /* staggered entrance */
+  animation: slideUp var(--dur-slow) var(--ease-decel) both;
 }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 13px 18px;
+  padding: 15px 18px;
+  transition:
+    box-shadow  var(--dur-mid) var(--ease-out),
+    transform   var(--dur-mid) var(--ease-out),
+    border-color var(--dur-mid) var(--ease-out);
 }
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+  border-color: #ccc;
+}
+
+.card:first-child {
+  background: #1a1a18;
+  border-color: #1a1a18;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 11px;
+}
+
+.cardDefault .icon {
+  background: var(--surface2);
+}
+
 .label {
   font-size: 10px;
-  color: var(--muted);
+  color: rgba(255,255,255,0.38);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   font-weight: 600;
   margin-bottom: 5px;
 }
+
+.cardDefault .label {
+  color: var(--muted);
+}
+
 .value {
   font-family: var(--mono);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.03em;
 }
+
+.cardDefault .value {
+  color: var(--text);
+}
+
 .sub {
   font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 3px;
+}
+
+.cardDefault .sub {
   color: var(--muted);
-  margin-top: 2px;
 }

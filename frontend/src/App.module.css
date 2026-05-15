@@ -1,5 +1,42 @@
-.container {
-  width: 80%;
-  margin: 0 auto;
-  padding: 22px 0 60px;
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* content fades in on mount */
+  animation: pageFadeIn var(--dur-slow) var(--ease-decel) both;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.content {
+  flex: 1;
+  padding: 20px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.error {
+  color: var(--danger);
+  padding: 10px 16px;
+  background: var(--danger-bg);
+  border-radius: var(--r);
+  border: 1px solid #f5c0bb;
+  font-size: 13px;
+}
+
+.loading {
+  color: var(--muted);
+  padding: 80px;
+  text-align: center;
+  font-size: 13px;
 }

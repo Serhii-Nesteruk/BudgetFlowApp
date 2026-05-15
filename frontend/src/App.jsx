@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useExpenses } from "./hooks/useExpenses";
-import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
 import StatCards from "./components/StatCards";
 import ScanReceiptModal from "./components/ScanReceiptModal";
 import Toolbar from "./components/Toolbar";
@@ -46,52 +47,67 @@ export default function App() {
   }
 
   return (
-    <>
-      <Header activeTab={activeTab} onTabChange={setActiveTab} onAdd={openAdd} onScanReceipt={() => setScanOpen(true)} />
-      {scanOpen && (
-        <ScanReceiptModal
-          onClose={() => setScanOpen(false)}
-          onSuccess={(data) => console.log("Розпізнано:", data)}
+    <div className={styles.layout}>
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        allPlaces={allPlaces}
+        activePlaceFilter={activePlaceFilter}
+        onPlaceFilter={handlePlaceFilter}
+        onScanReceipt={() => setScanOpen(true)}
+        data={data}
+      />
+
+      <div className={styles.main}>
+        <Topbar
+          activeTab={activeTab}
+          search={search}
+          onSearch={(v) => { setSearch(v); setCurPage(1); }}
+          onAdd={openAdd}
+          onScanReceipt={() => setScanOpen(true)}
         />
-      )}
 
-      <div className={styles.container}>
-        {error && (
-          <div style={{ color: "var(--danger)", padding: "10px 16px", background: "var(--danger-bg)", borderRadius: "var(--r)", marginBottom: 16 }}>
-            ⚠ {error}
-          </div>
+        {scanOpen && (
+          <ScanReceiptModal
+            onClose={() => setScanOpen(false)}
+            onSuccess={(data) => console.log("Розпізнано:", data)}
+          />
         )}
 
-        {loading ? (
-          <div style={{ color: "var(--muted)", padding: "60px", textAlign: "center" }}>Завантаження…</div>
-        ) : (
-          <>
-            {activeTab === "table" && (
-              <>
-                <StatCards data={data} />
-                <Toolbar
-                  search={search} onSearch={(v) => { setSearch(v); setCurPage(1); }}
-                  filterFrom={filterFrom} onFilterFrom={(v) => { setFilterFrom(v); setCurPage(1); }}
-                  filterTo={filterTo} onFilterTo={(v) => { setFilterTo(v); setCurPage(1); }}
-                  onClear={clearFilters}
-                  allPlaces={allPlaces}
-                  activePlaceFilter={activePlaceFilter}
-                  onPlaceFilter={handlePlaceFilter}
-                />
-                <ExpenseTable
-                  filtered={filtered}
-                  expandedIds={expandedIds}
-                  curPage={curPage} setCurPage={setCurPage}
-                  sortCol={sortCol} sortDir={sortDir} onSort={sort}
-                  onToggleExpand={toggleExpand}
-                  onEdit={openEdit}
-                  onDelete={handleDelete}
-                />
-              </>
-            )}
-            {activeTab === "stats" && <StatsTab data={data} />}
-          </>
-        )}
+        <div className={styles.content}>
+          {error && <div className={styles.error}>⚠ {error}</div>}
+
+          {loading ? (
+            <div className={styles.loading}>Завантаження…</div>
+          ) : (
+            <>
+              {activeTab === "table" && (
+                <>
+                  <StatCards data={data} />
+                  <Toolbar
+                    search={search} onSearch={(v) => { setSearch(v); setCurPage(1); }}
+                    filterFrom={filterFrom} onFilterFrom={(v) => { setFilterFrom(v); setCurPage(1); }}
+                    filterTo={filterTo} onFilterTo={(v) => { setFilterTo(v); setCurPage(1); }}
+                    onClear={clearFilters}
+                    allPlaces={allPlaces}
+                    activePlaceFilter={activePlaceFilter}
+                    onPlaceFilter={handlePlaceFilter}
+                  />
+                  <ExpenseTable
+                    filtered={filtered}
+                    expandedIds={expandedIds}
+                    curPage={curPage} setCurPage={setCurPage}
+                    sortCol={sortCol} sortDir={sortDir} onSort={sort}
+                    onToggleExpand={toggleExpand}
+                    onEdit={openEdit}
+                    onDelete={handleDelete}
+                  />
+                </>
+              )}
+              {activeTab === "stats" && <StatsTab data={data} />}
+            </>
+          )}
+        </div>
       </div>
 
       <EntryModal
@@ -100,6 +116,6 @@ export default function App() {
         onSave={handleSave}
         onClose={() => setModalOpen(false)}
       />
-    </>
+    </div>
   );
 }
