@@ -25,6 +25,7 @@ export default function StatsTab({ data }) {
   const dragRef = useRef(null); // 'left' | 'right' | null
 
   const [tooltip, setTooltip] = useState(null);
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
   const total = data.reduce((s, e) => s + entryTotal(e), 0);
   const avg = data.length ? total / data.length : 0;
@@ -40,6 +41,22 @@ export default function StatsTab({ data }) {
       placeCount[p.name] = (placeCount[p.name] || 0) + 1;
     })
   );
+
+  // All unique place names sorted by total spend
+  const allPlaceNames = Object.keys(placeTotals).sort((a, b) => placeTotals[b] - placeTotals[a]);
+
+  // Transactions for selected place
+  const placeTransactions = selectedPlace
+    ? data
+        .flatMap((entry) =>
+          entry.places
+            .filter((p) => p.name === selectedPlace)
+            .map((p) => ({ ...p, date: entry.date, entryId: entry.id }))
+        )
+        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    : [];
+  const placeTotal = placeTransactions.reduce((s, p) => s + Number(p.amount || 0), 0);
+  const placeAvg = placeTransactions.length ? placeTotal / placeTransactions.length : 0;
 
   const allDates = [...new Set(data.map((e) => e.date))].sort();
   const fromDate = allDates[Math.floor(range[0] * (allDates.length - 1))];
@@ -398,6 +415,102 @@ export default function StatsTab({ data }) {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className={[styles.card, styles.full].join(" ")}>
+            <div className={styles.chartTitle}>Витрати за місцем</div>
+
+            <div className={styles.placeSelector}>
+              {allPlaceNames.map((name, i) => (
+                <button
+                  key={name}
+                  className={[
+                    styles.placeChip,
+                    selectedPlace === name ? styles.placeChipActive : "",
+                  ].join(" ")}
+                  style={
+                    selectedPlace === name
+                      ? {
+                          borderColor: COLORS[i % COLORS.length],
+                          background: COLORS[i % COLORS.length] + "18",
+                          color: COLORS[i % COLORS.length],
+                        }
+                      : {}
+                  }
+                  onClick={() =>
+                    setSelectedPlace((prev) => (prev === name ? null : name))
+                  }
+                >
+                  <span
+                    className={styles.placeChipDot}
+                    style={{ background: COLORS[i % COLORS.length] }}
+                  />
+                  {name}
+                  <span className={styles.placeChipAmt}>
+                    {placeTotals[name].toFixed(0)} zł
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {selectedPlace && (
+              <>
+                <div className={styles.placeSummary}>
+                  <div className={styles.placeSummaryItem}>
+                    <span className={styles.placeSummaryLabel}>Разом</span>
+                    <span className={styles.placeSummaryVal}>
+                      {placeTotal.toFixed(2)} zł
+                    </span>
+                  </div>
+                  <div className={styles.placeSummaryItem}>
+                    <span className={styles.placeSummaryLabel}>Записів</span>
+                    <span className={styles.placeSummaryVal}>
+                      {placeTransactions.length}
+                    </span>
+                  </div>
+                  <div className={styles.placeSummaryItem}>
+                    <span className={styles.placeSummaryLabel}>Середнє</span>
+                    <span className={styles.placeSummaryVal}>
+                      {placeAvg.toFixed(2)} zł
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.placeTable}>
+                  <div className={styles.placeTableHead}>
+                    <span>Дата</span>
+                    <span>Деталі</span>
+                    <span>Нотатки</span>
+                    <span className={styles.placeTableAmtCol}>Сума</span>
+                  </div>
+                  {placeTransactions.map((p) => (
+                    <div
+                      className={styles.placeTableRow}
+                      key={`${p.date}-${p.id || p.amount}`}
+                    >
+                      <span className={styles.placeTableDate}>
+                        {fmtDate(p.date)}
+                      </span>
+                      <span className={styles.placeTableDetails}>
+                        {p.details || "—"}
+                      </span>
+                      <span className={styles.placeTableNotes}>
+                        {p.notes || ""}
+                      </span>
+                      <span className={styles.placeTableAmtCol}>
+                        −{Number(p.amount).toFixed(2)} zł
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {!selectedPlace && (
+              <div className={styles.placeEmpty}>
+                Оберіть місце вище, щоб побачити всі витрати по ньому
+              </div>
+            )}
           </div>
 
           <div className={styles.card}>

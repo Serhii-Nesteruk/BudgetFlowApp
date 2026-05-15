@@ -150,3 +150,161 @@
 .tooltipPlace strong {
   white-space: nowrap;
 }
+
+/* ── Place breakdown ───────────────────────────────────────────────────── */
+
+.placeSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.placeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 11px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.placeChip:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.placeChipActive {
+  font-weight: 600;
+}
+
+.placeChipDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.placeChipAmt {
+  font-family: var(--mono);
+  font-size: 10px;
+  opacity: 0.75;
+  margin-left: 2px;
+}
+
+.placeSummary {
+  display: flex;
+  gap: 28px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  margin-bottom: 14px;
+}
+
+.placeSummaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.placeSummaryLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.placeSummaryVal {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.placeTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.placeTableHead {
+  display: grid;
+  grid-template-columns: 72px 1fr 1fr 100px;
+  gap: 0;
+  padding: 7px 12px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border2);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.placeTableRow {
+  display: grid;
+  grid-template-columns: 72px 1fr 1fr 100px;
+  gap: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border2);
+  font-size: 12px;
+  align-items: center;
+  transition: background 0.1s;
+}
+
+.placeTableRow:last-child {
+  border-bottom: none;
+}
+
+.placeTableRow:hover {
+  background: var(--accent-bg);
+}
+
+.placeTableDate {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.placeTableDetails {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
+.placeTableNotes {
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
+.placeTableAmtCol {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--danger);
+  font-size: 12px;
+  text-align: right;
+}
+
+.placeEmpty {
+  padding: 28px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
