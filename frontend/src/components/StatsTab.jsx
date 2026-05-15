@@ -3,26 +3,27 @@ import { entryTotal, fmtDate } from "../data/store";
 import styles from "./StatsTab.module.css";
 
 const COLORS = [
-  "#1a56db",
-  "#e35d3a",
-  "#16a34a",
-  "#b45309",
-  "#7c3aed",
-  "#0891b2",
-  "#be185d",
-  "#65a30d",
-  "#0369a1",
-  "#9333ea",
+  "#1a56db","#e35d3a","#16a34a","#b45309","#7c3aed",
+  "#0891b2","#be185d","#65a30d","#0369a1","#9333ea",
+];
+
+const TABS = [
+  { id: "overview", label: "Огляд" },
+  { id: "places",   label: "Місця" },
+  { id: "top",      label: "Топ витрат" },
 ];
 
 export default function StatsTab({ data }) {
+  const [activeSection, setActiveSection] = useState("overview");
+  const [panelKey, setPanelKey] = useState(0);
+
   const timelineRef = useRef(null);
   const donutRef = useRef(null);
   const pointsRef = useRef([]);
 
   const [range, setRange] = useState([0, 1]);
   const sliderRef = useRef(null);
-  const dragRef = useRef(null); // 'left' | 'right' | null
+  const dragRef = useRef(null);
 
   const [tooltip, setTooltip] = useState(null);
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -34,7 +35,6 @@ export default function StatsTab({ data }) {
 
   const placeTotals = {};
   const placeCount = {};
-
   data.forEach((e) =>
     e.places.forEach((p) => {
       placeTotals[p.name] = (placeTotals[p.name] || 0) + Number(p.amount || 0);
@@ -42,10 +42,8 @@ export default function StatsTab({ data }) {
     })
   );
 
-  // All unique place names sorted by total spend
   const allPlaceNames = Object.keys(placeTotals).sort((a, b) => placeTotals[b] - placeTotals[a]);
 
-  // Transactions for selected place
   const placeTransactions = selectedPlace
     ? data
         .flatMap((entry) =>
@@ -60,521 +58,304 @@ export default function StatsTab({ data }) {
 
   const allDates = [...new Set(data.map((e) => e.date))].sort();
   const fromDate = allDates[Math.floor(range[0] * (allDates.length - 1))];
-  const toDate = allDates[Math.floor(range[1] * (allDates.length - 1))];
+  const toDate   = allDates[Math.floor(range[1] * (allDates.length - 1))];
   const filteredData = data.filter((e) => e.date >= fromDate && e.date <= toDate);
-
 
   const sp = Object.entries(placeTotals).sort((a, b) => b[1] - a[1]);
   const mv = sp[0]?.[1] || 1;
-
   const sf = Object.entries(placeCount).sort((a, b) => b[1] - a[1]);
   const mf = sf[0]?.[1] || 1;
 
+  function switchSection(id) {
+    if (id === activeSection) return;
+    setActiveSection(id);
+    setPanelKey((k) => k + 1);
+  }
+
+  // Donut
   useEffect(() => {
     const dc = donutRef.current;
     if (!dc || !sp.length) return;
-
     const dctx = dc.getContext("2d");
-    const cx = 60;
-    const cy = 60;
-    const r = 52;
-    const inn = 26;
-
+    const cx = 60, cy = 60, r = 52, inn = 28;
     dctx.clearRect(0, 0, 120, 120);
-
     const tot2 = sp.reduce((s, [, v]) => s + v, 0);
     let ang = -Math.PI / 2;
-
     sp.forEach(([, v], i) => {
       const slice = (v / tot2) * Math.PI * 2;
-
-      dctx.beginPath();
-      dctx.moveTo(cx, cy);
+      dctx.beginPath(); dctx.moveTo(cx, cy);
       dctx.arc(cx, cy, r, ang, ang + slice);
       dctx.closePath();
-      dctx.fillStyle = COLORS[i % COLORS.length];
-      dctx.fill();
-
+      dctx.fillStyle = COLORS[i % COLORS.length]; dctx.fill();
       ang += slice;
     });
+    dctx.beginPath(); dctx.arc(cx, cy, inn, 0, Math.PI * 2);
+    dctx.fillStyle = "#fff"; dctx.fill();
+  }, [data, sp, activeSection]);
 
-    dctx.beginPath();
-    dctx.arc(cx, cy, inn, 0, Math.PI * 2);
-    dctx.fillStyle = "#fff";
-    dctx.fill();
-  }, [data, sp]);
-
+  // Slider
   useEffect(() => {
     const onMove = (e) => {
       if (!dragRef.current || !sliderRef.current) return;
       const rect = sliderRef.current.getBoundingClientRect();
       const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
       setRange((prev) => {
-        if (dragRef.current === 'left') return [Math.min(x, prev[1] - 0.01), prev[1]];
+        if (dragRef.current === "left") return [Math.min(x, prev[1] - 0.01), prev[1]];
         return [prev[0], Math.max(x, prev[0] + 0.01)];
       });
     };
     const onUp = () => { dragRef.current = null; };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
   }, []);
-  
+
+  // Timeline
   useEffect(() => {
     const canvas = timelineRef.current;
     if (!canvas) return;
-
     const draw = () => {
       const W = canvas.parentElement.offsetWidth - 2;
       const H = 160;
-
-      canvas.width = W;
-      canvas.height = H;
-
+      canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext("2d");
       const byDate = {};
-
       filteredData.forEach((entry) => {
-        byDate[entry.date] = {
-          total: (byDate[entry.date]?.total || 0) + entryTotal(entry),
-          entries: [...(byDate[entry.date]?.entries || []), entry],
-        };
+        byDate[entry.date] = { total: (byDate[entry.date]?.total || 0) + entryTotal(entry), entries: [...(byDate[entry.date]?.entries || []), entry] };
       });
-
       const dates = Object.keys(byDate).sort();
       const vals = dates.map((date) => byDate[date].total);
       const maxV = Math.max(...vals) || 1;
-
       const pad = { l: 46, r: 10, t: 10, b: 28 };
-      const W2 = W - pad.l - pad.r;
-      const H2 = H - pad.t - pad.b;
-
+      const W2 = W - pad.l - pad.r, H2 = H - pad.t - pad.b;
       ctx.clearRect(0, 0, W, H);
-      ctx.font = "10px IBM Plex Mono";
-
+      ctx.font = "10px DM Mono, monospace";
       [0, 0.25, 0.5, 0.75, 1].forEach((t) => {
         const y = pad.t + H2 * (1 - t);
-
-        ctx.strokeStyle = "#e4e6ea";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(pad.l, y);
-        ctx.lineTo(W - pad.r, y);
-        ctx.stroke();
-
-        ctx.fillStyle = "#9ca3af";
-        ctx.textAlign = "right";
+        ctx.strokeStyle = "#e4e6ea"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+        ctx.fillStyle = "#9ca3af"; ctx.textAlign = "right";
         ctx.fillText(Math.round(maxV * t) + "zł", pad.l - 4, y + 4);
       });
-
-      if (!dates.length) {
-        pointsRef.current = [];
-        return;
-      }
-
+      if (!dates.length) { pointsRef.current = []; return; }
       const pts = dates.map((date, i) => ({
-        date,
-        total: byDate[date].total,
-        entries: byDate[date].entries,
+        date, total: byDate[date].total, entries: byDate[date].entries,
         x: pad.l + (dates.length > 1 ? i / (dates.length - 1) : 0.5) * W2,
         y: pad.t + H2 * (1 - vals[i] / maxV),
       }));
-
       pointsRef.current = pts;
-
       const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
-      grad.addColorStop(0, "rgba(26,86,219,0.15)");
-      grad.addColorStop(1, "rgba(26,86,219,0)");
-
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, H - pad.b);
+      grad.addColorStop(0, "rgba(26,86,219,0.13)"); grad.addColorStop(1, "rgba(26,86,219,0)");
+      ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad.b);
       pts.forEach((p) => ctx.lineTo(p.x, p.y));
-      ctx.lineTo(pts[pts.length - 1].x, H - pad.b);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.strokeStyle = "#1a56db";
-      ctx.lineWidth = 1.5;
-      pts.forEach((p, i) =>
-        i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)
-      );
+      ctx.lineTo(pts[pts.length - 1].x, H - pad.b); ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.beginPath(); ctx.strokeStyle = "#1a56db"; ctx.lineWidth = 1.5;
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
       ctx.stroke();
-
       pts.forEach((p) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = "#fff";
-        ctx.fill();
-        ctx.strokeStyle = "#1a56db";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff"; ctx.fill();
+        ctx.strokeStyle = "#1a56db"; ctx.lineWidth = 1.5; ctx.stroke();
       });
-
       const step = Math.ceil(dates.length / 9);
-
-      ctx.fillStyle = "#9ca3af";
-      ctx.font = "9px IBM Plex Mono";
-      ctx.textAlign = "center";
-
-      pts.forEach((p, i) => {
-        if (i % step === 0 || i === dates.length - 1) {
-          ctx.fillText(fmtDate(dates[i]), p.x, H - 6);
-        }
-      });
+      ctx.fillStyle = "#9ca3af"; ctx.font = "9px DM Mono, monospace"; ctx.textAlign = "center";
+      pts.forEach((p, i) => { if (i % step === 0 || i === dates.length - 1) ctx.fillText(fmtDate(dates[i]), p.x, H - 6); });
     };
-
     draw();
-
     const ro = new ResizeObserver(draw);
     ro.observe(canvas.parentElement);
-
-    return () => {
-      ro.disconnect();
-    };
+    return () => ro.disconnect();
   }, [filteredData]);
 
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;
     if (!canvas) return;
-
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    const mouseX = (e.clientX - rect.left) * scaleX;
-    const mouseY = (e.clientY - rect.top) * scaleY;
-
-    const nearest = pointsRef.current
-      .map((point) => ({
-        ...point,
-        distance: Math.hypot(point.x - mouseX, point.y - mouseY),
-      }))
-      .sort((a, b) => a.distance - b.distance)[0];
-
-    if (!nearest || nearest.distance > 24) {
-      setTooltip(null);
-      return;
-    }
-    setTooltip({
-      x: e.clientX + 14,
-      y: e.clientY - 10,
-      date: nearest.date,
-      total: nearest.total,
-      entries: nearest.entries,
-    });
-
-    console.log('SET', e.clientX, e.clientY, nearest.date);
+    const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX, mouseY = (e.clientY - rect.top) * scaleY;
+    const nearest = pointsRef.current.map((p) => ({ ...p, distance: Math.hypot(p.x - mouseX, p.y - mouseY) })).sort((a, b) => a.distance - b.distance)[0];
+    if (!nearest || nearest.distance > 24) { setTooltip(null); return; }
+    setTooltip({ x: e.clientX + 14, y: e.clientY - 10, date: nearest.date, total: nearest.total, entries: nearest.entries });
   }
-  function handleTimelineLeave() {
-    setTooltip(null);
-  }
+  function handleTimelineLeave() { setTooltip(null); }
 
-  const topEntries = [...filteredData]
-    .sort((a, b) => entryTotal(b) - entryTotal(a))
-    .slice(0, 10);
+  const topEntries = [...filteredData].sort((a, b) => entryTotal(b) - entryTotal(a)).slice(0, 10);
 
   return (
-    <>
-      <div>
-        <div className={styles.statsBar}>
-          <SCard
-            label="Загальні витрати"
-            value={`${total.toFixed(0)} zł`}
-            sub={`${data.length} записів`}
-          />
-          <SCard
-            label="Середня витрата"
-            value={`${avg.toFixed(1)} zł`}
-            sub="на запис"
-          />
-          <SCard
-            label="Активних днів"
-            value={String(days)}
-            sub={`макс. ${max.toFixed(0)} zł`}
-          />
+    <div className={styles.root}>
+      <div className={styles.statsBar}>
+        <SCard label="Загальні витрати" value={`${total.toFixed(0)} zł`} sub={`${data.length} записів`} />
+        <SCard label="Середня витрата"  value={`${avg.toFixed(1)} zł`}   sub="на запис" />
+        <SCard label="Активних днів"    value={String(days)}              sub={`макс. ${max.toFixed(0)} zł`} />
+      </div>
+
+      <div className={styles.tabsRow}>
+        <div className={styles.tabsPill}>
+          {TABS.map((tab) => (
+            <button key={tab.id}
+              className={[styles.tab, activeSection === tab.id ? styles.tabActive : ""].join(" ")}
+              onClick={() => switchSection(tab.id)}>
+              {tab.label}
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className={styles.grid}>
-          <div className={[styles.card, styles.full].join(" ")}>
-            <div className={styles.chartTitle}>Витрати по днях</div>
+      <div className={styles.panel} key={panelKey}>
 
-            <div className={styles.timelineWrap}>
-              <canvas
-                ref={timelineRef}
-                height={160}
-                onMouseMove={handleTimelineMove}
-                onMouseLeave={handleTimelineLeave}
-              />
-                {/* Range slider */}
-              <div className={styles.rangeSlider} ref={sliderRef}
-                onMouseDown={(e) => {
-                  const rect = sliderRef.current.getBoundingClientRect();
-                  const x = (e.clientX - rect.left) / rect.width;
-                  const distLeft = Math.abs(x - range[0]);
-                  const distRight = Math.abs(x - range[1]);
-                  dragRef.current = distLeft < distRight ? 'left' : 'right';
-                }}
-              >
-       
-                <div className={styles.rangeDim} style={{ left: 0, width: `${range[0] * 100}%` }} />
-               
-                <div className={styles.rangeDim} style={{ left: `${range[1] * 100}%`, right: 0 }} />
-           
-                <div className={styles.rangeActive}
-                  style={{ left: `${range[0] * 100}%`, width: `${(range[1] - range[0]) * 100}%` }}
-                />
-             
-                <div className={styles.rangeHandle} style={{ left: `${range[0] * 100}%` }}>
-                  <div className={styles.rangeLabel}>{fmtDate(fromDate)}</div>
-                </div>
-              
-                <div className={styles.rangeHandle} style={{ left: `${range[1] * 100}%` }}>
-                  <div className={styles.rangeLabel}>{fmtDate(toDate)}</div>
+        {activeSection === "overview" && (
+          <div className={styles.grid}>
+            <div className={[styles.card, styles.full].join(" ")}>
+              <div className={styles.chartTitle}>Витрати по днях</div>
+              <div className={styles.timelineWrap}>
+                <canvas ref={timelineRef} height={160} onMouseMove={handleTimelineMove} onMouseLeave={handleTimelineLeave} />
+                <div className={styles.rangeSlider} ref={sliderRef}
+                  onMouseDown={(e) => {
+                    const rect = sliderRef.current.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    dragRef.current = Math.abs(x - range[0]) < Math.abs(x - range[1]) ? "left" : "right";
+                  }}>
+                  <div className={styles.rangeDim} style={{ left: 0, width: `${range[0] * 100}%` }} />
+                  <div className={styles.rangeDim} style={{ left: `${range[1] * 100}%`, right: 0 }} />
+                  <div className={styles.rangeActive} style={{ left: `${range[0] * 100}%`, width: `${(range[1] - range[0]) * 100}%` }} />
+                  <div className={styles.rangeHandle} style={{ left: `${range[0] * 100}%` }}><div className={styles.rangeLabel}>{fmtDate(fromDate)}</div></div>
+                  <div className={styles.rangeHandle} style={{ left: `${range[1] * 100}%` }}><div className={styles.rangeLabel}>{fmtDate(toDate)}</div></div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className={styles.card}>
-            <div className={styles.chartTitle}>Топ місць — загальна сума</div>
-
-            <div className={styles.barChart}>
-              {sp.map(([name, val], i) => (
-                <div className={styles.barRow} key={name}>
-                  <div className={styles.barLabel} title={name}>
-                    {name}
-                  </div>
-
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{
-                        width: `${(val / mv) * 100}%`,
-                        background: COLORS[i % COLORS.length],
-                      }}
-                    />
-                  </div>
-
-                  <div className={styles.barVal}>{val.toFixed(0)} zł</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.card}>
-            <div className={styles.chartTitle}>Розподіл витрат по місцях</div>
-
-            <div className={styles.donutWrap}>
-              <canvas
-                ref={donutRef}
-                width={120}
-                height={120}
-                style={{ flexShrink: 0 }}
-              />
-
-              <div className={styles.donutLegend}>
+            <div className={styles.card}>
+              <div className={styles.chartTitle}>Топ місць — загальна сума</div>
+              <div className={styles.barChart}>
                 {sp.slice(0, 8).map(([name, val], i) => (
-                  <div className={styles.legendRow} key={name}>
-                    <div
-                      className={styles.legendDot}
-                      style={{ background: COLORS[i % COLORS.length] }}
-                    />
-                    <span className={styles.legendName}>{name}</span>
-                    <span className={styles.legendVal}>
-                      {val.toFixed(0)} zł
-                    </span>
+                  <div className={styles.barRow} key={name}>
+                    <div className={styles.barLabel} title={name}>{name}</div>
+                    <div className={styles.barTrack}><div className={styles.barFill} style={{ width: `${(val / mv) * 100}%`, background: COLORS[i % COLORS.length] }} /></div>
+                    <div className={styles.barVal}>{val.toFixed(0)} zł</div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
 
-          <div className={styles.card}>
-            <div className={styles.chartTitle}>Топ-10 найбільших витрат</div>
-
-            <div className={styles.topList}>
-              {topEntries.map((e, i) => (
-                <div className={styles.topItem} key={e.id}>
-                  <div className={styles.topRank}>#{i + 1}</div>
-
-                  <div className={styles.topInfo}>
-                    <div className={styles.topDate}>{fmtDate(e.date)}</div>
-                    <div className={styles.topTags}>
-                      {e.places.map((p) => p.name).join(", ")}
+            <div className={styles.card}>
+              <div className={styles.chartTitle}>Розподіл витрат по місцях</div>
+              <div className={styles.donutWrap}>
+                <canvas ref={donutRef} width={120} height={120} style={{ flexShrink: 0 }} />
+                <div className={styles.donutLegend}>
+                  {sp.slice(0, 8).map(([name, val], i) => (
+                    <div className={styles.legendRow} key={name}>
+                      <div className={styles.legendDot} style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className={styles.legendName}>{name}</span>
+                      <span className={styles.legendVal}>{val.toFixed(0)} zł</span>
                     </div>
-                  </div>
-
-                  <div className={styles.topAmount}>
-                    −{entryTotal(e).toFixed(0)} zł
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
+        )}
 
-          <div className={[styles.card, styles.full].join(" ")}>
+        {activeSection === "places" && (
+          <div className={styles.card}>
             <div className={styles.chartTitle}>Витрати за місцем</div>
-
             <div className={styles.placeSelector}>
               {allPlaceNames.map((name, i) => (
-                <button
-                  key={name}
-                  className={[
-                    styles.placeChip,
-                    selectedPlace === name ? styles.placeChipActive : "",
-                  ].join(" ")}
-                  style={
-                    selectedPlace === name
-                      ? {
-                          borderColor: COLORS[i % COLORS.length],
-                          background: COLORS[i % COLORS.length] + "18",
-                          color: COLORS[i % COLORS.length],
-                        }
-                      : {}
-                  }
-                  onClick={() =>
-                    setSelectedPlace((prev) => (prev === name ? null : name))
-                  }
-                >
-                  <span
-                    className={styles.placeChipDot}
-                    style={{ background: COLORS[i % COLORS.length] }}
-                  />
+                <button key={name}
+                  className={[styles.placeChip, selectedPlace === name ? styles.placeChipActive : ""].join(" ")}
+                  style={selectedPlace === name ? { borderColor: COLORS[i % COLORS.length], background: COLORS[i % COLORS.length] + "18", color: COLORS[i % COLORS.length] } : {}}
+                  onClick={() => setSelectedPlace((prev) => (prev === name ? null : name))}>
+                  <span className={styles.placeChipDot} style={{ background: COLORS[i % COLORS.length] }} />
                   {name}
-                  <span className={styles.placeChipAmt}>
-                    {placeTotals[name].toFixed(0)} zł
-                  </span>
+                  <span className={styles.placeChipAmt}>{placeTotals[name].toFixed(0)} zł</span>
                 </button>
               ))}
             </div>
 
             {selectedPlace && (
-              <>
+              <div className={styles.placeDetail}>
                 <div className={styles.placeSummary}>
                   <div className={styles.placeSummaryItem}>
                     <span className={styles.placeSummaryLabel}>Разом</span>
-                    <span className={styles.placeSummaryVal}>
-                      {placeTotal.toFixed(2)} zł
-                    </span>
+                    <span className={styles.placeSummaryVal}>{placeTotal.toFixed(2)} zł</span>
                   </div>
                   <div className={styles.placeSummaryItem}>
                     <span className={styles.placeSummaryLabel}>Записів</span>
-                    <span className={styles.placeSummaryVal}>
-                      {placeTransactions.length}
-                    </span>
+                    <span className={styles.placeSummaryVal}>{placeTransactions.length}</span>
                   </div>
                   <div className={styles.placeSummaryItem}>
                     <span className={styles.placeSummaryLabel}>Середнє</span>
-                    <span className={styles.placeSummaryVal}>
-                      {placeAvg.toFixed(2)} zł
-                    </span>
+                    <span className={styles.placeSummaryVal}>{placeAvg.toFixed(2)} zł</span>
                   </div>
                 </div>
-
                 <div className={styles.placeTable}>
                   <div className={styles.placeTableHead}>
-                    <span>Дата</span>
-                    <span>Деталі</span>
-                    <span>Нотатки</span>
-                    <span className={styles.placeTableAmtCol}>Сума</span>
+                    <span>Дата</span><span>Деталі</span><span>Нотатки</span><span className={styles.placeTableAmtCol}>Сума</span>
                   </div>
                   {placeTransactions.map((p) => (
-                    <div
-                      className={styles.placeTableRow}
-                      key={`${p.date}-${p.id || p.amount}`}
-                    >
-                      <span className={styles.placeTableDate}>
-                        {fmtDate(p.date)}
-                      </span>
-                      <span className={styles.placeTableDetails}>
-                        {p.details || "—"}
-                      </span>
-                      <span className={styles.placeTableNotes}>
-                        {p.notes || ""}
-                      </span>
-                      <span className={styles.placeTableAmtCol}>
-                        −{Number(p.amount).toFixed(2)} zł
-                      </span>
+                    <div className={styles.placeTableRow} key={`${p.date}-${p.id || p.amount}`}>
+                      <span className={styles.placeTableDate}>{fmtDate(p.date)}</span>
+                      <span className={styles.placeTableDetails}>{p.details || "—"}</span>
+                      <span className={styles.placeTableNotes}>{p.notes || ""}</span>
+                      <span className={styles.placeTableAmtCol}>−{Number(p.amount).toFixed(2)} zł</span>
                     </div>
                   ))}
                 </div>
-              </>
-            )}
-
-            {!selectedPlace && (
-              <div className={styles.placeEmpty}>
-                Оберіть місце вище, щоб побачити всі витрати по ньому
               </div>
             )}
+            {!selectedPlace && <div className={styles.placeEmpty}>Оберіть місце вище, щоб побачити всі витрати по ньому</div>}
           </div>
+        )}
 
-          <div className={styles.card}>
-            <div className={styles.chartTitle}>Частота відвідувань місць</div>
-
-            <div className={styles.barChart}>
-              {sf.map(([name, count], i) => (
-                <div className={styles.barRow} key={name}>
-                  <div className={styles.barLabel} title={name}>
-                    {name}
+        {activeSection === "top" && (
+          <div className={styles.grid}>
+            <div className={styles.card}>
+              <div className={styles.chartTitle}>Топ-10 найбільших витрат</div>
+              <div className={styles.topList}>
+                {topEntries.map((e, i) => (
+                  <div className={styles.topItem} key={e.id}>
+                    <div className={styles.topRank}>#{i + 1}</div>
+                    <div className={styles.topInfo}>
+                      <div className={styles.topDate}>{fmtDate(e.date)}</div>
+                      <div className={styles.topTags}>{e.places.map((p) => p.name).join(", ")}</div>
+                    </div>
+                    <div className={styles.topAmount}>−{entryTotal(e).toFixed(0)} zł</div>
                   </div>
+                ))}
+              </div>
+            </div>
 
-                  <div className={styles.barTrack}>
-                    <div
-                      className={styles.barFill}
-                      style={{
-                        width: `${(count / mf) * 100}%`,
-                        background: COLORS[i % COLORS.length],
-                      }}
-                    />
+            <div className={styles.card}>
+              <div className={styles.chartTitle}>Частота відвідувань місць</div>
+              <div className={styles.barChart}>
+                {sf.map(([name, count], i) => (
+                  <div className={styles.barRow} key={name}>
+                    <div className={styles.barLabel} title={name}>{name}</div>
+                    <div className={styles.barTrack}><div className={styles.barFill} style={{ width: `${(count / mf) * 100}%`, background: COLORS[i % COLORS.length] }} /></div>
+                    <div className={styles.barVal}>{count}×</div>
                   </div>
-
-                  <div className={styles.barVal}>{count}×</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {tooltip && (
-      <div
-        style={{
-          position: 'fixed',
-          zIndex: 99999,
-          left: tooltip.x,
-          top: tooltip.y,
-          minWidth: '200px',
-          maxWidth: '300px',
-          padding: '10px 14px',
-          borderRadius: 'var(--r)',
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-          color: 'var(--text)',
-          fontSize: '12px',
-          pointerEvents: 'none',
-        }}
-      >
-        <div style={{ fontWeight: 700, marginBottom: 4 }}>{fmtDate(tooltip.date)}</div>
-        <div style={{ color: 'var(--muted)', marginBottom: 8 }}>{tooltip.total.toFixed(2)} zł</div>
-        <div style={{ display: 'grid', gap: 4 }}>
-          {tooltip.entries.flatMap((entry) =>
-            entry.places.map((place) => (
-              <div key={place.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{place.name}</span>
-                <strong style={{ whiteSpace: 'nowrap' }}>{Number(place.amount).toFixed(2)} zł</strong>
+        <div style={{ position: "fixed", zIndex: 99999, left: tooltip.x, top: tooltip.y, minWidth: "200px", maxWidth: "300px", padding: "10px 14px", borderRadius: "var(--r)", background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", color: "var(--text)", fontSize: "12px", pointerEvents: "none" }}>
+          <div style={{ fontWeight: 700, marginBottom: 4 }}>{fmtDate(tooltip.date)}</div>
+          <div style={{ color: "var(--muted)", marginBottom: 8 }}>{tooltip.total.toFixed(2)} zł</div>
+          <div style={{ display: "grid", gap: 4 }}>
+            {tooltip.entries.flatMap((entry) => entry.places.map((place) => (
+              <div key={place.id} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{place.name}</span>
+                <strong style={{ whiteSpace: "nowrap" }}>{Number(place.amount).toFixed(2)} zł</strong>
               </div>
-            ))
-          )}
+            )))}
+          </div>
         </div>
-      </div>
-    )}
-    </>
+      )}
+    </div>
   );
 }
 

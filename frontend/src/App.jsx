@@ -51,11 +51,7 @@ export default function App() {
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        allPlaces={allPlaces}
-        activePlaceFilter={activePlaceFilter}
-        onPlaceFilter={handlePlaceFilter}
         onScanReceipt={() => setScanOpen(true)}
-        data={data}
       />
 
       <div className={styles.main}>
