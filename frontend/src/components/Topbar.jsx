@@ -19,7 +19,7 @@ const IconPlus = () => (
   </svg>
 );
 
-const TAB_LABELS = { table: "Таблиця витрат", stats: "Статистика" };
+const TAB_LABELS = { table: "Таблиця витрат", stats: "Статистика", budget: "Планування бюджету" };
 
 export default function Topbar({ activeTab, search, onSearch, onAdd, onScanReceipt }) {
   return (
