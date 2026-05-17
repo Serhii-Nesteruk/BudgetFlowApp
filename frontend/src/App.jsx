@@ -63,13 +63,6 @@ export default function App() {
           onScanReceipt={() => setScanOpen(true)}
         />
 
-        {scanOpen && (
-          <ScanReceiptModal
-            onClose={() => setScanOpen(false)}
-            onSuccess={(data) => console.log("Розпізнано:", data)}
-          />
-        )}
-
         <div className={styles.content}>
           {error && <div className={styles.error}>⚠ {error}</div>}
 
@@ -112,6 +105,13 @@ export default function App() {
         onSave={handleSave}
         onClose={() => setModalOpen(false)}
       />
+
+      {scanOpen && (
+        <ScanReceiptModal
+          onClose={() => setScanOpen(false)}
+          onSuccess={(data) => console.log("Розпізнано:", data)}
+        />
+      )}
     </div>
   );
 }
