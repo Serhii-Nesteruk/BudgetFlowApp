@@ -112,3 +112,36 @@
 
 .btnPrimary:hover  { opacity: 0.82; }
 .btnPrimary:active { transform: scale(0.97); }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .topbar {
+    padding: 10px 20px;
+    gap: 10px;
+  }
+  .searchWrap {
+    max-width: 280px;
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .searchWrap {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+    flex: unset;
+  }
+  .actions {
+    display: none;
+  }
+}

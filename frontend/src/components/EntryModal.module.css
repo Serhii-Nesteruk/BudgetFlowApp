@@ -209,3 +209,21 @@
 
 .footerBtnPrimary:hover  { opacity: 0.82; }
 .footerBtnPrimary:active { transform: scale(0.97); }
+
+/* ── Mobile: bottom sheet style ── */
+@media (max-width: 640px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    max-width: 100%;
+    border-radius: 18px 18px 0 0;
+    max-height: 90vh;
+    animation: sheetIn var(--dur-mid) var(--ease-decel) both;
+  }
+  @keyframes sheetIn {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+}

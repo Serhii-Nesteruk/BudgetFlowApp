@@ -103,3 +103,39 @@
   background: var(--surface2);
   color: var(--text);
 }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .toolbar {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .toolbar {
+    padding: 9px 10px;
+    gap: 6px;
+    border-radius: var(--r);
+  }
+  .label {
+    display: none;
+  }
+  .inputDate {
+    width: 120px;
+    font-size: 11.5px;
+    padding: 5px 8px;
+  }
+  .divider {
+    display: none;
+  }
+  .chip {
+    font-size: 11px;
+    padding: 3px 9px;
+  }
+  .btnClear {
+    font-size: 11px;
+    padding: 4px 9px;
+  }
+}

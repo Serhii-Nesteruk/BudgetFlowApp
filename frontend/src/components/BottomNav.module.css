@@ -1,0 +1,107 @@
+/* Hidden on desktop and tablet — sidebar handles navigation there */
+.nav {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(26, 26, 24, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 4px env(safe-area-inset-bottom, 0px);
+    height: 64px;
+  }
+
+  /* Two equal halves flanking the FAB */
+  .side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .tabBtn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.35);
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition:
+      color      var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tabBtn:active {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .tabBtnActive {
+    color: #fff;
+  }
+
+  .tabIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--dur-fast) var(--ease-spring);
+  }
+
+  .tabBtnActive .tabIcon {
+    transform: translateY(-1px);
+  }
+
+  .tabLabel {
+    letter-spacing: 0.01em;
+  }
+
+  /* Centered FAB wrapper — not flex-grow so it stays centered */
+  .fabWrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+  }
+
+  .fabBtn {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: #fff;
+    border: none;
+    color: #1a1a18;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    transition:
+      transform  var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fabBtn:active {
+    transform: scale(0.91);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+}

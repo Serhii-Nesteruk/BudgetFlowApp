@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useExpenses } from "./hooks/useExpenses";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import BottomNav from "./components/BottomNav";
 import StatCards from "./components/StatCards";
 import ScanReceiptModal from "./components/ScanReceiptModal";
 import Toolbar from "./components/Toolbar";
@@ -98,6 +99,13 @@ export default function App() {
           )}
         </div>
       </div>
+
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onScanReceipt={() => setScanOpen(true)}
+        onAdd={openAdd}
+      />
 
       <EntryModal
         open={modalOpen}

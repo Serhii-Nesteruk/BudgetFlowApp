@@ -299,3 +299,72 @@
 .placeTableAmtCol  { font-family: var(--mono); font-weight: 600; color: var(--danger); font-size: 12px; text-align: right; }
 
 .placeEmpty { padding: 28px 0; text-align: center; color: var(--muted); font-size: 12px; }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .statsBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .statsBar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .sCard {
+    padding: 11px 13px;
+  }
+  .sValue {
+    font-size: 17px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    padding: 14px 14px;
+  }
+
+  .presets {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tabsPill {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .placeTableHead,
+  .placeTableRow {
+    grid-template-columns: 60px 1fr 80px;
+  }
+  /* hide notes column on mobile */
+  .placeTableHead > *:nth-child(3),
+  .placeTableRow > *:nth-child(3) {
+    display: none;
+  }
+
+  .barLabel {
+    width: 70px;
+    font-size: 10px;
+  }
+
+  .barVal {
+    width: 50px;
+    font-size: 10px;
+  }
+
+  .donutWrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

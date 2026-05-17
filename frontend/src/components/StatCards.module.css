@@ -82,3 +82,29 @@
 .cardDefault .sub {
   color: var(--muted);
 }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .bar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .card {
+    padding: 12px 14px;
+  }
+  .value {
+    font-size: 18px;
+  }
+  .icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 8px;
+  }
+}

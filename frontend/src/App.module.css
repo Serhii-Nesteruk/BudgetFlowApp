@@ -40,3 +40,18 @@
   text-align: center;
   font-size: 13px;
 }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .content {
+    padding: 16px 20px 80px;
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .content {
+    padding: 12px 12px 80px;
+    gap: 10px;
+  }
+}
