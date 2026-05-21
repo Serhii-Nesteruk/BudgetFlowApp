@@ -2,7 +2,8 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   animation: slideUp var(--dur-slow) var(--ease-decel) 100ms both;
 }
 
@@ -13,7 +14,9 @@
 
 .table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .table thead { background: var(--surface2); }
@@ -40,6 +43,7 @@
   font-size: 13px;
   border-bottom: 1px solid var(--border2);
   vertical-align: middle;
+  overflow: hidden;
 }
 
 .table tr:last-child td { border-bottom: none; }
@@ -93,7 +97,13 @@
 .sa { margin-left: 3px; color: var(--muted); font-size: 10px; }
 .sorted { color: var(--text); }
 
-.rowActions { display: flex; gap: 4px; justify-content: flex-end; }
+.rowActions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  min-width: 148px;
+}
 
 .btnSm {
   background: none;
@@ -107,6 +117,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition:
     background   var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),

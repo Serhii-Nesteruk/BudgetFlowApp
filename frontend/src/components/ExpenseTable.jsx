@@ -62,7 +62,7 @@ export default function ExpenseTable({
                     <td className={styles.amount}>−{ttl.toFixed(2).replace(/\.00$/, "")} zł</td>
                     <td>{places.map((p) => <Tag key={p}>{p}</Tag>)}</td>
                     <td><span className={styles.detailSummary}>{detail}</span></td>
-                    <td onClick={(e) => e.stopPropagation()}>
+                    <td onClick={(e) => e.stopPropagation()} style={{ whiteSpace: "nowrap" }}>
                       <div className={styles.rowActions}>
                         <button className={styles.btnSm} onClick={() => onEdit(entry.id)} title="Редагувати">
                           <IconEdit /><span className={styles.btnLabel}>Редагувати</span>
