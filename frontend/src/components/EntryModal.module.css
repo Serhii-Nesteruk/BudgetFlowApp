@@ -39,6 +39,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
 }
 
 .title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
@@ -147,9 +151,11 @@
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
-  padding: 0 3px;
+  padding: 4px 6px;
   flex-shrink: 0;
+  border-radius: 5px;
   transition: color var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .removeBtn:hover { color: var(--danger); }
@@ -173,6 +179,10 @@
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  z-index: 2;
 }
 
 .footerBtn {
@@ -210,7 +220,7 @@
 .footerBtnPrimary:hover  { opacity: 0.82; }
 .footerBtnPrimary:active { transform: scale(0.97); }
 
-/* ── Mobile: bottom sheet style ── */
+/* ── Mobile: full bottom sheet ── */
 @media (max-width: 640px) {
   .overlay {
     align-items: flex-end;
@@ -218,12 +228,72 @@
   }
   .modal {
     max-width: 100%;
-    border-radius: 18px 18px 0 0;
-    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
     animation: sheetIn var(--dur-mid) var(--ease-decel) both;
   }
   @keyframes sheetIn {
     from { transform: translateY(100%); }
     to   { transform: translateY(0); }
+  }
+
+  /* Drag handle */
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+  .header {
+    position: relative;
+    padding-top: 22px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* Larger touch targets on mobile */
+  .input {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 11px 13px;
+    border-radius: 10px;
+  }
+  .addBtn {
+    padding: 11px 16px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .placeAmount {
+    width: 100px;
+    font-size: 15px;
+  }
+  .placeCard {
+    padding: 12px 14px;
+    gap: 9px;
+    border-radius: 10px;
+  }
+  .removeBtn {
+    font-size: 20px;
+    padding: 6px 8px;
+  }
+  .footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+  .footerBtn, .footerBtnPrimary {
+    flex: 1;
+    padding: 13px;
+    font-size: 15px;
+    border-radius: 12px;
+    justify-content: center;
+  }
+  .footerBtnPrimary {
+    flex: 2;
   }
 }

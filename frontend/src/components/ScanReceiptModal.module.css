@@ -219,3 +219,33 @@
     max-height: 90vh;
   }
 }
+
+/* ── Mobile additions ── */
+@media (max-width: 640px) {
+  .modal {
+    animation: sheetIn var(--dur-mid) var(--ease-decel) both;
+  }
+  @keyframes sheetIn {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  .footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+
+  /* Larger touch-friendly buttons */
+  .footer button {
+    flex: 1;
+    padding: 13px;
+    font-size: 15px;
+    border-radius: 12px;
+    justify-content: center;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}

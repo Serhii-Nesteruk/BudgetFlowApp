@@ -14,7 +14,6 @@ const TABS = [
   { id: "top",      label: "Топ витрат" },
 ];
 
-// Повертає дату N днів тому у форматі YYYY-MM-DD
 function daysAgo(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
@@ -25,21 +24,18 @@ export default function StatsTab({ data }) {
   const [activeSection, setActiveSection] = useState("overview");
   const [panelKey, setPanelKey]           = useState(0);
 
-  // ── Глобальний діапазон дат ──────────────────────────────────────────
   const allDates = [...new Set(data.map((e) => e.date))].sort();
   const minDate  = allDates[0]  ?? "";
   const maxDate  = allDates[allDates.length - 1] ?? "";
 
-  const [range, setRange]       = useState([0, 1]); // [0..1] для скролера
+  const [range, setRange]       = useState([0, 1]);
   const [activePreset, setActivePreset] = useState("all");
   const sliderRef = useRef(null);
   const dragRef   = useRef(null);
 
-  // Перетворення range → дати
   const fromDate = allDates[Math.floor(range[0] * (allDates.length - 1))] ?? minDate;
   const toDate   = allDates[Math.floor(range[1] * (allDates.length - 1))] ?? maxDate;
 
-  // Застосувати пресет
   function applyPreset(preset) {
     setActivePreset(preset);
     if (preset === "all" || allDates.length === 0) { setRange([0, 1]); return; }
@@ -53,8 +49,6 @@ export default function StatsTab({ data }) {
     const left = firstIdx < 0 ? 0 : firstIdx / (allDates.length - 1);
     setRange([Math.min(left, 1), 1]);
   }
-
-  // Якщо range змінено вручну — знімаємо пресет
   function handleRangeDrag(newRange) {
     setRange(newRange);
     setActivePreset(null);
@@ -68,7 +62,6 @@ export default function StatsTab({ data }) {
   const max   = filteredData.length ? Math.max(...filteredData.map((e) => entryTotal(e))) : 0;
   const days  = [...new Set(filteredData.map((e) => e.date))].length;
 
-  // placeTotals/placeCount відносно filteredData (реагують на діапазон)
   const placeTotals = {};
   const placeCount  = {};
   filteredData.forEach((e) =>
@@ -212,7 +205,6 @@ export default function StatsTab({ data }) {
     return () => ro.disconnect();
   }, [drawTimeline]);
 
-  // ── Tooltip: знаходимо точку і показуємо під нею на canvas ──────────
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;
     if (!canvas) return;
@@ -246,7 +238,6 @@ export default function StatsTab({ data }) {
         <SCard label="Активних днів"    value={String(days)}              sub={`макс. ${max.toFixed(0)} zł`} />
       </div>
 
-      {/* ── Глобальний фільтр дат ── */}
       <div className={styles.dateFilterCard}>
         <div className={styles.dateFilterTop}>
           <div className={styles.dateFilterLabel}>
@@ -435,7 +426,6 @@ export default function StatsTab({ data }) {
         )}
       </div>
 
-      {/* ── Tooltip — позиціонується над точкою на графіку ── */}
       {tooltip && (
         <TooltipPortal tooltip={tooltip} />
       )}
@@ -443,7 +433,6 @@ export default function StatsTab({ data }) {
   );
 }
 
-// Тултіп рендериться через портал у document.body — обходить будь-які transform батьків
 function TooltipPortal({ tooltip }) {
   const ref = useRef(null);
   const [pos, setPos] = useState({ left: -9999, top: -9999, visible: false });
@@ -495,7 +484,6 @@ function TooltipPortal({ tooltip }) {
   );
 }
 
-// Генерує мітки місяців для слайдера (не густіше ніж 1 на ~8%)
 function buildMonthTicks(allDates) {
   if (allDates.length < 2) return [];
   const seen = new Set();
@@ -505,7 +493,6 @@ function buildMonthTicks(allDates) {
     if (seen.has(ym)) return;
     seen.add(ym);
     const pct = i / (allDates.length - 1);
-    // Пропускаємо мітки що надто близько до попередньої
     if (ticks.length > 0 && pct - ticks[ticks.length - 1].pct < 0.07) return;
     const [year, month] = ym.split("-");
     const months = ["Січ","Лют","Бер","Кві","Тра","Чер","Лип","Сер","Вер","Жов","Лис","Гру"];

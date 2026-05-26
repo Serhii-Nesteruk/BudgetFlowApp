@@ -2,7 +2,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  /* staggered entrance */
   animation: slideUp var(--dur-slow) var(--ease-decel) both;
 }
 
@@ -44,9 +43,7 @@
   margin-bottom: 11px;
 }
 
-.cardDefault .icon {
-  background: var(--surface2);
-}
+.cardDefault .icon { background: var(--surface2); }
 
 .label {
   font-size: 10px;
@@ -57,9 +54,7 @@
   margin-bottom: 5px;
 }
 
-.cardDefault .label {
-  color: var(--muted);
-}
+.cardDefault .label { color: var(--muted); }
 
 .value {
   font-family: var(--mono);
@@ -69,9 +64,7 @@
   letter-spacing: -0.03em;
 }
 
-.cardDefault .value {
-  color: var(--text);
-}
+.cardDefault .value { color: var(--text); }
 
 .sub {
   font-size: 11px;
@@ -79,32 +72,37 @@
   margin-top: 3px;
 }
 
-.cardDefault .sub {
-  color: var(--muted);
-}
+.cardDefault .sub { color: var(--muted); }
 
-/* ── Tablet (641–1024px) ── */
+/* ── Tablet ── */
 @media (max-width: 1024px) and (min-width: 641px) {
-  .bar {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .bar { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* ── Mobile (≤640px) ── */
+/* ── Mobile: 2-col grid, 3rd card spans full width ── */
 @media (max-width: 640px) {
   .bar {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
+  /* First card (accent) spans full width for emphasis */
+  .card:first-child {
+    grid-column: 1 / -1;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .card:first-child .icon {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  .card:first-child .value {
+    font-size: 24px;
+  }
   .card {
     padding: 12px 14px;
   }
-  .value {
-    font-size: 18px;
-  }
-  .icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 8px;
-  }
+  .value { font-size: 18px; }
+  .icon { width: 24px; height: 24px; margin-bottom: 8px; }
 }

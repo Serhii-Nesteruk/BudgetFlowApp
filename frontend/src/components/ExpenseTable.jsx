@@ -7,6 +7,7 @@ const PER = 20;
 
 const IconEdit   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
 const IconTrash  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
+const IconChevron = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>;
 
 export default function ExpenseTable({
   filtered, expandedIds, curPage, setCurPage,
@@ -27,7 +28,8 @@ export default function ExpenseTable({
 
   return (
     <>
-      <div className={styles.tableCard}>
+      {/* ── Desktop / tablet: classic table ── */}
+      <div className={[styles.tableCard, styles.desktopOnly].join(" ")}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -98,6 +100,73 @@ export default function ExpenseTable({
             <button className={styles.pagerBtn} onClick={() => setCurPage((p) => Math.min(pageCount, p + 1))} disabled={curPage >= pageCount}>Вперед →</button>
           </div>
         </div>
+      </div>
+
+      {/* ── Mobile: card list ── */}
+      <div className={[styles.mobileList, styles.mobileOnly].join(" ")}>
+        {!page.length ? (
+          <div className={styles.mobileEmpty}>Нічого не знайдено</div>
+        ) : (
+          page.map((entry) => {
+            const isExp  = expandedIds.has(entry.id);
+            const ttl    = entryTotal(entry);
+            const places = entry.places.map((p) => p.name);
+            const detail = entry.places.filter((p) => p.details).map((p) => p.details).join(", ");
+
+            return (
+              <div key={entry.id} className={[styles.mobileCard, isExp ? styles.mobileCardExpanded : ""].join(" ")}>
+                <div
+                  className={styles.mobileCardMain}
+                  onClick={() => onToggleExpand(entry.id)}
+                >
+                  <div className={styles.mobileCardLeft}>
+                    <div className={styles.mobileDate}>{fmtDate(entry.date)}</div>
+                    <div className={styles.mobilePlaces}>
+                      {places.map((p) => <Tag key={p}>{p}</Tag>)}
+                    </div>
+                    {detail && <div className={styles.mobileDetail}>{detail}</div>}
+                  </div>
+                  <div className={styles.mobileCardRight}>
+                    <div className={styles.mobileAmount}>−{ttl.toFixed(2).replace(/\.00$/, "")} zł</div>
+                    <div className={[styles.mobileChevron, isExp ? styles.mobileChevronOpen : ""].join(" ")}>
+                      <IconChevron />
+                    </div>
+                  </div>
+                </div>
+
+                {isExp && (
+                  <div className={styles.mobileExpanded}>
+                    <DetailRow entry={entry} />
+                    <div className={styles.mobileActions}>
+                      <button className={styles.mobileBtn} onClick={() => onEdit(entry.id)}>
+                        <IconEdit /> Редагувати
+                      </button>
+                      <button className={[styles.mobileBtn, styles.mobileBtnDanger].join(" ")} onClick={() => onDelete(entry.id)}>
+                        <IconTrash /> Видалити
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+
+        {pageCount > 1 && (
+          <div className={styles.mobilePager}>
+            <button
+              className={styles.mobilePagerBtn}
+              onClick={() => setCurPage((p) => Math.max(1, p - 1))}
+              disabled={curPage <= 1}
+            >← Назад</button>
+            <span className={styles.mobilePagerInfo}>{curPage} / {pageCount}</span>
+            <button
+              className={styles.mobilePagerBtn}
+              onClick={() => setCurPage((p) => Math.min(pageCount, p + 1))}
+              disabled={curPage >= pageCount}
+            >Вперед →</button>
+          </div>
+        )}
       </div>
     </>
   );

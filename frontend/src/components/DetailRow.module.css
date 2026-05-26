@@ -3,12 +3,10 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* animated expand */
 .inner {
   padding: 14px 16px 14px 52px;
   border-top: 2px solid var(--border);
   background: #fafaf8;
-  /* slide down on mount */
   animation: expandDown var(--dur-mid) var(--ease-decel) both;
   overflow: hidden;
 }

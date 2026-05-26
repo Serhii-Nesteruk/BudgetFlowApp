@@ -1,7 +1,5 @@
-/* Hidden on desktop and tablet — sidebar handles navigation there */
-.nav {
-  display: none;
-}
+/* Hidden on desktop and tablet */
+.nav { display: none; }
 
 @media (max-width: 640px) {
   .nav {
@@ -17,10 +15,9 @@
     -webkit-backdrop-filter: blur(16px);
     border-top: 1px solid rgba(255,255,255,0.08);
     padding: 0 4px env(safe-area-inset-bottom, 0px);
-    height: 64px;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Two equal halves flanking the FAB */
   .side {
     flex: 1;
     display: flex;
@@ -43,6 +40,7 @@
     font-weight: 500;
     cursor: pointer;
     padding: 6px 4px;
+    min-height: 44px; 
     border-radius: 10px;
     transition:
       color      var(--dur-fast) var(--ease-out),
@@ -50,13 +48,9 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .tabBtn:active {
-    background: rgba(255,255,255,0.06);
-  }
+  .tabBtn:active { background: rgba(255,255,255,0.06); }
 
-  .tabBtnActive {
-    color: #fff;
-  }
+  .tabBtnActive { color: #fff; }
 
   .tabIcon {
     display: flex;
@@ -65,26 +59,21 @@
     transition: transform var(--dur-fast) var(--ease-spring);
   }
 
-  .tabBtnActive .tabIcon {
-    transform: translateY(-1px);
-  }
+  .tabBtnActive .tabIcon { transform: translateY(-1px); }
 
-  .tabLabel {
-    letter-spacing: 0.01em;
-  }
+  .tabLabel { letter-spacing: 0.01em; }
 
-  /* Centered FAB wrapper — not flex-grow so it stays centered */
   .fabWrap {
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 6px;
+    padding: 0 8px;
   }
 
   .fabBtn {
-    width: 52px;
-    height: 52px;
+    width: 54px;
+    height: 54px;
     border-radius: 18px;
     background: #fff;
     border: none;

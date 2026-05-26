@@ -346,7 +346,7 @@
   .placeTableRow {
     grid-template-columns: 60px 1fr 80px;
   }
-  /* hide notes column on mobile */
+  
   .placeTableHead > *:nth-child(3),
   .placeTableRow > *:nth-child(3) {
     display: none;

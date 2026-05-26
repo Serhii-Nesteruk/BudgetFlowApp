@@ -10,24 +10,29 @@ export default function Toolbar({
 
   return (
     <div className={styles.toolbar}>
-      <span className={styles.label}>Фільтр:</span>
-      <input
-        type="date"
-        className={styles.inputDate}
-        value={filterFrom}
-        onChange={(e) => onFilterFrom(e.target.value)}
-      />
-      <span style={{ fontSize: 11, color: "var(--muted)" }}>—</span>
-      <input
-        type="date"
-        className={styles.inputDate}
-        value={filterTo}
-        onChange={(e) => onFilterTo(e.target.value)}
-      />
+      {/* Date filter row */}
+      <div className={styles.dateRow}>
+        <span className={styles.label}>Фільтр:</span>
+        <input
+          type="date"
+          className={styles.inputDate}
+          value={filterFrom}
+          onChange={(e) => onFilterFrom(e.target.value)}
+        />
+        <span style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>—</span>
+        <input
+          type="date"
+          className={styles.inputDate}
+          value={filterTo}
+          onChange={(e) => onFilterTo(e.target.value)}
+        />
+        <div className={styles.divider} />
+        <button className={styles.btnClear} onClick={onClear}>Скинути</button>
+      </div>
 
+      {/* Place chips - horizontally scrollable on mobile */}
       {allPlaces.length > 0 && (
-        <>
-          <div className={styles.divider} />
+        <div className={styles.chipsRow}>
           {allPlaces.map((p) => (
             <button
               key={p}
@@ -37,10 +42,8 @@ export default function Toolbar({
               {p}
             </button>
           ))}
-        </>
+        </div>
       )}
-
-      <button className={styles.btnClear} onClick={onClear}>Скинути</button>
     </div>
   );
 }
