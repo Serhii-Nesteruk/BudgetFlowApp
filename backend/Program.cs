@@ -6,6 +6,8 @@ using BudgetFlowAPi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using BudgetFlowAPi.Infrastructure.ApiClients.Receipts;
+using BudgetFlowAPi.Infrastructure.ApiClients.Receipts.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +52,14 @@ builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRepository<Transaction>, TransactionRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+builder.Services.AddScoped<IRepository<Receipt>, ReceiptRepository>();
+builder.Services.AddScoped<IReceiptRepository, ReceiptRepository>();
+builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8000/");
+});
+builder.Services.AddScoped<IReceiptService, ReceiptService>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();

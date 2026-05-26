@@ -79,6 +79,7 @@ public class TransactionsController : ControllerBase
         transaction.Currency = dto.Currency;
         transaction.Date = dto.Date;
         transaction.Type = dto.Type;
+        transaction.Details = dto.Details;
 
         await _transactionService.UpdateAsync(transaction);
 
