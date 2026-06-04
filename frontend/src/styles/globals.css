@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:        #f0f0ed;
+  --surface:   #ffffff;
+  --surface2:  #f5f5f3;
+  --border:    #e0e0db;
+  --border2:   #ebebea;
+  --accent:    #1a1a18;
+  --accent-bg: #f0f0ed;
+  --text:      #1a1a18;
+  --muted:     #6b7280;
+  --danger:    #c0392b;
+  --danger-bg: #fdf3f2;
+  --font:      'DM Sans', sans-serif;
+  --mono:      'DM Mono', monospace;
+  --r:         8px;
+  --r-sm:      6px;
+
+  --ease-out:      cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-decel:    cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  --dur-fast:  120ms;
+  --dur-mid:   200ms;
+  --dur-slow:  320ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  /* Prevent text size adjustment on orientation change */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  min-height: 100dvh; /* dynamic viewport on mobile */
+  -webkit-font-smoothing: antialiased;
+  /* Prevent pull-to-refresh fighting with scroll */
+  overscroll-behavior: none;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Prevent callout on long-press for buttons */
+button { -webkit-touch-callout: none; }

@@ -1,0 +1,54 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  animation: pageFadeIn var(--dur-slow) var(--ease-decel) both;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.content {
+  flex: 1;
+  padding: 20px 28px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.error {
+  color: var(--danger);
+  padding: 10px 16px;
+  background: var(--danger-bg);
+  border-radius: var(--r);
+  border: 1px solid #f5c0bb;
+  font-size: 13px;
+}
+
+.loading {
+  color: var(--muted);
+  padding: 80px;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .content { padding: 16px 20px 80px; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .content {
+    padding: 12px 12px calc(80px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+  }
+}
