@@ -3,7 +3,7 @@ WORKDIR /src
 
 COPY . .
 RUN dotnet restore
-RUN dotnet public -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
