@@ -1,0 +1,370 @@
+/* ── Root ── */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Summary cards ── */
+.statsBar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.sCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  transition: box-shadow var(--dur-mid) var(--ease-out);
+  animation: cardIn var(--dur-slow) var(--ease-decel) both;
+}
+.sCard:nth-child(1) { animation-delay: 0ms; }
+.sCard:nth-child(2) { animation-delay: 50ms; }
+.sCard:nth-child(3) { animation-delay: 100ms; }
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sLabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; margin-bottom: 5px; }
+.sValue { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+.sSub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── Global date filter card ── */
+.dateFilterCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 18px 18px;
+  animation: cardIn var(--dur-slow) var(--ease-decel) 80ms both;
+}
+
+.dateFilterTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.dateFilterLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dateFilterRange {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dateFilterCount {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Presets */
+.presets {
+  display: flex;
+  gap: 4px;
+}
+
+.preset {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color      var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.preset:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+.presetActive {
+  background: var(--text) !important;
+  color: #fff !important;
+  border-color: var(--text) !important;
+}
+
+/* ── Range slider ── */
+.rangeSlider {
+  position: relative;
+  height: 20px;
+  cursor: col-resize;
+  user-select: none;
+  /* Місце для tick-міток знизу */
+  margin-bottom: 22px;
+}
+
+.sliderTrack {
+  position: absolute;
+  top: 8px;
+  left: 0; right: 0;
+  height: 4px;
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.rangeDim {
+  position: absolute;
+  top: 8px;
+  height: 4px;
+  background: var(--bg);
+  border-radius: 999px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.rangeActive {
+  position: absolute;
+  top: 8px;
+  height: 4px;
+  background: var(--text);
+  opacity: 0.85;
+  border-radius: 999px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.rangeHandle {
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--surface);
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  cursor: ew-resize;
+  z-index: 2;
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-out);
+}
+.rangeHandle:hover {
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: 0 0 0 4px rgba(26,26,24,0.08);
+}
+
+/* Month tick marks */
+.sliderTicks {
+  position: absolute;
+  top: 20px;
+  left: 0; right: 0;
+  height: 18px;
+  pointer-events: none;
+}
+.sliderTick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Tabs ── */
+.tabsRow {
+  display: flex;
+  align-items: center;
+}
+.tabsPill {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.tab {
+  padding: 6px 18px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-family: var(--font);
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--dur-mid) var(--ease-out), color var(--dur-mid) var(--ease-out);
+}
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tabActive  { background: var(--text) !important; color: #fff !important; }
+
+/* ── Panel ── */
+.panel {
+  animation: panelIn 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Grid / Card ── */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 20px; }
+.full { grid-column: 1 / -1; }
+.chartTitle { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px; }
+
+/* ── Timeline ── */
+.timelineWrap        { position: relative; }
+.timelineWrap canvas { display: block; width: 100%; }
+
+/* ── Tooltip ── */
+.tooltip {
+  position: fixed;
+  z-index: 99999;
+  min-width: 180px;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: var(--r);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.11), 0 1px 4px rgba(0,0,0,0.06);
+  color: var(--text);
+  font-size: 12px;
+  pointer-events: none;
+  transition: opacity 100ms var(--ease-out), transform 100ms var(--ease-out);
+  transform: translateY(0) scale(1);
+}
+.tooltipDate  { font-weight: 700; margin-bottom: 2px; }
+.tooltipTotal { color: var(--muted); font-family: var(--mono); font-size: 11px; margin-bottom: 8px; }
+.tooltipList  { display: grid; gap: 4px; }
+.tooltipPlace { display: flex; justify-content: space-between; gap: 12px; }
+.tooltipPlace span   { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tooltipPlace strong { white-space: nowrap; font-family: var(--mono); }
+
+/* ── Bar chart ── */
+.barChart { display: flex; flex-direction: column; gap: 7px; }
+.barRow   { display: flex; align-items: center; gap: 10px; }
+.barLabel { font-size: 11px; color: var(--muted); width: 90px; text-align: right; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barTrack { flex: 1; height: 14px; background: var(--surface2); border-radius: 2px; overflow: hidden; border: 1px solid var(--border2); }
+.barFill  { height: 100%; border-radius: 2px; transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.barVal   { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 58px; text-align: right; flex-shrink: 0; }
+
+/* ── Donut ── */
+.donutWrap   { display: flex; align-items: center; gap: 18px; }
+.donutLegend { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.legendRow   { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+.legendDot   { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.legendName  { color: var(--muted); flex: 1; }
+.legendVal   { font-family: var(--mono); }
+
+/* ── Top list ── */
+.topList   { display: flex; flex-direction: column; gap: 5px; }
+.topItem   { display: flex; align-items: center; gap: 12px; padding: 7px 10px; background: var(--surface2); border-radius: var(--r); border: 1px solid var(--border2); transition: background var(--dur-fast) var(--ease-out); }
+.topItem:hover { background: var(--accent-bg); }
+.topRank   { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted); width: 22px; }
+.topInfo   { flex: 1; }
+.topDate   { font-size: 11px; color: var(--muted); }
+.topTags   { font-size: 11px; color: var(--accent); }
+.topAmount { font-family: var(--mono); font-weight: 600; color: var(--danger); font-size: 13px; }
+
+/* ── Place breakdown ── */
+.placeSelector { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.placeChip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 8px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+  font-size: 11px; font-family: var(--font); cursor: pointer;
+  transition: border-color var(--dur-mid) var(--ease-out), background var(--dur-mid) var(--ease-out), color var(--dur-mid) var(--ease-out);
+}
+.placeChip:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.placeChipActive { font-weight: 600; }
+.placeChipDot    { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.placeChipAmt    { font-family: var(--mono); font-size: 10px; opacity: 0.75; margin-left: 2px; }
+
+.placeDetail { animation: panelIn 240ms var(--ease-out) both; }
+
+.placeSummary { display: flex; gap: 28px; padding: 10px 16px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r); margin-bottom: 14px; }
+.placeSummaryItem { display: flex; flex-direction: column; gap: 2px; }
+.placeSummaryLabel { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: var(--muted); }
+.placeSummaryVal   { font-family: var(--mono); font-size: 16px; font-weight: 600; }
+
+.placeTable { display: flex; flex-direction: column; border: 1px solid var(--border2); border-radius: var(--r); overflow: hidden; }
+.placeTableHead { display: grid; grid-template-columns: 72px 1fr 1fr 100px; padding: 7px 12px; background: var(--surface2); border-bottom: 1px solid var(--border2); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.placeTableRow  { display: grid; grid-template-columns: 72px 1fr 1fr 100px; padding: 8px 12px; border-bottom: 1px solid var(--border2); font-size: 12px; align-items: center; transition: background var(--dur-fast) var(--ease-out); }
+.placeTableRow:last-child { border-bottom: none; }
+.placeTableRow:hover { background: var(--accent-bg); }
+.placeTableDate    { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.placeTableDetails { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 12px; }
+.placeTableNotes   { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 12px; }
+.placeTableAmtCol  { font-family: var(--mono); font-weight: 600; color: var(--danger); font-size: 12px; text-align: right; }
+
+.placeEmpty { padding: 28px 0; text-align: center; color: var(--muted); font-size: 12px; }
+
+/* ── Tablet (641–1024px) ── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .statsBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Mobile (≤640px) ── */
+@media (max-width: 640px) {
+  .statsBar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .sCard {
+    padding: 11px 13px;
+  }
+  .sValue {
+    font-size: 17px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    padding: 14px 14px;
+  }
+
+  .presets {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tabsPill {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .placeTableHead,
+  .placeTableRow {
+    grid-template-columns: 60px 1fr 80px;
+  }
+  
+  .placeTableHead > *:nth-child(3),
+  .placeTableRow > *:nth-child(3) {
+    display: none;
+  }
+
+  .barLabel {
+    width: 70px;
+    font-size: 10px;
+  }
+
+  .barVal {
+    width: 50px;
+    font-size: 10px;
+  }
+
+  .donutWrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
