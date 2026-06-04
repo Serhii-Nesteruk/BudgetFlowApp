@@ -114,6 +114,7 @@ export default function App() {
         entry={editEntry}
         onSave={handleSave}
         onClose={() => setModalOpen(false)}
+        allPlaces={allPlaces}
       />
 
       {scanOpen && (

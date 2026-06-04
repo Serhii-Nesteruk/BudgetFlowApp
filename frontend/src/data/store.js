@@ -38,3 +38,20 @@ export function fmtDate(d) {
 export function fmtAmount(n) {
   return `−${Math.abs(n).toFixed(2).replace(/\.00$/, "")} zł`;
 }
+
+const CURRENCY_SYMBOLS = {
+  PLN: "zł", EUR: "€", USD: "$", UAH: "₴", GBP: "£",
+  CHF: "Fr", CZK: "Kč", SEK: "kr", NOK: "kr", DKK: "kr",
+  HUF: "Ft", RON: "lei", BGN: "лв", HRK: "kn",
+  JPY: "¥", CNY: "¥", CAD: "C$", AUD: "A$",
+};
+
+/** Returns symbol for a currency code, e.g. "€" for "EUR" */
+export function currencySymbol(code) {
+  return CURRENCY_SYMBOLS[code] || code || "zł";
+}
+
+/** Returns the currency code for an entry (from entry.currency or first place) */
+export function entryCurrency(entry) {
+  return entry?.currency || entry?.places?.[0]?.currency || "PLN";
+}

@@ -1,4 +1,4 @@
-import { fmtDate, entryTotal } from "../data/store";
+import { fmtDate, entryTotal, currencySymbol, entryCurrency } from "../data/store";
 import { Tag } from "./UI";
 import DetailRow from "./DetailRow";
 import styles from "./ExpenseTable.module.css";
@@ -48,6 +48,7 @@ export default function ExpenseTable({
               page.map((entry) => {
                 const isExp  = expandedIds.has(entry.id);
                 const ttl    = entryTotal(entry);
+                const symbol = currencySymbol(entryCurrency(entry));
                 const places = entry.places.map((p) => p.name);
                 const detail = entry.places.filter((p) => p.details).map((p) => p.details).join(", ");
 
@@ -61,7 +62,7 @@ export default function ExpenseTable({
                       <span className={[styles.arrow, isExp ? styles.arrowOpen : ""].join(" ")}>▶</span>
                     </td>
                     <td>{fmtDate(entry.date)}</td>
-                    <td className={styles.amount}>−{ttl.toFixed(2).replace(/\.00$/, "")} zł</td>
+                    <td className={styles.amount}>−{ttl.toFixed(2).replace(/\.00$/, "")} {symbol}</td>
                     <td>{places.map((p) => <Tag key={p}>{p}</Tag>)}</td>
                     <td><span className={styles.detailSummary}>{detail}</span></td>
                     <td onClick={(e) => e.stopPropagation()} style={{ whiteSpace: "nowrap" }}>
@@ -110,6 +111,7 @@ export default function ExpenseTable({
           page.map((entry) => {
             const isExp  = expandedIds.has(entry.id);
             const ttl    = entryTotal(entry);
+            const symbol = currencySymbol(entryCurrency(entry));
             const places = entry.places.map((p) => p.name);
             const detail = entry.places.filter((p) => p.details).map((p) => p.details).join(", ");
 
@@ -127,7 +129,7 @@ export default function ExpenseTable({
                     {detail && <div className={styles.mobileDetail}>{detail}</div>}
                   </div>
                   <div className={styles.mobileCardRight}>
-                    <div className={styles.mobileAmount}>−{ttl.toFixed(2).replace(/\.00$/, "")} zł</div>
+                    <div className={styles.mobileAmount}>−{ttl.toFixed(2).replace(/\.00$/, "")} {symbol}</div>
                     <div className={[styles.mobileChevron, isExp ? styles.mobileChevronOpen : ""].join(" ")}>
                       <IconChevron />
                     </div>

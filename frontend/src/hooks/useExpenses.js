@@ -157,7 +157,7 @@ export function useExpenses() {
       const newPlaces = entry.places;
 
       const requests = newPlaces.map((place) => {
-        const payload = placeToTransactionPayload(place, entry.date);
+        const payload = placeToTransactionPayload(place, entry.date, entry.currency || "PLN");
 
         if (oldPlaceIds.includes(Number(place.id))) {
           return updateTransaction(place.id, payload);

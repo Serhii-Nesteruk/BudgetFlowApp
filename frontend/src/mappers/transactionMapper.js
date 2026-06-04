@@ -2,7 +2,7 @@ export function entryTotal(entry) {
   return entry.places.reduce((sum, place) => sum + Number(place.amount || 0), 0);
 }
 
-export function placeToTransactionPayload(place, date) {
+export function placeToTransactionPayload(place, date, currency = "PLN") {
   return {
     id: Number(place.id) || 0,
     counterparty: place.name ?? "",
@@ -10,7 +10,7 @@ export function placeToTransactionPayload(place, date) {
     details: place.details ?? "",
     description: place.notes ?? "",
     amount: Number(place.amount),
-    currency: "PLN",
+    currency: currency,
     date: `${date}T00:00:00Z`,
     type: 0,
   };
@@ -18,6 +18,6 @@ export function placeToTransactionPayload(place, date) {
 
 export function entryToTransactionPayloads(entry) {
   return entry.places.map((place) =>
-    placeToTransactionPayload(place, entry.date)
+    placeToTransactionPayload(place, entry.date, entry.currency || "PLN")
   );
 }

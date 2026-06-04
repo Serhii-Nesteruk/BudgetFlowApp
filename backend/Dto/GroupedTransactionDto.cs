@@ -20,5 +20,6 @@ public class GroupedPlaceDto
     [Required]
     public decimal Amount { get; set; }
     public string Details { get; set; } = string.Empty;
+    public string Currency { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
 }

@@ -121,6 +121,7 @@ public static class TransactionMapping
             Name = transaction.Counterparty,
             Amount = transaction.Amount,
             Details = transaction.Details,
+            Currency = transaction.Currency,
             Notes = transaction.Description
         };
     }
