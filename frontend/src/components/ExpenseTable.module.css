@@ -88,8 +88,8 @@
 
 .arrowOpen {
   transform: rotate(90deg);
-  background: #1a1a18;
-  border-color: #1a1a18;
+  background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -170,7 +170,7 @@
 
 .pagerBtn:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
 .pagerBtn:active:not(:disabled) { transform: scale(0.96); }
-.pagerBtnActive { background: #1a1a18 !important; border-color: #1a1a18 !important; color: #fff !important; }
+.pagerBtnActive { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
 .pagerBtn:disabled { opacity: 0.32; cursor: default; }
 
 .empty { text-align: center; padding: 50px; color: var(--muted); font-size: 13px; }
@@ -201,7 +201,7 @@
 }
 
 .mobileCardExpanded {
-  border-color: #ccc;
+  border-color: rgba(0, 40, 95, 0.18);
 }
 
 .mobileCardMain {
@@ -346,4 +346,38 @@
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
+}
+
+/* Landing-inspired visual skin */
+.tableCard, .mobileCard {
+  background: rgba(255,255,255,.78);
+  border-color: rgba(15,35,71,.085);
+  border-radius: 26px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+.table thead { background: rgba(234,242,255,.78); }
+.dataRow { transition: background var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
+.dataRow:hover { background: rgba(0,184,107,.055); }
+.expanded { background: rgba(0,184,107,.07); }
+.arrow, .btnSm, .pagerBtn { border-radius: 999px; transition-duration: var(--dur-mid); }
+.arrowOpen, .pagerBtnActive { background: linear-gradient(135deg, var(--accent), #0b3978) !important; border-color: transparent !important; }
+.btnSm:hover, .pagerBtn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(0,40,95,.06); }
+.amount { color: #f04438; }
+
+
+/* Mobile expanded expense alignment fix */
+@media (max-width: 640px) {
+  .mobileExpanded {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(0,184,107,.045);
+    border-top-color: rgba(15,35,71,.075);
+  }
+  .mobileActions {
+    width: 100%;
+    padding: 10px 12px 12px;
+  }
+  .mobileBtn { border-radius: 14px; }
 }

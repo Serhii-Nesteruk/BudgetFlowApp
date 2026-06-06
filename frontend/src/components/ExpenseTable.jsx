@@ -138,7 +138,7 @@ export default function ExpenseTable({
 
                 {isExp && (
                   <div className={styles.mobileExpanded}>
-                    <DetailRow entry={entry} />
+                    <DetailRow entry={entry} compact />
                     <div className={styles.mobileActions}>
                       <button className={styles.mobileBtn} onClick={() => onEdit(entry.id)}>
                         <IconEdit /> Редагувати

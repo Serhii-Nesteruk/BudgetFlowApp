@@ -98,3 +98,11 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+/* Landing-inspired visual skin */
+.main { background: radial-gradient(circle at 18% 0%, rgba(0,184,107,.16), transparent 34%), radial-gradient(circle at 85% 10%, rgba(0,40,95,.18), transparent 36%), linear-gradient(135deg, #f7fbff, #edf4ff 48%, #f3fff9); }
+.form { background: rgba(255,255,255,.82); border-color: rgba(15,35,71,.10); border-radius: 30px; box-shadow: var(--shadow-float); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.title { color: var(--accent); letter-spacing: -.04em; }
+.input { background: rgba(244,248,255,.82); border-color: rgba(15,35,71,.10); border-radius: 18px; transition-duration: var(--dur-mid); }
+.input:focus { border-color: rgba(0,184,107,.42); box-shadow: 0 0 0 4px rgba(0,184,107,.10); background: #fff; }
+.button { border-radius: 999px; background: linear-gradient(135deg, var(--accent2), #00a160); box-shadow: 0 14px 28px rgba(0,184,107,.24); transition: transform var(--dur-mid) var(--ease-spring), opacity var(--dur-mid) var(--ease-out); }
+.button:hover:not(:disabled) { opacity: 1; transform: translateY(-1px); }

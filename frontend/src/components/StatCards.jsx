@@ -1,14 +1,11 @@
-import { entryTotal } from "../data/store";
 import styles from "./StatCards.module.css";
 
 const IconWallet  = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z"/><path d="M16 12a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/><path d="M6 2l2 4"/><path d="M18 2l-2 4"/></svg>;
 const IconAvg     = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 3 4-7"/></svg>;
 const IconMax     = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>;
 
-export default function StatCards({ data }) {
-  const total = data.reduce((s, e) => s + entryTotal(e), 0);
-  const avg   = data.length ? total / data.length : 0;
-  const max   = data.length ? Math.max(...data.map((e) => entryTotal(e))) : 0;
+export default function StatCards({ data, summary }) {
+  const { total, avg, max } = summary;
 
   return (
     <div className={styles.bar}>

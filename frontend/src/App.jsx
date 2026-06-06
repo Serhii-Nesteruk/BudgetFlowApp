@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useExpenses } from "./hooks/useExpenses";
+import { useCurrencyRates } from "./hooks/useCurrencyRates";
+import { buildExpenseSummaryPLN } from "./utils/expenseStats";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import BottomNav from "./components/BottomNav";
@@ -19,6 +21,8 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editEntry, setEditEntry] = useState(null);
   const [scanOpen, setScanOpen] = useState(false);
+  const [statsMounted, setStatsMounted] = useState(false);
+  const { rates, error: ratesError } = useCurrencyRates();
 
   const {
     data, loading, error, filtered, allPlaces,
@@ -31,6 +35,16 @@ export default function App() {
     sort, clearFilters,
     toggleExpand, addEntry, updateEntry, deleteEntry,
   } = useExpenses();
+
+  const tableSummary = useMemo(
+    () => buildExpenseSummaryPLN(data, rates),
+    [data, rates]
+  );
+
+  function handleTabChange(tab) {
+    if (tab === "stats") setStatsMounted(true);
+    setActiveTab(tab);
+  }
 
   function openAdd() { setEditEntry(null); setModalOpen(true); }
   function openEdit(id) { setEditEntry(data.find((e) => e.id === id)); setModalOpen(true); }
@@ -54,7 +68,7 @@ export default function App() {
     <div className={styles.layout}>
       <Sidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onScanReceipt={() => setScanOpen(true)}
       />
 
@@ -76,7 +90,7 @@ export default function App() {
             <>
               {activeTab === "table" && (
                 <>
-                  <StatCards data={data} />
+                  <StatCards data={data} summary={tableSummary} />
                   <Toolbar
                     search={search} onSearch={(v) => { setSearch(v); setCurPage(1); }}
                     filterFrom={filterFrom} onFilterFrom={(v) => { setFilterFrom(v); setCurPage(1); }}
@@ -97,7 +111,11 @@ export default function App() {
                   />
                 </>
               )}
-              {activeTab === "stats" && <StatsTab data={data} />}
+              {statsMounted && (
+                <div style={{ display: activeTab === "stats" ? "block" : "none" }}>
+                  <StatsTab data={data} rates={rates} ratesError={ratesError} />
+                </div>
+              )}
               {activeTab === "budget" && <BudgetPage />}
               {activeTab === "debts" && <DebtsPage />}
               {activeTab === "settings" && <SettingsPage />}
@@ -108,7 +126,7 @@ export default function App() {
 
       <BottomNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onScanReceipt={() => setScanOpen(true)}
         onAdd={openAdd}
       />

@@ -1,9 +1,37 @@
 import { fmtDate, entryTotal, currencySymbol, entryCurrency } from "../data/store";
 import styles from "./DetailRow.module.css";
 
-export default function DetailRow({ entry }) {
+export default function DetailRow({ entry, compact = false }) {
   const total  = entryTotal(entry);
   const symbol = currencySymbol(entryCurrency(entry));
+
+  if (compact) {
+    return (
+      <div className={styles.mobileInner}>
+        <h4 className={styles.mobileHeading}>
+          Деталі · {fmtDate(entry.date)} · {total.toFixed(2).replace(/\.00$/, "")} {symbol}
+        </h4>
+        <div className={styles.mobilePlacesList}>
+          {entry.places.map((place) => {
+            const placeSymbol = currencySymbol(place.currency || entryCurrency(entry));
+            return (
+              <div key={place.id} className={styles.mobilePlaceRow}>
+                <div className={styles.mobilePlaceTop}>
+                  <span className={styles.mobilePlaceName}>{place.name}</span>
+                  <span className={styles.mobilePlaceAmount}>
+                    −{(place.amount || 0).toFixed(2).replace(/\.00$/, "")} {placeSymbol}
+                  </span>
+                </div>
+                {place.details && <div className={styles.mobilePlaceDetail}>{place.details}</div>}
+                {place.notes && <div className={styles.mobilePlaceNotes}>{place.notes}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <tr className={styles.row}>
       <td colSpan={6}>

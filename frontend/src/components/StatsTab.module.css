@@ -377,3 +377,22 @@
     gap: 12px;
   }
 }
+
+/* Landing-inspired visual skin */
+.card, .panel, .sCard, .dateFilterCard {
+  background: rgba(255,255,255,.78);
+  border-color: rgba(15,35,71,.085);
+  border-radius: 26px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+.sCard:first-child, .topAmount {
+  background: radial-gradient(circle at 88% 12%, rgba(0,184,107,.24), transparent 36%), linear-gradient(135deg, var(--accent), #061a3d);
+  color: #fff;
+}
+.tab, .preset, .placeChip { border-radius: 999px; transition-duration: var(--dur-mid); }
+.tabActive, .presetActive, .placeChipActive { background: linear-gradient(135deg, var(--accent), #0b3978) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 10px 24px rgba(0,40,95,.16); }
+.barFill, .rangeActive { background: linear-gradient(90deg, var(--accent2), #00d17a); }
+.rangeHandle { background: #fff; border-color: rgba(0,184,107,.38); box-shadow: 0 8px 18px rgba(0,184,107,.22); }
+.tooltip { border-radius: 18px; box-shadow: var(--shadow-float); }

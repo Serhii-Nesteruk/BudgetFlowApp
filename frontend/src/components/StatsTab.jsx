@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import ReactDOM from "react-dom";
-import { fmtDate, entryCurrency } from "../data/store";
-import { useCurrencyRates, toBase } from "../hooks/useCurrencyRates";
+import { fmtDate } from "../data/store";
+import { toBase } from "../hooks/useCurrencyRates";
+import { entryTotalPLN, placeCurrency } from "../utils/expenseStats";
 import styles from "./StatsTab.module.css";
-
-/** Sum entry total converted to PLN */
-function entryTotalPLN(entry, rates) {
-  const cur = entryCurrency(entry);
-  return entry.places.reduce((s, p) => s + toBase(p.amount || 0, cur, rates), 0);
-}
 
 const COLORS = [
   "#1a56db","#e35d3a","#16a34a","#b45309","#7c3aed",
@@ -27,13 +22,12 @@ function daysAgo(n) {
   return d.toISOString().slice(0, 10);
 }
 
-export default function StatsTab({ data }) {
-  const { rates, error: ratesError } = useCurrencyRates();
+export default function StatsTab({ data, rates, ratesError }) {
 
   const [activeSection, setActiveSection] = useState("overview");
   const [panelKey, setPanelKey]           = useState(0);
 
-  const allDates = [...new Set(data.map((e) => e.date))].sort();
+  const allDates = useMemo(() => [...new Set(data.map((e) => e.date))].sort(), [data]);
   const minDate  = allDates[0]  ?? "";
   const maxDate  = allDates[allDates.length - 1] ?? "";
 
@@ -63,41 +57,67 @@ export default function StatsTab({ data }) {
     setActivePreset(null);
   }
 
-  const filteredData = data.filter((e) => e.date >= fromDate && e.date <= toDate);
+  const filteredData = useMemo(
+    () => data.filter((e) => e.date >= fromDate && e.date <= toDate),
+    [data, fromDate, toDate]
+  );
 
-  const total = filteredData.reduce((s, e) => s + entryTotalPLN(e, rates), 0);
-  const avg   = filteredData.length ? total / filteredData.length : 0;
-  const max   = filteredData.length ? Math.max(...filteredData.map((e) => entryTotalPLN(e, rates))) : 0;
-  const days  = [...new Set(filteredData.map((e) => e.date))].length;
+  const { total, avg, max, days, placeTotals, placeCount, allPlaceNames } = useMemo(() => {
+    const nextPlaceTotals = {};
+    const nextPlaceCount = {};
+    const entryTotals = filteredData.map((entry) => entryTotalPLN(entry, rates));
+    const nextTotal = entryTotals.reduce((sum, value) => sum + value, 0);
 
-  const placeTotals = {};
-  const placeCount  = {};
-  filteredData.forEach((e) => {
-    const cur = entryCurrency(e);
-    e.places.forEach((p) => {
-      placeTotals[p.name] = (placeTotals[p.name] || 0) + toBase(p.amount || 0, cur, rates);
-      placeCount[p.name]  = (placeCount[p.name]  || 0) + 1;
+    filteredData.forEach((entry) => {
+      entry.places.forEach((place) => {
+        const currency = placeCurrency(place, entry);
+        nextPlaceTotals[place.name] =
+          (nextPlaceTotals[place.name] || 0) + toBase(place.amount || 0, currency, rates);
+        nextPlaceCount[place.name] = (nextPlaceCount[place.name] || 0) + 1;
+      });
     });
-  });
-  const allPlaceNames = Object.keys(placeTotals).sort((a, b) => placeTotals[b] - placeTotals[a]);
+
+    return {
+      total: nextTotal,
+      avg: entryTotals.length ? nextTotal / entryTotals.length : 0,
+      max: entryTotals.length ? Math.max(...entryTotals) : 0,
+      days: new Set(filteredData.map((entry) => entry.date)).size,
+      placeTotals: nextPlaceTotals,
+      placeCount: nextPlaceCount,
+      allPlaceNames: Object.keys(nextPlaceTotals).sort(
+        (a, b) => nextPlaceTotals[b] - nextPlaceTotals[a]
+      ),
+    };
+  }, [filteredData, rates]);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
 
-  const placeTransactions = selectedPlace
+  const placeTransactions = useMemo(() => selectedPlace
     ? filteredData
         .flatMap((entry) =>
           entry.places
-            .filter((p) => p.name === selectedPlace)
-            .map((p) => ({ ...p, date: entry.date, entryId: entry.id, currency: p.currency || entryCurrency(entry) }))
+            .filter((place) => place.name === selectedPlace)
+            .map((place) => ({
+              ...place,
+              date: entry.date,
+              entryId: entry.id,
+              currency: placeCurrency(place, entry),
+            }))
         )
         .sort((a, b) => (a.date < b.date ? 1 : -1))
-    : [];
-  const placeTotal = placeTransactions.reduce((s, p) => s + toBase(p.amount || 0, p.currency || "PLN", rates), 0);
-  const placeAvg   = placeTransactions.length ? placeTotal / placeTransactions.length : 0;
+    : [], [filteredData, selectedPlace]);
+  const placeTotal = useMemo(
+    () => placeTransactions.reduce(
+      (sum, place) => sum + toBase(place.amount || 0, place.currency || "PLN", rates),
+      0
+    ),
+    [placeTransactions, rates]
+  );
+  const placeAvg = placeTransactions.length ? placeTotal / placeTransactions.length : 0;
 
-  const sp = Object.entries(placeTotals).sort((a, b) => b[1] - a[1]);
+  const sp = useMemo(() => Object.entries(placeTotals).sort((a, b) => b[1] - a[1]), [placeTotals]);
   const mv = sp[0]?.[1] || 1;
-  const sf = Object.entries(placeCount).sort((a, b) => b[1] - a[1]);
+  const sf = useMemo(() => Object.entries(placeCount).sort((a, b) => b[1] - a[1]), [placeCount]);
   const mf = sf[0]?.[1] || 1;
 
   // ── Canvas refs ──────────────────────────────────────────────────────
@@ -149,7 +169,7 @@ export default function StatsTab({ data }) {
     });
     dctx.beginPath(); dctx.arc(cx, cy, inn, 0, Math.PI * 2);
     dctx.fillStyle = "#fff"; dctx.fill();
-  }, [filteredData, activeSection]);
+  }, [sp, activeSection]);
 
   // ── Timeline canvas ──────────────────────────────────────────────────
   const drawTimeline = useCallback(() => {
@@ -234,7 +254,12 @@ export default function StatsTab({ data }) {
   }
   function handleTimelineLeave() { setTooltip(null); }
 
-  const topEntries = [...filteredData].sort((a, b) => entryTotalPLN(b, rates) - entryTotalPLN(a, rates)).slice(0, 10);
+  const topEntries = useMemo(
+    () => [...filteredData]
+      .sort((a, b) => entryTotalPLN(b, rates) - entryTotalPLN(a, rates))
+      .slice(0, 10),
+    [filteredData, rates]
+  );
 
   // ── Render ───────────────────────────────────────────────────────────
   return (
@@ -392,7 +417,11 @@ export default function StatsTab({ data }) {
                       <span className={styles.placeTableDate}>{fmtDate(p.date)}</span>
                       <span className={styles.placeTableDetails}>{p.details || "—"}</span>
                       <span className={styles.placeTableNotes}>{p.notes || ""}</span>
-                      <span className={styles.placeTableAmtCol}>−{Number(p.amount).toFixed(2)} zł</span>
+                      <span className={styles.placeTableAmtCol}>
+                        {p.currency !== "PLN"
+                          ? `−${Number(p.amount).toFixed(2)} ${p.currency} (${toBase(p.amount || 0, p.currency, rates).toFixed(2)} zł)`
+                          : `−${Number(p.amount).toFixed(2)} zł`}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -483,8 +512,8 @@ function TooltipPortal({ tooltip, rates }) {
       <div className={styles.tooltipTotal}>{tooltip.total.toFixed(2)} zł</div>
       <div className={styles.tooltipList}>
         {tooltip.entries.flatMap((entry) => {
-          const cur = entryCurrency(entry);
           return entry.places.map((place) => {
+            const cur = placeCurrency(place, entry);
             const amtPLN = toBase(place.amount, cur, rates);
             const showOrig = cur !== "PLN";
             return (

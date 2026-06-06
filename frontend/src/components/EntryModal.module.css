@@ -95,7 +95,7 @@
 }
 
 .input:focus {
-  border-color: #aaa;
+  border-color: rgba(0, 184, 107, 0.55);
   background: var(--surface);
   box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
 }
@@ -162,7 +162,7 @@
 .amountWrap { flex-shrink: 0; }
 
 .addBtn {
-  background: #1a1a18;
+  background: var(--accent);
   border: none;
   border-radius: var(--r-sm);
   padding: 8px 14px;
@@ -261,7 +261,7 @@
 .footerBtn:hover { background: var(--border2); }
 
 .footerBtnPrimary {
-  background: #1a1a18;
+  background: var(--accent);
   border: none;
   border-radius: var(--r-sm);
   padding: 7px 20px;
@@ -354,4 +354,44 @@
   .footerBtnPrimary {
     flex: 2;
   }
+}
+
+/* Landing-inspired visual skin */
+.overlay { background: rgba(0, 18, 44, .42); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); }
+.modal { background: rgba(255,255,255,.90); border-color: rgba(15,35,71,.10); border-radius: 30px; box-shadow: 0 34px 90px rgba(0,31,72,.24); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.header, .footer { border-color: rgba(15,35,71,.08); }
+.input, .comboInputRow, .placeCard { background: rgba(244,248,255,.82); border-color: rgba(15,35,71,.10); border-radius: 18px; transition: border-color var(--dur-mid) var(--ease-out), box-shadow var(--dur-mid) var(--ease-out), background var(--dur-mid) var(--ease-out); }
+.input:focus, .comboInputRow:focus-within { border-color: rgba(0,184,107,.42); background: #fff; box-shadow: 0 0 0 4px rgba(0,184,107,.10); }
+.footerBtn, .addBtn, .removeBtn, .closeBtn { border-radius: 999px; transition-duration: var(--dur-mid); }
+.footerBtnPrimary { background: linear-gradient(135deg, var(--accent2), #00a160); box-shadow: 0 14px 28px rgba(0,184,107,.24); }
+.comboDropdown { border-radius: 20px; border-color: rgba(15,35,71,.10); box-shadow: var(--shadow-float); }
+.totalRow { border-radius: 22px; background: linear-gradient(135deg, rgba(0,184,107,.12), rgba(0,40,95,.06)); }
+
+
+/* Mobile form rhythm fix: currency and add-place action no longer collide visually */
+@media (max-width: 640px) {
+  .body { padding: 16px; gap: 16px; }
+  .dateRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+  .dateRow .group { width: 100% !important; }
+  .placesHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(15,35,71,.075);
+  }
+  .placesHeader .addBtn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+    margin-top: 0;
+  }
+  .placeHeader { gap: 7px; }
+  .comboWrap { min-width: 0; }
+  .placeAmount { width: 94px; }
 }

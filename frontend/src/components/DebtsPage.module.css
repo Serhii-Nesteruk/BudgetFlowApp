@@ -56,7 +56,7 @@
 }
 
 .sumCard_red  .sumValue { color: #dc2626; }
-.sumCard_blue .sumValue { color: #2563eb; }
+.sumCard_blue .sumValue { color: #007aff; }
 
 .sumLabel {
   font-size: 10px;
@@ -104,13 +104,13 @@
 }
 
 .filterBtn:hover {
-  border-color: #bbb;
+  border-color: rgba(0, 40, 95, 0.22);
   color: var(--text);
 }
 
 .filterBtnActive {
-  background: #1a1a18 !important;
-  border-color: #1a1a18 !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
   color: #fff !important;
 }
 
@@ -136,12 +136,12 @@
     color        var(--dur-fast) var(--ease-out);
 }
 
-.select:focus { border-color: #aaa; color: var(--text); }
+.select:focus { border-color: rgba(0, 184, 107, 0.55); color: var(--text); }
 
 .addBtn {
   padding: 7px 14px;
   border-radius: var(--r-sm);
-  background: #1a1a18;
+  background: var(--accent);
   color: #fff;
   border: none;
   font-size: 12px;
@@ -268,4 +268,111 @@
   .empty {
     padding: 40px 16px;
   }
+}
+
+/* Landing-inspired visual skin */
+.sumCard, .controls, .empty {
+  background: rgba(255,255,255,.78);
+  border-color: rgba(15,35,71,.085);
+  border-radius: 26px;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+.sumCard_blue { background: radial-gradient(circle at 90% 10%, rgba(0,184,107,.20), transparent 38%), linear-gradient(135deg, var(--accent), #061a3d); color: #fff; }
+.addBtn, .filterBtn, .select { border-radius: 999px; transition-duration: var(--dur-mid); }
+.addBtn, .filterBtnActive { background: linear-gradient(135deg, var(--accent2), #00a160) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 12px 26px rgba(0,184,107,.20); }
+.filterBtn:hover { transform: translateY(-1px); background: rgba(0,184,107,.08); }
+
+
+/* ══════════════════════════════════════════════════════════════
+   Debts dashboard redesign · visual-only layer
+══════════════════════════════════════════════════════════════ */
+.summaryRow {
+  grid-template-columns: minmax(260px, 1.75fr) repeat(3, minmax(138px, 1fr));
+  gap: 12px;
+}
+.sumCard {
+  min-height: 104px;
+  justify-content: center;
+  padding: 18px 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+.sumCard::after {
+  content: "";
+  position: absolute;
+  width: 98px;
+  height: 98px;
+  right: -30px;
+  top: -34px;
+  border-radius: 50%;
+  background: rgba(0,184,107,.10);
+  pointer-events: none;
+}
+.sumCard:first-child {
+  background:
+    radial-gradient(circle at 88% 12%, rgba(0,209,122,.34), transparent 34%),
+    linear-gradient(135deg, #00285f 0%, #061a3d 100%);
+  border-color: rgba(0,184,107,.22);
+  box-shadow: 0 20px 52px rgba(0,40,95,.20);
+}
+.sumCard:first-child::after {
+  width: 150px;
+  height: 150px;
+  right: -38px;
+  top: -66px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: transparent;
+}
+.sumCard:first-child .sumValue,
+.sumCard:first-child .sumLabel { color: #fff; }
+.sumCard:first-child .sumValue { font-size: 30px; }
+.sumCard:first-child .sumLabel { opacity: .72; }
+.sumValue { font-size: 22px; }
+.sumLabel { max-width: 150px; line-height: 1.3; }
+
+.controls {
+  padding: 12px 14px;
+  border-radius: 24px;
+  box-shadow: 0 12px 32px rgba(7,26,51,.055);
+}
+.filterGroup {
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(0,40,95,.045);
+}
+.filterBtn {
+  border-color: transparent;
+  background: transparent;
+  min-height: 34px;
+}
+.rightControls { gap: 8px; }
+.select { min-height: 38px; padding-inline: 13px; }
+.addBtn { min-height: 38px; padding-inline: 17px; }
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+
+@media (max-width: 1120px) {
+  .summaryRow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sumCard:first-child { grid-column: 1 / -1; }
+  .list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .summaryRow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .sumCard { min-height: 88px; padding: 14px 15px; }
+  .sumCard:first-child { grid-column: 1 / -1; min-height: 104px; align-items: flex-start; flex-direction: column; gap: 7px; }
+  .sumCard:first-child .sumValue { font-size: 28px; }
+  .sumValue { font-size: 19px; }
+  .controls { border-radius: 22px; }
+  .filterGroup { border-radius: 18px; }
+  .filterBtn { min-height: 32px; }
+  .list { gap: 10px; }
 }

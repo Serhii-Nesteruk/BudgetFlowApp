@@ -91,3 +91,11 @@
   cursor: pointer; transition: opacity 150ms;
 }
 .btnSave:hover { opacity: 0.85; }
+/* Landing-inspired visual skin */
+.overlay { background: rgba(0, 18, 44, .42); backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%); }
+.modal { background: rgba(255,255,255,.90); border-color: rgba(15,35,71,.10); border-radius: 30px; box-shadow: 0 34px 90px rgba(0,31,72,.24); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.input, .fillBtn { background: rgba(244,248,255,.82); border-color: rgba(15,35,71,.10); border-radius: 18px; transition-duration: var(--dur-mid); }
+.input:focus { border-color: rgba(0,184,107,.42); box-shadow: 0 0 0 4px rgba(0,184,107,.10); background: #fff; }
+.btnCancel, .btnSave, .close { border-radius: 999px; transition-duration: var(--dur-mid); }
+.btnSave { background: linear-gradient(135deg, var(--accent2), #00a160); box-shadow: 0 14px 28px rgba(0,184,107,.22); }
+.infoRow { background: rgba(0,40,95,.05); border-radius: 18px; }

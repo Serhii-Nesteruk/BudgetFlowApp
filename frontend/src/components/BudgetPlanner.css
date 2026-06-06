@@ -2,20 +2,20 @@
 .budgetPlanner, .budgetPlanner *{box-sizing:border-box}
 .budgetPlanner *{margin:0;padding:0}
 .budgetPlanner{
-  --bg:var(--color-background-tertiary,#f6f6f3);
-  --surface:var(--color-background-primary,#fff);
-  --surface2:var(--color-background-secondary,#f4f4f1);
-  --border:var(--color-border-tertiary,#e6e2dc);
-  --border2:var(--color-border-secondary,#d8d3ca);
-  --text:var(--color-text-primary,#1a1a18);
-  --muted:var(--color-text-secondary,#6f6b64);
-  --hint:var(--color-text-tertiary,#9a958c);
-  --green:#2d7a3a;--green-bg:#eaf3de;--green-text:#3B6D11;
-  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-text:#0C447C;
-  --red:#A32D2D;--red-bg:#FCEBEB;--red-text:#791F1F;
-  --amber:#854F0B;--amber-bg:#FAEEDA;--amber-text:#633806;
-  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-text:#3C3489;
-  --r:10px;--r-sm:6px;
+  --bg:var(--color-background-tertiary,#eef4ff);
+  --surface:rgba(255,255,255,.78);
+  --surface2:rgba(244,248,255,.82);
+  --border:rgba(15,35,71,.10);
+  --border2:rgba(15,35,71,.075);
+  --text:var(--color-text-primary,#071a33);
+  --muted:var(--color-text-secondary,#6a7890);
+  --hint:var(--color-text-tertiary,#8b98ac);
+  --green:#00b86b;--green-bg:rgba(0,184,107,.12);--green-text:#00794a;
+  --blue:#00285f;--blue-bg:rgba(0,40,95,.10);--blue-text:#00285f;
+  --red:#e5484d;--red-bg:#fff0f0;--red-text:#c03236;
+  --amber:#f59e0b;--amber-bg:#fff7e6;--amber-text:#925e00;
+  --purple:#3156d4;--purple-bg:rgba(49,86,212,.10);--purple-text:#2742a6;
+  --r:24px;--r-sm:16px;
   font-family:var(--font-sans,'Helvetica Neue',sans-serif);
 }
 .budgetPlanner{background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100%;}
@@ -232,3 +232,24 @@
 .budgetPlanner .card-action{color:var(--muted);}
 .budgetPlanner .card-action:hover{color:var(--text);}
 @media(max-width:680px){.pg{padding:12px}}
+
+/* Landing-inspired visual skin */
+.budgetPlanner { background: transparent; }
+.pg { padding: 20px 28px; gap: 18px; }
+.card, .mc, .month-nav, .cal-selected-info, .income-icon, .empty-state, .modal, .summary-card {
+  background: rgba(255,255,255,.78);
+  border-color: rgba(15,35,71,.085);
+  border-radius: var(--r);
+  box-shadow: 0 16px 42px rgba(7,26,51,.075);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.mc.dark { background: radial-gradient(circle at 88% 12%, rgba(0,184,107,.24), transparent 36%), linear-gradient(135deg, #00285f, #061a3d); }
+.btn, .card-action, .month-nav button, .cal-arrow, .cal-day, .badge { border-radius: 999px; transition-duration: 340ms; transition-timing-function: cubic-bezier(.16,1,.3,1); }
+.btn-dark { background: linear-gradient(135deg, #00b86b, #00a160); border-color: transparent; box-shadow: 0 12px 26px rgba(0,184,107,.20); }
+.btn:hover, .card-action:hover, .month-nav button:hover { transform: translateY(-1px); }
+.cal-day.today, .cal-arrow.open { background: linear-gradient(135deg, #00285f, #0b3978); }
+.cal-day.selected { background: rgba(0,184,107,.10); border-color: rgba(0,184,107,.24); }
+.cal-body { transition: max-height 620ms cubic-bezier(.16,1,.3,1); }
+.progress-fill, .bar-fill { background: linear-gradient(90deg, #00b86b, #00d17a) !important; }
+@media (max-width: 640px) { .pg { padding: 14px 12px; } }

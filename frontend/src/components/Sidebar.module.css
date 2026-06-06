@@ -1,7 +1,7 @@
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #1a1a18;
+  background: var(--accent);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -194,3 +194,24 @@
     display: none;
   }
 }
+
+/* Landing-inspired visual skin */
+.sidebar {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0,184,107,.22), transparent 34%),
+    linear-gradient(180deg, #00285f 0%, #051a3d 62%, #06152e 100%);
+  box-shadow: 18px 0 52px rgba(0, 31, 72, .18);
+}
+.logo { border-bottom-color: rgba(255,255,255,.10); }
+.logoTitle { letter-spacing: -.04em; }
+.navItem, .scanBtn {
+  border-radius: 16px;
+  transition: background var(--dur-mid) var(--ease-out), color var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-spring), box-shadow var(--dur-mid) var(--ease-out);
+}
+.navItem:hover, .scanBtn:hover { transform: translateX(3px); background: rgba(255,255,255,.10); }
+.navItemActive {
+  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(0,184,107,.18)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 10px 28px rgba(0,0,0,.16);
+}
+.navBadge { background: rgba(0,184,107,.18); color: rgba(255,255,255,.76); }
+@media (max-width: 1024px) and (min-width: 641px) { .navItem:hover, .scanBtn:hover { transform: translateY(-1px); } }
