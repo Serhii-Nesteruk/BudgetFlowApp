@@ -34,4 +34,9 @@ public class User
     public DateTime? UpdatedAt { get; set; }
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public ICollection<Debt> Debts { get; set; } = new List<Debt>();
+    public UserSettings? Settings { get; set; }
+    public ICollection<TelegramAccount> TelegramAccounts { get; set; } = new List<TelegramAccount>();
+    public ICollection<TelegramConnectionCode> TelegramConnectionCodes { get; set; } = new List<TelegramConnectionCode>();
+    public ICollection<Budget> OwnedBudgets { get; set; } = new List<Budget>();
+    public ICollection<BudgetSharedUser> SharedBudgets { get; set; } = new List<BudgetSharedUser>();
 }

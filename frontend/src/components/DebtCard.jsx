@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./DebtCard.module.css";
+import { convertAmount, formatCurrency } from "../hooks/useCurrencyRates";
 
 const STATUS_CFG = {
   payable: {
@@ -19,7 +20,7 @@ const STATUS_CFG = {
 const TYPE_ICON = { "one-time": "💸", installment: "🏦", recurring: "🔁" };
 const PRI_COLOR = ["", "#6b7280", "#3b82f6", "#f59e0b", "#ef4444", "#7c3aed"];
 
-export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPayment, onAddRecurring }) {
+export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPayment, onAddRecurring, rates, displayCurrency = "PLN" }) {
   const [expanded, setExpanded] = useState(false);
   const direction = debt.direction || "payable";
   const isReceivable = direction === "receivable";
@@ -28,6 +29,7 @@ export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPaym
   const today = new Date().toISOString().slice(0, 10);
   const daysLeft = Math.round((new Date(debt.dueDate) - new Date()) / 86400000);
   const overdue = debt.dueDate < today && debt.status !== "paid";
+  const money = (value) => formatCurrency(convertAmount(value, debt.currency, displayCurrency, rates), displayCurrency);
 
   return (
     <div className={[
@@ -51,9 +53,9 @@ export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPaym
           </div>
         </div>
         <div className={styles.amountGroup}>
-          <span className={styles.remaining}>₴{debt.remaining.toLocaleString("uk-UA")}</span>
+          <span className={styles.remaining}>{money(debt.remaining)}</span>
           {debt.remaining !== debt.amount && (
-            <span className={styles.total}>з ₴{debt.amount.toLocaleString("uk-UA")}</span>
+            <span className={styles.total}>з {money(debt.amount)}</span>
           )}
         </div>
       </div>
@@ -118,7 +120,7 @@ export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPaym
                   <div key={s.index} className={[styles.scheduleItem, s.paid ? styles.scheduleItemPaid : s.date < today ? styles.scheduleItemOverdue : ""].join(" ")}>
                     <span className={styles.scheduleNum}>#{s.index}</span>
                     <span className={styles.scheduleDate}>{s.date}</span>
-                    <span className={styles.scheduleAmt}>₴{s.amount.toLocaleString("uk-UA")}</span>
+                    <span className={styles.scheduleAmt}>{money(s.amount)}</span>
                     <span className={styles.scheduleMark}>{s.paid ? "✓" : s.date < today ? "!" : "·"}</span>
                   </div>
                 ))}
@@ -134,7 +136,7 @@ export default function DebtCard({ debt, onEdit, onDelete, onMarkPaid, onAddPaym
                   <div key={p.id} className={styles.histItem}>
                     <span className={styles.histDate}>{p.date}</span>
                     <span className={styles.histNote}>{p.note || "—"}</span>
-                    <span className={styles.histAmt}>₴{p.amount.toLocaleString("uk-UA")}</span>
+                    <span className={styles.histAmt}>{money(p.amount)}</span>
                   </div>
                 ))}
               </div>

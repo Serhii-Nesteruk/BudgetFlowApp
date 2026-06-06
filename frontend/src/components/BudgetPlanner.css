@@ -51,3 +51,46 @@
 .copyPreviousChoice small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
 .copyPreviousChoice i { min-width: 18px; color: var(--bp-green); font-style: normal; font-weight: 800; }
 @media(max-width:680px){.splitActions{grid-template-columns:1fr 1fr}.splitActions span{display:none}.splitActions .dangerButton{grid-column:span 2}.dashboardActions .softButton{font-size:11px;padding:9px 10px}.dashboardActions .softButton::first-letter{font-size:inherit}}
+
+/* Budget automation, selectable labels and transaction details */
+.portfolioExpand{max-width:360px;margin:22px auto 0!important;display:block}
+.categoryCard{width:100%;text-align:left;cursor:pointer;color:inherit}
+.categoryCard:focus-visible{outline:3px solid rgba(0,184,107,.22);outline-offset:2px}
+.calendarHint{margin-bottom:9px;color:var(--muted);font-size:10px}
+.emptyCalendar{padding:16px 0;color:var(--muted);font-size:12px}
+.calendarDay{border:0;text-align:left;cursor:pointer;transition:transform 240ms var(--ease-out),background 240ms var(--ease-out),box-shadow 240ms var(--ease-out)}
+.calendarDay:not(.empty):hover{transform:translateY(-2px);box-shadow:0 8px 14px rgba(0,40,95,.08)}
+.calendarDay.planned{box-shadow:inset 0 0 0 1px rgba(37,99,235,.24)}
+.calendarDay i{display:block;margin-top:3px;color:#2563eb;font-size:8px;font-style:normal}
+.budgetModal select,.budgetWizard select{width:100%;margin-top:5px;padding:11px 12px;border:1px solid var(--bp-line);border-radius:13px;background:#fbfdff;color:var(--text);outline:none}
+.labelPicker{margin-top:9px;padding:10px;border:1px solid var(--bp-line);border-radius:15px;background:rgba(248,251,255,.72)}
+.labelOptions{display:flex;flex-wrap:wrap;gap:6px;max-height:154px;overflow:auto}
+.labelOptions button{padding:6px 9px;border:1px solid rgba(0,40,95,.08);border-radius:999px;background:#fff;color:var(--muted);cursor:pointer;font-size:10px;transition:background 220ms var(--ease-out),border-color 220ms var(--ease-out),color 220ms var(--ease-out)}
+.labelOptions button.selected{border-color:rgba(0,184,107,.35);background:rgba(0,184,107,.1);color:#008f54}
+.customLabelRow{display:grid;grid-template-columns:1fr 36px;gap:7px;margin-top:9px}.customLabelRow input{margin:0!important}.customLabelRow button{border:0;border-radius:12px;background:var(--accent-bg);color:var(--bp-green);cursor:pointer;font-size:18px}
+.selectedLabels{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.selectedLabels span{display:flex;align-items:center;gap:4px;padding:4px 7px;border-radius:999px;background:rgba(0,184,107,.09);color:#008f54;font-size:10px}.selectedLabels button{border:0;background:none;color:inherit;cursor:pointer;font-weight:800}
+.checkboxRow{display:flex!important;align-items:center;gap:9px;margin-top:14px!important;padding:11px;border-radius:14px;background:rgba(0,184,107,.06)}.checkboxRow input{width:auto!important;margin:0!important}.checkboxRow span{color:var(--text);font-size:11px;line-height:1.4}
+.categoryExpenseModal{width:min(590px,100%)}.categoryExpenseList{display:flex;flex-direction:column;max-height:430px;overflow:auto}.categoryExpenseRow{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:11px 2px;border-top:1px solid rgba(15,35,71,.065)}.categoryExpenseRow:first-child{border-top:0}.categoryExpenseRow b,.categoryExpenseRow small{display:block}.categoryExpenseRow b{font-size:13px}.categoryExpenseRow small{margin-top:3px;color:var(--muted);font-size:10px}.categoryExpenseRow strong{font-size:13px}.emptyList{padding:14px 0;color:var(--muted);font-size:12px}
+@media(max-width:680px){.calendarDay i{display:none}.labelOptions{max-height:118px}.categoryExpenseList{max-height:60vh}}
+.categoryLabelsEdit{padding-bottom:14px;border-bottom:1px solid rgba(15,35,71,.065);margin-bottom:4px}.categoryLabelsEdit>b,.categoryLabelsEdit>small{display:block}.categoryLabelsEdit>b{font-size:12px}.categoryLabelsEdit>small{margin-top:3px;color:var(--muted);font-size:10px}.categoryLabelsEdit>.primaryButton{margin-top:9px}
+
+/* Monthly budget period selector */
+.monthlyPeriodGrid{display:grid;grid-template-columns:1fr 120px;gap:10px;margin-bottom:4px}
+.budgetExistsNotice{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;padding:12px 13px;border:1px solid rgba(245,158,11,.26);border-radius:15px;background:rgba(245,158,11,.08);color:#8a5a00}
+.budgetExistsNotice b,.budgetExistsNotice small{display:block}
+.budgetExistsNotice small{margin-top:4px;font-size:10px;line-height:1.45;color:#9a6a11}
+.budgetExistsNotice button{flex:none;padding:8px 11px;border:1px solid rgba(245,158,11,.32);border-radius:999px;background:#fff;color:#8a5a00;font-size:11px;font-weight:800;cursor:pointer;transition:transform 260ms var(--ease-out),background 260ms var(--ease-out)}
+.budgetExistsNotice button:hover{transform:translateY(-1px);background:#fffaf0}
+.budgetWizard .primaryButton:disabled{cursor:not-allowed;opacity:.48;transform:none;box-shadow:none}
+@media(max-width:480px){.monthlyPeriodGrid{grid-template-columns:1fr}.budgetExistsNotice{align-items:flex-start;flex-direction:column}.budgetExistsNotice button{width:100%}}
+
+
+/* Forward monthly budget planning */
+.budgetTileTop{gap:7px;flex-wrap:wrap}.budgetTileArrow{margin-left:auto}
+.budgetLifecycle{padding:4px 7px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.02em}
+.budgetLifecycle.active{background:rgba(0,184,107,.12);color:#008f54}.budgetLifecycle.planned{background:rgba(37,99,235,.1);color:#2563eb}.budgetLifecycle.history{background:rgba(15,35,71,.07);color:var(--muted)}
+.budgetTile.planned{border-color:rgba(37,99,235,.16);background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(240,246,255,.78))}.budgetTile.history{opacity:.86}.plannedHint{display:block;max-width:245px;margin-top:7px;color:#2563eb!important;font-size:9px!important;line-height:1.45}
+.planMonthsModal{width:min(590px,100%)}.planMonthsIntro{margin:-2px 0 16px;color:var(--muted);font-size:12px;line-height:1.65}.planHorizonGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.planHorizonGrid button{display:grid;gap:2px;place-items:center;padding:17px 10px;border:1px solid var(--bp-line);border-radius:17px;background:#f9fbfe;color:var(--text);cursor:pointer;transition:transform 260ms var(--ease-out),border-color 260ms var(--ease-out),background 260ms var(--ease-out)}.planHorizonGrid button:hover{transform:translateY(-2px)}.planHorizonGrid button.selected{border-color:rgba(0,184,107,.42);background:rgba(0,184,107,.08);box-shadow:inset 0 0 0 1px rgba(0,184,107,.1)}.planHorizonGrid b{font-size:23px}.planHorizonGrid small{color:var(--muted);font-size:10px}.planPreview{margin:15px 0;padding:13px;border-radius:16px;background:rgba(37,99,235,.055);border:1px solid rgba(37,99,235,.11)}.planPreview>b,.planPreview>small{display:block}.planPreview>b{font-size:12px}.planPreview>small{margin-top:9px;color:var(--muted);font-size:10px;line-height:1.45}.planPreview>div{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.planPreview span{padding:5px 8px;border-radius:999px;background:#fff;color:#2563eb;font-size:10px;font-weight:700}
+@media(max-width:480px){.planHorizonGrid{gap:6px}.planHorizonGrid button{padding:14px 8px}.planMonthsModal .modalActions{display:grid;grid-template-columns:1fr}.planMonthsModal .modalActions button{width:100%}}
+
+.plannedBudgetNotice{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:center;margin-top:14px;padding:13px 15px;border:1px solid rgba(37,99,235,.15);border-radius:17px;background:rgba(37,99,235,.055)}.plannedBudgetNotice>span{width:35px;height:35px;display:grid;place-items:center;border-radius:12px;background:#fff;color:#2563eb;font-size:18px}.plannedBudgetNotice b,.plannedBudgetNotice small{display:block}.plannedBudgetNotice b{font-size:12px}.plannedBudgetNotice small{margin-top:3px;color:var(--muted);font-size:10px;line-height:1.5}

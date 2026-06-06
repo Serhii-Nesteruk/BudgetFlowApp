@@ -1,108 +1,188 @@
-import { useState, useCallback } from "react";
-import { loadDebts, saveDebts, DEBT_DIRECTIONS } from "../data/debtsStore";
+import { useCallback, useEffect, useState } from "react";
+import {
+  addDebtPayment,
+  addDebtRecurringCharge,
+  createDebt,
+  deleteDebt as deleteDebtRequest,
+  getDebts,
+  markDebtPaid,
+  updateDebt as updateDebtRequest,
+} from "../api/debtsApi";
 
-function recalcStatus(debt) {
-  if (debt.status === "paid") return "paid";
-  const today = new Date().toISOString().slice(0, 10);
-  if (debt.remaining <= 0) return "paid";
-  if (debt.paymentHistory.length > 0 && debt.remaining < debt.amount) {
-    if (debt.dueDate < today) return "overdue";
-    return "partial";
-  }
-  if (debt.dueDate < today) return "overdue";
-  return "unpaid";
+function toDateInput(value) {
+  return value ? String(value).slice(0, 10) : "";
+}
+
+function toUtcDate(value) {
+  if (!value) return null;
+  return String(value).includes("T") ? value : `${value}T00:00:00Z`;
+}
+
+function normalizeDebt(debt) {
+  return {
+    ...debt,
+    id: Number(debt.id),
+    direction: debt.direction || "payable",
+    currency: debt.currency || "UAH",
+    dueDate: toDateInput(debt.dueDate),
+    startDate: toDateInput(debt.startDate),
+    createdAt: toDateInput(debt.createdAt),
+    updatedAt: toDateInput(debt.updatedAt),
+    amount: Number(debt.amount || 0),
+    remaining: Number(debt.remaining || 0),
+    monthlyPayment: debt.monthlyPayment == null ? null : Number(debt.monthlyPayment),
+    paymentHistory: (debt.paymentHistory || []).map((payment) => ({
+      ...payment,
+      id: Number(payment.id),
+      date: toDateInput(payment.date),
+      amount: Number(payment.amount || 0),
+    })),
+    installmentSchedule: (debt.installmentSchedule || []).map((item) => ({
+      ...item,
+      id: Number(item.id),
+      date: toDateInput(item.date),
+      amount: Number(item.amount || 0),
+    })),
+  };
+}
+
+function toPayload(data) {
+  return {
+    direction: data.direction || "payable",
+    type: data.type || "one-time",
+    creditor: data.creditor?.trim() || "",
+    amount: Number(data.amount || 0),
+    remaining: Number(data.remaining || 0),
+    currency: data.currency || "UAH",
+    dueDate: toUtcDate(data.dueDate),
+    priority: Number(data.priority || 3),
+    notes: data.notes?.trim() || "",
+    totalInstallments: data.totalInstallments == null || data.totalInstallments === ""
+      ? null
+      : Number(data.totalInstallments),
+    paidInstallments: data.paidInstallments == null || data.paidInstallments === ""
+      ? null
+      : Number(data.paidInstallments),
+    monthlyPayment: data.monthlyPayment == null || data.monthlyPayment === ""
+      ? null
+      : Number(data.monthlyPayment),
+    startDate: toUtcDate(data.startDate),
+    recurringDay: data.recurringDay == null || data.recurringDay === ""
+      ? null
+      : Number(data.recurringDay),
+    recurringPeriod: data.recurringPeriod || null,
+  };
 }
 
 export function useDebts() {
-  const [debts, setDebts] = useState(() => loadDebts());
+  const [debts, setDebts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const persist = useCallback((next) => {   
-    setDebts(next);
-    saveDebts(next);
+  const loadDebts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await getDebts();
+      setDebts((result || []).map(normalizeDebt));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const addDebt = useCallback((data) => {
-    const newDebt = {
-      ...data,
-      direction: data.direction || DEBT_DIRECTIONS.PAYABLE,
-      id: `d${Date.now()}`,
-      remaining: data.type === "installment"
-        ? data.amount - (data.paidInstallments || 0) * (data.monthlyPayment || 0)
-        : data.amount,
-      paymentHistory: [],
-      status: "unpaid",
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    if (data.type === "installment") {
-      newDebt.installmentSchedule = generateInstallments(
-        data.amount, data.totalInstallments, data.monthlyPayment, data.startDate
-      );
+  useEffect(() => {
+    loadDebts();
+  }, [loadDebts]);
+
+  const replaceDebt = useCallback((updated) => {
+    const normalized = normalizeDebt(updated);
+    setDebts((items) => items.map((item) => item.id === normalized.id ? normalized : item));
+    return normalized;
+  }, []);
+
+  const addDebt = useCallback(async (data) => {
+    try {
+      setError(null);
+      const created = normalizeDebt(await createDebt(toPayload(data)));
+      setDebts((items) => [created, ...items]);
+      return created;
+    } catch (e) {
+      setError(e.message);
+      throw e;
     }
-    persist([newDebt, ...debts]);
-  }, [debts, persist]);
+  }, []);
 
-  const updateDebt = useCallback((id, data) => {
-    const next = debts.map(d => d.id === id ? { ...d, ...data, status: recalcStatus({ ...d, ...data }) } : d);
-    persist(next);
-  }, [debts, persist]);
+  const updateDebt = useCallback(async (id, data) => {
+    try {
+      setError(null);
+      return replaceDebt(await updateDebtRequest(id, toPayload(data)));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [replaceDebt]);
 
-  const deleteDebt = useCallback((id) => {
-    persist(debts.filter(d => d.id !== id));
-  }, [debts, persist]);
+  const deleteDebt = useCallback(async (id) => {
+    try {
+      setError(null);
+      await deleteDebtRequest(id);
+      setDebts((items) => items.filter((item) => item.id !== id));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, []);
 
-  const markPaid = useCallback((id) => {
-    const next = debts.map(d => {
-      if (d.id !== id) return d;
-      const payment = {
-        id: `p${Date.now()}`,
-        date: new Date().toISOString().slice(0, 10),
-        amount: d.remaining,
-        note: d.direction === DEBT_DIRECTIONS.RECEIVABLE ? "Позначено як повернено" : "Позначено як оплачено",
-      };
-      return { ...d, remaining: 0, status: "paid", paymentHistory: [...d.paymentHistory, payment] };
-    });
-    persist(next);
-  }, [debts, persist]);
+  const markPaid = useCallback(async (id) => {
+    try {
+      setError(null);
+      return replaceDebt(await markDebtPaid(id));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [replaceDebt]);
 
-  const addPayment = useCallback((id, payment) => {
-    const next = debts.map(d => {
-      if (d.id !== id) return d;
-      const newHistory = [...d.paymentHistory, { ...payment, id: `p${Date.now()}` }];
-      const newRemaining = Math.max(0, d.remaining - payment.amount);
-      const updated = { ...d, remaining: newRemaining, paymentHistory: newHistory };
+  const addPayment = useCallback(async (id, payment) => {
+    try {
+      setError(null);
+      return replaceDebt(await addDebtPayment(id, {
+        date: toUtcDate(payment.date),
+        amount: Number(payment.amount),
+        note: payment.note?.trim() || "",
+      }));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [replaceDebt]);
 
-      if (d.type === "installment" && d.installmentSchedule) {
-        const unpaidIdx = d.installmentSchedule.findIndex(s => !s.paid);
-        if (unpaidIdx !== -1) {
-          const newSchedule = d.installmentSchedule.map((s, i) => i === unpaidIdx ? { ...s, paid: true } : s);
-          updated.installmentSchedule = newSchedule;
-          updated.paidInstallments = (d.paidInstallments || 0) + 1;
-        }
-      }
-      updated.status = recalcStatus(updated);
-      return updated;
-    });
-    persist(next);
-  }, [debts, persist]);
+  const addRecurringCharge = useCallback(async (id, charge) => {
+    try {
+      setError(null);
+      return replaceDebt(await addDebtRecurringCharge(id, {
+        dueDate: toUtcDate(charge.dueDate || charge.date),
+        amount: Number(charge.amount),
+        note: charge.note?.trim() || "",
+      }));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [replaceDebt]);
 
-  const addRecurringCharge = useCallback((id, charge) => {
-    const next = debts.map(d => {
-      if (d.id !== id) return d;
-      return { ...d, remaining: charge.amount, amount: charge.amount, dueDate: charge.dueDate, status: "unpaid", notes: charge.note || d.notes };
-    });
-    persist(next);
-  }, [debts, persist]);
-
-  return { debts, addDebt, updateDebt, deleteDebt, markPaid, addPayment, addRecurringCharge };
-}
-
-function generateInstallments(total, count, monthly, startDate) {
-  const result = [];
-  const start = new Date(startDate);
-  for (let i = 0; i < count; i++) {
-    const d = new Date(start);
-    d.setMonth(d.getMonth() + i + 1);
-    result.push({ index: i + 1, date: d.toISOString().slice(0, 10), amount: monthly, paid: false });
-  }
-  return result;
+  return {
+    debts,
+    loading,
+    error,
+    reload: loadDebts,
+    addDebt,
+    updateDebt,
+    deleteDebt,
+    markPaid,
+    addPayment,
+    addRecurringCharge,
+  };
 }

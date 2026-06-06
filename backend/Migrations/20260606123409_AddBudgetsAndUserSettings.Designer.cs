@@ -3,6 +3,7 @@ using System;
 using BudgetFlowAPi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BudgetFlowAPi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260606123409_AddBudgetsAndUserSettings")]
+    partial class AddBudgetsAndUserSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +32,6 @@ namespace BudgetFlowAPi.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("AutoCreateNextMonthly")
-                        .HasColumnType("boolean")
-                        .HasColumnName("auto_create_next_monthly");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -105,9 +104,6 @@ namespace BudgetFlowAPi.Migrations
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("ShareToken")
-                        .IsUnique();
-
-                    b.HasIndex("OwnerId", "Year", "Month")
                         .IsUnique();
 
                     b.ToTable("budgets");
@@ -239,10 +235,6 @@ namespace BudgetFlowAPi.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("amount");
 
-                    b.Property<int?>("BudgetCategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("budget_category_id");
-
                     b.Property<int>("BudgetId")
                         .HasColumnType("integer")
                         .HasColumnName("budget_id");
@@ -268,8 +260,6 @@ namespace BudgetFlowAPi.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BudgetCategoryId");
 
                     b.HasIndex("BudgetId");
 
@@ -891,11 +881,6 @@ namespace BudgetFlowAPi.Migrations
 
             modelBuilder.Entity("BudgetFlowAPi.Models.BudgetMandatoryExpense", b =>
                 {
-                    b.HasOne("BudgetFlowAPi.Models.BudgetCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("BudgetCategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("BudgetFlowAPi.Models.Budget", "Budget")
                         .WithMany("MandatoryExpenses")
                         .HasForeignKey("BudgetId")
@@ -903,8 +888,6 @@ namespace BudgetFlowAPi.Migrations
                         .IsRequired();
 
                     b.Navigation("Budget");
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("BudgetFlowAPi.Models.BudgetPlannedExpense", b =>

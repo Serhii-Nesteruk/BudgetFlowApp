@@ -26,7 +26,7 @@ public class DebtDto
 
     [Required]
     [MaxLength(5)]
-    public string Currency { get; set; } = "PLN";
+    public string Currency { get; set; } = "UAH";
 
     [Required]
     public DateTime DueDate { get; set; }

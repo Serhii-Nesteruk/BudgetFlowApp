@@ -571,3 +571,42 @@ Response body відсутній.
 - `TransactionType` використовується як enum, але його значення не наведені у фрагменті коду.
 - Для захищених ендпоінтів `userId` береться з JWT claims через `ClaimsPrincipalExtensions.GetUserId(User)`.
 - У `PUT /transactions/{id}` поле `details` не оновлюється напряму, хоча є в `TransactionDto`.
+
+---
+
+# Debts
+
+Усі ендпоінти секції `Debts` потребують JWT. Користувач може працювати лише зі своїми боргами або позиками.
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/debts` | Список усіх боргів і позик поточного користувача |
+| `GET` | `/debts/{id}` | Деталі запису з історією платежів і графіком розстрочки |
+| `POST` | `/debts` | Створення боргу або позики |
+| `PUT` | `/debts/{id}` | Редагування запису |
+| `DELETE` | `/debts/{id}` | Видалення запису |
+| `POST` | `/debts/{id}/payments` | Додавання платежу або повернення |
+| `POST` | `/debts/{id}/mark-paid` | Закриття боргу або позики одним платежем |
+| `POST` | `/debts/{id}/recurring-charge` | Створення нового періоду регулярного платежу |
+
+`direction` підтримує значення `payable` та `receivable`.  
+`type` підтримує значення `one-time`, `installment` та `recurring`.
+
+## User settings
+- `GET /users/settings`
+- `PUT /users/settings`
+- `POST /users/settings/telegram/connection-code`
+- `POST /users/settings/telegram/verify`
+- `DELETE /users/settings/telegram/accounts/{id}`
+
+## Budgets
+- `GET /budgets`
+- `GET /budgets/{id}`
+- `GET /budgets/shared/{token}`
+- `POST /budgets`
+- `PUT /budgets/{id}`
+- `DELETE /budgets/{id}`
+- Child CRUD routes: categories, income sources, mandatory expenses and planned expenses
+- `POST /budgets/{id}/shared-users`
+- `DELETE /budgets/{id}/shared-users/{userId}`
+- `POST /budgets/{id}/sharing?enabled=true&regenerateToken=false`

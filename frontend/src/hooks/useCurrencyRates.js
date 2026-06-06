@@ -70,3 +70,23 @@ export function toBase(amount, currency, rates) {
   if (!r) return Number(amount); // unknown currency — pass through
   return Number(amount) / r;
 }
+
+
+export function convertAmount(amount, fromCurrency = "PLN", toCurrency = "PLN", rates) {
+  const value = Number(amount || 0);
+  if (!rates || !fromCurrency || !toCurrency || fromCurrency === toCurrency) return value;
+  const fromRate = rates[fromCurrency];
+  const toRate = rates[toCurrency];
+  if (!fromRate || !toRate) return value;
+  const valueInPln = value / fromRate;
+  return valueInPln * toRate;
+}
+
+export function currencySymbol(currency = "PLN") {
+  return ({ PLN: "zł", UAH: "₴", USD: "$", EUR: "€", GBP: "£" })[currency] || currency;
+}
+
+export function formatCurrency(amount, currency = "PLN") {
+  const value = Number(amount || 0);
+  return `${value.toLocaleString("uk-UA", { maximumFractionDigits: 2 })} ${currencySymbol(currency)}`;
+}

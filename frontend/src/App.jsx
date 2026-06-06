@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useExpenses } from "./hooks/useExpenses";
 import { useCurrencyRates } from "./hooks/useCurrencyRates";
+import { useUserSettings } from "./hooks/useUserSettings";
 import { buildExpenseSummaryPLN } from "./utils/expenseStats";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
@@ -23,6 +24,8 @@ export default function App() {
   const [scanOpen, setScanOpen] = useState(false);
   const [statsMounted, setStatsMounted] = useState(false);
   const { rates, error: ratesError } = useCurrencyRates();
+  const { settings } = useUserSettings();
+  const baseCurrency = settings.baseCurrency || "PLN";
 
   const {
     data, loading, error, filtered, allPlaces,
@@ -116,8 +119,8 @@ export default function App() {
                   <StatsTab data={data} rates={rates} ratesError={ratesError} />
                 </div>
               )}
-              {activeTab === "budget" && <BudgetPage />}
-              {activeTab === "debts" && <DebtsPage />}
+              {activeTab === "budget" && <BudgetPage expenses={data} rates={rates} baseCurrency={baseCurrency} />}
+              {activeTab === "debts" && <DebtsPage rates={rates} baseCurrency={baseCurrency} />}
               {activeTab === "settings" && <SettingsPage />}
             </>
           )}

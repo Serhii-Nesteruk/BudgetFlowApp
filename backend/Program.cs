@@ -57,6 +57,10 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddScoped<IRepository<Receipt>, ReceiptRepository>();
 builder.Services.AddScoped<IReceiptRepository, ReceiptRepository>();
+builder.Services.AddScoped<IRepository<Debt>, DebtRepository>();
+builder.Services.AddScoped<IDebtRepository, DebtRepository>();
+builder.Services.AddScoped<IRepository<Budget>, BudgetRepository>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:8000/");
@@ -67,6 +71,8 @@ builder.Services.AddScoped<IReceiptService, ReceiptService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IDebtService, DebtService>();
+builder.Services.AddScoped<IBudgetService, BudgetService>();
 
 var app = builder.Build();
 

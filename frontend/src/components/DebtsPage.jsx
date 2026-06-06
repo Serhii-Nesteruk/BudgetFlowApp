@@ -4,6 +4,7 @@ import DebtCard from "./DebtCard";
 import DebtsModal from "./DebtsModal";
 import PaymentModal from "./PaymentModal";
 import styles from "./DebtsPage.module.css";
+import { convertAmount, formatCurrency } from "../hooks/useCurrencyRates";
 
 const DIRECTION_FILTERS = [
   { value: "payable",    label: "Я винен",     hint: "Мої зобов’язання" },
@@ -34,8 +35,8 @@ const SORT_OPTIONS = [
 
 const STATUS_ORDER = { overdue: 0, unpaid: 1, partial: 2, paid: 3 };
 
-export default function DebtsPage() {
-  const { debts, addDebt, updateDebt, deleteDebt, markPaid, addPayment, addRecurringCharge } = useDebts();
+export default function DebtsPage({ rates, baseCurrency = "PLN" }) {
+  const { debts, loading, error, addDebt, updateDebt, deleteDebt, markPaid, addPayment, addRecurringCharge } = useDebts();
 
   const [direction, setDirection]           = useState("payable");
   const [statusFilter, setStatusFilter]     = useState("all");
@@ -51,7 +52,7 @@ export default function DebtsPage() {
   // ── Stats ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const active = directionDebts.filter(d => d.status !== "paid");
-    const totalRemaining = active.reduce((s, d) => s + d.remaining, 0);
+    const totalRemaining = active.reduce((s, d) => s + convertAmount(d.remaining, d.currency, baseCurrency, rates), 0);
     const overdue = directionDebts.filter(d => d.status === "overdue").length;
     const dueThisMonth = active.filter(d => {
       const today = new Date();
@@ -59,7 +60,7 @@ export default function DebtsPage() {
       return due.getFullYear() === today.getFullYear() && due.getMonth() === today.getMonth();
     }).length;
     return { totalRemaining, overdue, dueThisMonth, total: directionDebts.length };
-  }, [directionDebts]);
+  }, [directionDebts, rates, baseCurrency]);
 
   const directionCounts = useMemo(() => ({
     payable: debts.filter(d => (d.direction || "payable") === "payable" && d.status !== "paid").length,
@@ -90,20 +91,32 @@ export default function DebtsPage() {
   }
   function handleAdd()        { setEditDebt(null); setModalOpen(true); }
   function handleEdit(id)     { setEditDebt(debts.find(d => d.id === id)); setModalOpen(true); }
-  function handleSave(data)   { editDebt ? updateDebt(editDebt.id, data) : addDebt(data); setModalOpen(false); }
+  async function handleSave(data) {
+    try {
+      if (editDebt) await updateDebt(editDebt.id, data);
+      else await addDebt(data);
+      setModalOpen(false);
+    } catch {
+      // The hook exposes the API error below the controls.
+    }
+  }
   function handleDelete(id)   {
     const debt = debts.find(d => d.id === id);
     const text = debt?.direction === "receivable" ? "Видалити запис про позику?" : "Видалити цей борг?";
-    if (window.confirm(text)) deleteDebt(id);
+    if (window.confirm(text)) deleteDebt(id).catch(() => {});
   }
 
   function handleAddPayment(id)   { setPayModal({ open: true, debtId: id, mode: "payment" }); }
   function handleAddRecurring(id) { setPayModal({ open: true, debtId: id, mode: "recurring" }); }
-  function handlePaySave(data) {
+  async function handlePaySave(data) {
     const { debtId, mode } = payModal;
-    if (mode === "payment")   addPayment(debtId, data);
-    else                      addRecurringCharge(debtId, data);
-    setPayModal({ open: false, debtId: null, mode: "payment" });
+    try {
+      if (mode === "payment") await addPayment(debtId, data);
+      else await addRecurringCharge(debtId, data);
+      setPayModal({ open: false, debtId: null, mode: "payment" });
+    } catch {
+      // The hook exposes the API error below the controls.
+    }
   }
 
   const payDebt = debts.find(d => d.id === payModal.debtId) || null;
@@ -137,7 +150,7 @@ export default function DebtsPage() {
 
       {/* ── Summary cards ── */}
       <div className={[styles.summaryRow, isReceivable ? styles.summaryRowReceivable : ""].join(" ")}>
-        <SumCard label={isReceivable ? "Мені мають повернути" : "Загальний борг"} value={`₴${stats.totalRemaining.toLocaleString("uk-UA")}`} accent={isReceivable ? "green" : "red"} />
+        <SumCard label={isReceivable ? "Мені мають повернути" : "Загальний борг"} value={formatCurrency(stats.totalRemaining, baseCurrency)} accent={isReceivable ? "green" : "red"} />
         <SumCard label="Прострочено" value={stats.overdue} accent={stats.overdue > 0 ? "red" : "gray"} />
         <SumCard label={isReceivable ? "Повернень цього міс" : "Платежів цього міс"} value={stats.dueThisMonth} accent="blue" />
         <SumCard label={isReceivable ? "Всього позик" : "Всього боргів"} value={stats.total} accent="gray" />
@@ -170,8 +183,12 @@ export default function DebtsPage() {
         </div>
       </div>
 
+      {error && <div style={{ marginBottom: 14, color: "#b42318", fontWeight: 700 }}>⚠ {error}</div>}
+
       {/* ── List ── */}
-      {visible.length === 0 ? (
+      {loading ? (
+        <div className={styles.empty}><p>Завантаження боргів…</p></div>
+      ) : visible.length === 0 ? (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>{isReceivable ? "🤝" : "🎉"}</span>
           <p>{isReceivable ? "Ніхто нічого не винен" : "Боргів не знайдено"}</p>
@@ -187,17 +204,19 @@ export default function DebtsPage() {
               debt={debt}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onMarkPaid={markPaid}
+              onMarkPaid={(id) => markPaid(id).catch(() => {})}
               onAddPayment={handleAddPayment}
               onAddRecurring={handleAddRecurring}
+              rates={rates}
+              displayCurrency={baseCurrency}
             />
           ))}
         </div>
       )}
 
       {/* ── Modals ── */}
-      <DebtsModal open={modalOpen} debt={editDebt} defaultDirection={direction} onSave={handleSave} onClose={() => setModalOpen(false)} />
-      <PaymentModal open={payModal.open} debt={payDebt} mode={payModal.mode} onSave={handlePaySave} onClose={() => setPayModal({ open: false, debtId: null, mode: "payment" })} />
+      <DebtsModal open={modalOpen} debt={editDebt} defaultDirection={direction} defaultCurrency={baseCurrency} onSave={handleSave} onClose={() => setModalOpen(false)} />
+      <PaymentModal open={payModal.open} debt={payDebt} mode={payModal.mode} rates={rates} displayCurrency={baseCurrency} onSave={handlePaySave} onClose={() => setPayModal({ open: false, debtId: null, mode: "payment" })} />
     </div>
   );
 }

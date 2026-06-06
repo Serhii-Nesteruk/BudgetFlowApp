@@ -13,10 +13,11 @@ const TYPES = [
 ];
 const PRIORITIES = [1, 2, 3, 4, 5];
 
-function makeEmpty(direction = "payable") {
+function makeEmpty(direction = "payable", currency = "PLN") {
   return {
     direction,
     type: "one-time",
+    currency,
     creditor: "",
     amount: "",
     dueDate: "",
@@ -30,8 +31,8 @@ function makeEmpty(direction = "payable") {
   };
 }
 
-export default function DebtModal({ open, debt, defaultDirection = "payable", onSave, onClose }) {
-  const [form, setForm] = useState(() => makeEmpty(defaultDirection));
+export default function DebtModal({ open, debt, defaultDirection = "payable", defaultCurrency = "PLN", onSave, onClose }) {
+  const [form, setForm] = useState(() => makeEmpty(defaultDirection, defaultCurrency));
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function DebtModal({ open, debt, defaultDirection = "payable", on
       setForm({
         direction: debt.direction || "payable",
         type: debt.type || "one-time",
+        currency: debt.currency || defaultCurrency,
         creditor: debt.creditor || "",
         amount: debt.amount || "",
         dueDate: debt.dueDate || "",
@@ -52,10 +54,10 @@ export default function DebtModal({ open, debt, defaultDirection = "payable", on
         recurringPeriod: debt.recurringPeriod || "monthly",
       });
     } else {
-      setForm(makeEmpty(defaultDirection));
+      setForm(makeEmpty(defaultDirection, defaultCurrency));
     }
     setErrors({});
-  }, [open, debt, defaultDirection]);
+  }, [open, debt, defaultDirection, defaultCurrency]);
 
   if (!open) return null;
 
@@ -84,6 +86,7 @@ export default function DebtModal({ open, debt, defaultDirection = "payable", on
       type: form.type,
       creditor: form.creditor.trim(),
       amount: Number(form.amount),
+      currency: form.currency || defaultCurrency,
       dueDate: form.dueDate,
       priority: form.priority,
       notes: form.notes.trim(),
@@ -150,8 +153,9 @@ export default function DebtModal({ open, debt, defaultDirection = "payable", on
 
           <div className={styles.cols2}>
             <div className={styles.row}>
-              <label className={styles.label}>Сума (₴) *</label>
+              <label className={styles.label}>Сума *</label>
               <input className={[styles.input, errors.amount ? styles.inputErr : ""].join(" ")} type="number" min="0" step="0.01" value={form.amount} onChange={e => set("amount", e.target.value)} placeholder="0.00" />
+              <select className={styles.input} value={form.currency || defaultCurrency} onChange={e => set("currency", e.target.value)}><option value="PLN">PLN</option><option value="UAH">UAH</option><option value="USD">USD</option><option value="EUR">EUR</option></select>
               {errors.amount && <span className={styles.err}>{errors.amount}</span>}
             </div>
             <div className={styles.row}>
@@ -169,7 +173,7 @@ export default function DebtModal({ open, debt, defaultDirection = "payable", on
                 {errors.totalInstallments && <span className={styles.err}>{errors.totalInstallments}</span>}
               </div>
               <div className={styles.row}>
-                <label className={styles.label}>Щомісячний платіж (₴) *</label>
+                <label className={styles.label}>Щомісячний платіж *</label>
                 <input className={[styles.input, errors.monthlyPayment ? styles.inputErr : ""].join(" ")} type="number" min="0" value={form.monthlyPayment} onChange={e => set("monthlyPayment", e.target.value)} placeholder="2000" />
                 {errors.monthlyPayment && <span className={styles.err}>{errors.monthlyPayment}</span>}
               </div>

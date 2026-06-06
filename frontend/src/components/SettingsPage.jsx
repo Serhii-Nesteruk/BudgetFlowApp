@@ -1,4 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  deleteTelegramAccount,
+  generateTelegramConnectionCode,
+  getUserSettings,
+  updateUserSettings,
+} from "../api/userSettingsApi";
 import styles from "./SettingsPage.module.css";
 
 const DEFAULT_NOTIFICATIONS = {
@@ -33,12 +39,12 @@ const IconTrash = () => (
   </svg>
 );
 
-function makeCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+function dateLabel(value) {
+  return value ? new Date(value).toLocaleDateString("uk-UA") : "";
 }
 
 export default function SettingsPage() {
-  const [currency, setCurrency] = useState("UAH");
+  const [currency, setCurrency] = useState("PLN");
   const [language, setLanguage] = useState("uk");
   const [accounts, setAccounts] = useState([]);
   const [connectData, setConnectData] = useState(null);
@@ -47,13 +53,94 @@ export default function SettingsPage() {
   const [debtReminderBefore, setDebtReminderBefore] = useState("3");
   const [debtRepeat, setDebtRepeat] = useState("24");
   const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const hydrated = useRef(false);
 
   const hasTelegram = accounts.length > 0;
-  const telegramLink = useMemo(() => "https://t.me/finance_tracker_demo_bot", []);
+  const telegramLink = useMemo(() => connectData?.botLink || "https://t.me/finance_tracker_demo_bot", [connectData]);
 
-  function openConnection() {
-    setConnectData({ code: makeCode(), link: telegramLink });
-    setCopied("");
+  function applySettings(data) {
+    setCurrency(data.baseCurrency || "PLN");
+    setLanguage(data.language || "uk");
+    setMinGap(String(data.minimumNotificationGapMinutes ?? 30));
+    setDebtReminderBefore(String(data.debtReminderBeforeDays ?? 3));
+    setDebtRepeat(String(data.debtReminderRepeatHours ?? 24));
+    setNotifications((current) => {
+      const next = {
+        budgetLimit: data.budgetLimitNotificationsEnabled ?? true,
+        newEntry: data.newEntryNotificationsEnabled ?? false,
+        debtDeadline: data.debtDeadlineNotificationsEnabled ?? true,
+      };
+      return current.budgetLimit === next.budgetLimit &&
+        current.newEntry === next.newEntry &&
+        current.debtDeadline === next.debtDeadline
+        ? current
+        : next;
+    });
+    setAccounts(data.telegramAccounts || []);
+  }
+
+  async function loadSettings({ quiet = false } = {}) {
+    try {
+      if (!quiet) setLoading(true);
+      setError("");
+      const data = await getUserSettings();
+      applySettings(data);
+      hydrated.current = true;
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      if (!quiet) setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!connectData) return undefined;
+    const timer = window.setInterval(() => loadSettings({ quiet: true }), 4000);
+    return () => window.clearInterval(timer);
+  }, [connectData]);
+
+  useEffect(() => {
+    if (!hydrated.current) return undefined;
+    const timer = window.setTimeout(async () => {
+      try {
+        setSaving(true);
+        setError("");
+        const data = await updateUserSettings({
+          baseCurrency: currency,
+          language,
+          minimumNotificationGapMinutes: Number(minGap || 30),
+          budgetLimitNotificationsEnabled: notifications.budgetLimit,
+          newEntryNotificationsEnabled: notifications.newEntry,
+          debtDeadlineNotificationsEnabled: notifications.debtDeadline,
+          debtReminderBeforeDays: Number(debtReminderBefore || 3),
+          debtReminderRepeatHours: Number(debtRepeat || 24),
+        });
+        setAccounts(data.telegramAccounts || []);
+        window.dispatchEvent(new CustomEvent("user-settings-updated", { detail: data }));
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setSaving(false);
+      }
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [currency, language, minGap, debtReminderBefore, debtRepeat, notifications]);
+
+  async function openConnection() {
+    try {
+      setError("");
+      setConnectData(await generateTelegramConnectionCode());
+      setCopied("");
+    } catch (e) {
+      setError(e.message);
+    }
   }
 
   async function copyText(value, field) {
@@ -66,24 +153,22 @@ export default function SettingsPage() {
     }
   }
 
-  function simulateConnection() {
-    setAccounts(current => {
-      if (current.some(account => account.username === "@serhii_finance")) return current;
-      return [
-        ...current,
-        {
-          id: Date.now(),
-          username: "@serhii_finance",
-          displayName: "Serhii",
-          connectedAt: new Date().toLocaleDateString("uk-UA"),
-        },
-      ];
-    });
-    setConnectData(null);
+  async function removeAccount(id) {
+    try {
+      setError("");
+      await deleteTelegramAccount(id);
+      setAccounts((items) => items.filter((item) => item.id !== id));
+    } catch (e) {
+      setError(e.message);
+    }
   }
 
   function toggleNotification(key) {
-    setNotifications(current => ({ ...current, [key]: !current[key] }));
+    setNotifications((current) => ({ ...current, [key]: !current[key] }));
+  }
+
+  if (loading) {
+    return <div className={styles.page}><div className={styles.heading}><div><h1>Налаштування</h1><p>Завантаження…</p></div></div></div>;
   }
 
   return (
@@ -93,8 +178,10 @@ export default function SettingsPage() {
           <h1>Налаштування</h1>
           <p>Конфігурація застосунку та підключених сервісів.</p>
         </div>
-        <span className={styles.mockBadge}>Візуальна демо-версія</span>
+        <span className={styles.mockBadge}>{saving ? "Збереження…" : "Збережено в акаунті"}</span>
       </div>
+
+      {error && <div style={{ marginBottom: 14, color: "#b42318", fontWeight: 700 }}>⚠ {error}</div>}
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
@@ -113,21 +200,21 @@ export default function SettingsPage() {
               <div className={styles.emptyIcon}><IconTelegram size={20} /></div>
               <div>
                 <strong>Ще немає підключених акаунтів</strong>
-                <p>Після підключення Telegram-акаунт з’явиться у цьому списку.</p>
+                <p>Після надсилання одноразового коду боту акаунт з’явиться у цьому списку.</p>
               </div>
             </div>
           ) : (
             <div className={styles.accountList}>
-              {accounts.map(account => (
+              {accounts.map((account) => (
                 <div className={styles.accountRow} key={account.id}>
-                  <div className={styles.accountAvatar}>{account.displayName.slice(0, 1)}</div>
+                  <div className={styles.accountAvatar}>{(account.displayName || account.username || "T").slice(0, 1)}</div>
                   <div className={styles.accountInfo}>
-                    <strong>{account.displayName}</strong>
-                    <span>{account.username}</span>
+                    <strong>{account.displayName || "Telegram"}</strong>
+                    <span>{account.username || `ID: ${account.telegramUserId}`}</span>
                   </div>
                   <span className={styles.connectedBadge}><IconCheck /> Підключено</span>
-                  <span className={styles.accountDate}>{account.connectedAt}</span>
-                  <button className={styles.iconBtn} aria-label="Видалити акаунт" onClick={() => setAccounts(current => current.filter(item => item.id !== account.id))}>
+                  <span className={styles.accountDate}>{dateLabel(account.connectedAt)}</span>
+                  <button className={styles.iconBtn} aria-label="Видалити акаунт" onClick={() => removeAccount(account.id)}>
                     <IconTrash />
                   </button>
                 </div>
@@ -146,15 +233,15 @@ export default function SettingsPage() {
         </div>
         <div className={styles.formGrid}>
           <Field label="Основна валюта" hint="Використовується для відображення сум у застосунку.">
-            <select value={currency} onChange={event => setCurrency(event.target.value)}>
+            <select value={currency} onChange={(event) => setCurrency(event.target.value)}>
               <option value="UAH">Українська гривня (₴)</option>
               <option value="USD">Долар США ($)</option>
               <option value="EUR">Євро (€)</option>
               <option value="PLN">Польський злотий (zł)</option>
             </select>
           </Field>
-          <Field label="Мова застосунку" hint="Перемикач поки працює лише візуально.">
-            <select value={language} onChange={event => setLanguage(event.target.value)}>
+          <Field label="Мова застосунку" hint="Зберігається в налаштуваннях профілю.">
+            <select value={language} onChange={(event) => setLanguage(event.target.value)}>
               <option value="uk">Українська</option>
               <option value="en">English</option>
               <option value="pl">Polski</option>
@@ -179,47 +266,17 @@ export default function SettingsPage() {
               <p>Не надсилати повідомлення частіше, ніж вказано нижче.</p>
             </div>
             <div className={styles.compactControl}>
-              <input type="number" min="1" value={minGap} onChange={event => setMinGap(event.target.value)} />
+              <input type="number" min="1" value={minGap} onChange={(event) => setMinGap(event.target.value)} />
               <span>хв</span>
             </div>
           </div>
 
-          <NotificationRow
-            title="Наближення до ліміту бюджету"
-            description="Попереджати, коли витрати категорії наближаються до верхньої межі."
-            checked={notifications.budgetLimit}
-            onChange={() => toggleNotification("budgetLimit")}
-          />
-          <NotificationRow
-            title="Додавання нового запису"
-            description="Надсилати коротке підтвердження після додавання витрати або доходу."
-            checked={notifications.newEntry}
-            onChange={() => toggleNotification("newEntry")}
-          />
-          <NotificationRow
-            title="Дедлайн оплати боргу"
-            description="Нагадувати про борг до дедлайну та повторювати нагадування, доки його не закрито або не позначено як прочитане."
-            checked={notifications.debtDeadline}
-            onChange={() => toggleNotification("debtDeadline")}
-          >
+          <NotificationRow title="Наближення до ліміту бюджету" description="Попереджати, коли витрати категорії наближаються до верхньої межі." checked={notifications.budgetLimit} onChange={() => toggleNotification("budgetLimit")} />
+          <NotificationRow title="Додавання нового запису" description="Надсилати коротке підтвердження після додавання витрати або доходу." checked={notifications.newEntry} onChange={() => toggleNotification("newEntry")} />
+          <NotificationRow title="Дедлайн оплати боргу" description="Нагадувати про борг до дедлайну та повторювати нагадування, доки його не закрито." checked={notifications.debtDeadline} onChange={() => toggleNotification("debtDeadline")}>
             <div className={styles.inlineOptions}>
-              <label>
-                <span>Нагадати за</span>
-                <select value={debtReminderBefore} onChange={event => setDebtReminderBefore(event.target.value)}>
-                  <option value="1">1 день</option>
-                  <option value="3">3 дні</option>
-                  <option value="7">7 днів</option>
-                </select>
-              </label>
-              <label>
-                <span>Повторювати кожні</span>
-                <select value={debtRepeat} onChange={event => setDebtRepeat(event.target.value)}>
-                  <option value="6">6 годин</option>
-                  <option value="12">12 годин</option>
-                  <option value="24">24 години</option>
-                  <option value="48">48 годин</option>
-                </select>
-              </label>
+              <label><span>Нагадати за</span><select value={debtReminderBefore} onChange={(event) => setDebtReminderBefore(event.target.value)}><option value="1">1 день</option><option value="3">3 дні</option><option value="7">7 днів</option></select></label>
+              <label><span>Повторювати кожні</span><select value={debtRepeat} onChange={(event) => setDebtRepeat(event.target.value)}><option value="6">6 годин</option><option value="12">12 годин</option><option value="24">24 години</option><option value="48">48 годин</option></select></label>
             </div>
           </NotificationRow>
         </fieldset>
@@ -227,37 +284,31 @@ export default function SettingsPage() {
 
       {connectData && (
         <div className={styles.modalBackdrop} role="presentation" onMouseDown={() => setConnectData(null)}>
-          <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Підключити Telegram-бота" onMouseDown={event => event.stopPropagation()}>
+          <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Підключити Telegram-бота" onMouseDown={(event) => event.stopPropagation()}>
             <div className={styles.modalIcon}><IconTelegram size={23} /></div>
             <h2>Підключення Telegram-бота</h2>
-            <p className={styles.modalText}>Перейдіть за посиланням і надішліть боту одноразовий код. Код діє лише для одного підключення.</p>
+            <p className={styles.modalText}>Перейдіть за посиланням і надішліть боту одноразовий код. Код діє до {new Date(connectData.expiresAt).toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" })}.</p>
 
             <div className={styles.connectBlock}>
               <span>Одноразовий код</span>
               <div className={styles.copyRow}>
                 <strong className={styles.code}>{connectData.code}</strong>
-                <button className={styles.copyBtn} onClick={() => copyText(connectData.code, "code")}>
-                  {copied === "code" ? <IconCheck /> : <IconCopy />}
-                  {copied === "code" ? "Скопійовано" : "Копіювати"}
-                </button>
+                <button className={styles.copyBtn} onClick={() => copyText(connectData.code, "code")}>{copied === "code" ? <IconCheck /> : <IconCopy />}{copied === "code" ? "Скопійовано" : "Копіювати"}</button>
               </div>
             </div>
 
             <div className={styles.connectBlock}>
               <span>Посилання на бота</span>
               <div className={styles.copyRow}>
-                <a href={connectData.link} target="_blank" rel="noreferrer">{connectData.link}</a>
-                <button className={styles.copyBtn} onClick={() => copyText(connectData.link, "link")}>
-                  {copied === "link" ? <IconCheck /> : <IconCopy />}
-                  {copied === "link" ? "Скопійовано" : "Копіювати"}
-                </button>
+                <a href={telegramLink} target="_blank" rel="noreferrer">{telegramLink}</a>
+                <button className={styles.copyBtn} onClick={() => copyText(telegramLink, "link")}>{copied === "link" ? <IconCheck /> : <IconCopy />}{copied === "link" ? "Скопійовано" : "Копіювати"}</button>
               </div>
             </div>
 
-            <div className={styles.modalHint}>Для перевірки макета натисніть кнопку нижче — вона імітує успішне підключення без бекенду.</div>
+            <div className={styles.modalHint}>Після надсилання коду ботом список акаунтів оновиться автоматично протягом кількох секунд.</div>
             <div className={styles.modalActions}>
-              <button className={styles.secondaryBtn} onClick={() => setConnectData(null)}>Скасувати</button>
-              <button className={styles.primaryBtn} onClick={simulateConnection}>Імітувати підключення</button>
+              <button className={styles.secondaryBtn} onClick={() => setConnectData(null)}>Закрити</button>
+              <button className={styles.primaryBtn} onClick={() => loadSettings({ quiet: true })}>Оновити список</button>
             </div>
           </div>
         </div>
@@ -267,29 +318,9 @@ export default function SettingsPage() {
 }
 
 function Field({ label, hint, children }) {
-  return (
-    <label className={styles.field}>
-      <strong>{label}</strong>
-      <span>{hint}</span>
-      {children}
-    </label>
-  );
+  return <label className={styles.field}><strong>{label}</strong><span>{hint}</span>{children}</label>;
 }
 
 function NotificationRow({ title, description, checked, onChange, children }) {
-  return (
-    <div className={styles.notificationRow}>
-      <div className={styles.notificationMain}>
-        <div>
-          <strong>{title}</strong>
-          <p>{description}</p>
-        </div>
-        <label className={styles.switch}>
-          <input type="checkbox" checked={checked} onChange={onChange} />
-          <span />
-        </label>
-      </div>
-      {children && checked && children}
-    </div>
-  );
+  return <div className={styles.notificationRow}><div className={styles.notificationMain}><div><strong>{title}</strong><p>{description}</p></div><label className={styles.switch}><input type="checkbox" checked={checked} onChange={onChange} /><span /></label></div>{children && checked && children}</div>;
 }
