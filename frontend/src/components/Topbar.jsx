@@ -19,36 +19,48 @@ const IconPlus = () => (
   </svg>
 );
 
-const TAB_LABELS = { table: "Таблиця витрат", stats: "Статистика", budget: "Планування бюджету" };
+const TAB_LABELS = {
+  table: "Таблиця витрат",
+  stats: "Статистика",
+  budget: "Планування бюджету",
+  debts: "Борги",
+  settings: "Налаштування",
+};
 
 export default function Topbar({ activeTab, search, onSearch, onAdd, onScanReceipt }) {
+  const showExpenseControls = activeTab !== "settings" && activeTab !== "debts";
+
   return (
     <header className={styles.topbar}>
       <div className={styles.title}>
         {TAB_LABELS[activeTab]}
       </div>
 
-      <div className={styles.searchWrap}>
-        <span className={styles.searchIcon}><IconSearch /></span>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Пошук за місцем, сумою, нотатками…"
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-        />
-      </div>
+      {showExpenseControls && (
+        <>
+          <div className={styles.searchWrap}>
+            <span className={styles.searchIcon}><IconSearch /></span>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Пошук за місцем, сумою, нотатками…"
+              value={search}
+              onChange={(e) => onSearch(e.target.value)}
+            />
+          </div>
 
-      <div className={styles.actions}>
-        <button className={styles.btnGhost} onClick={onScanReceipt}>
-          <IconCamera />
-          Сканувати
-        </button>
-        <button className={styles.btnPrimary} onClick={onAdd}>
-          <IconPlus />
-          Додати запис
-        </button>
-      </div>
+          <div className={styles.actions}>
+            <button className={styles.btnGhost} onClick={onScanReceipt}>
+              <IconCamera />
+              Сканувати
+            </button>
+            <button className={styles.btnPrimary} onClick={onAdd}>
+              <IconPlus />
+              Додати запис
+            </button>
+          </div>
+        </>
+      )}
     </header>
   );
 }
