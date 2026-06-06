@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
-import { entryTotal, fmtDate } from "../data/store";
+import { fmtDate, entryCurrency } from "../data/store";
+import { useCurrencyRates, toBase } from "../hooks/useCurrencyRates";
 import styles from "./StatsTab.module.css";
+
+/** Sum entry total converted to PLN */
+function entryTotalPLN(entry, rates) {
+  const cur = entryCurrency(entry);
+  return entry.places.reduce((s, p) => s + toBase(p.amount || 0, cur, rates), 0);
+}
 
 const COLORS = [
   "#1a56db","#e35d3a","#16a34a","#b45309","#7c3aed",
@@ -21,6 +28,8 @@ function daysAgo(n) {
 }
 
 export default function StatsTab({ data }) {
+  const { rates, error: ratesError } = useCurrencyRates();
+
   const [activeSection, setActiveSection] = useState("overview");
   const [panelKey, setPanelKey]           = useState(0);
 
@@ -54,22 +63,22 @@ export default function StatsTab({ data }) {
     setActivePreset(null);
   }
 
-  // ── Дані ────────────────────────────────────────────────────────────
   const filteredData = data.filter((e) => e.date >= fromDate && e.date <= toDate);
 
-  const total = filteredData.reduce((s, e) => s + entryTotal(e), 0);
+  const total = filteredData.reduce((s, e) => s + entryTotalPLN(e, rates), 0);
   const avg   = filteredData.length ? total / filteredData.length : 0;
-  const max   = filteredData.length ? Math.max(...filteredData.map((e) => entryTotal(e))) : 0;
+  const max   = filteredData.length ? Math.max(...filteredData.map((e) => entryTotalPLN(e, rates))) : 0;
   const days  = [...new Set(filteredData.map((e) => e.date))].length;
 
   const placeTotals = {};
   const placeCount  = {};
-  filteredData.forEach((e) =>
+  filteredData.forEach((e) => {
+    const cur = entryCurrency(e);
     e.places.forEach((p) => {
-      placeTotals[p.name] = (placeTotals[p.name] || 0) + Number(p.amount || 0);
+      placeTotals[p.name] = (placeTotals[p.name] || 0) + toBase(p.amount || 0, cur, rates);
       placeCount[p.name]  = (placeCount[p.name]  || 0) + 1;
-    })
-  );
+    });
+  });
   const allPlaceNames = Object.keys(placeTotals).sort((a, b) => placeTotals[b] - placeTotals[a]);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
@@ -79,11 +88,11 @@ export default function StatsTab({ data }) {
         .flatMap((entry) =>
           entry.places
             .filter((p) => p.name === selectedPlace)
-            .map((p) => ({ ...p, date: entry.date, entryId: entry.id }))
+            .map((p) => ({ ...p, date: entry.date, entryId: entry.id, currency: p.currency || entryCurrency(entry) }))
         )
         .sort((a, b) => (a.date < b.date ? 1 : -1))
     : [];
-  const placeTotal = placeTransactions.reduce((s, p) => s + Number(p.amount || 0), 0);
+  const placeTotal = placeTransactions.reduce((s, p) => s + toBase(p.amount || 0, p.currency || "PLN", rates), 0);
   const placeAvg   = placeTransactions.length ? placeTotal / placeTransactions.length : 0;
 
   const sp = Object.entries(placeTotals).sort((a, b) => b[1] - a[1]);
@@ -153,7 +162,7 @@ export default function StatsTab({ data }) {
     const byDate = {};
     filteredData.forEach((entry) => {
       byDate[entry.date] = {
-        total: (byDate[entry.date]?.total || 0) + entryTotal(entry),
+        total: (byDate[entry.date]?.total || 0) + entryTotalPLN(entry, rates),
         entries: [...(byDate[entry.date]?.entries || []), entry],
       };
     });
@@ -195,7 +204,7 @@ export default function StatsTab({ data }) {
     const step = Math.ceil(dates.length / 9);
     ctx.fillStyle = "#9ca3af"; ctx.font = "9px DM Mono, monospace"; ctx.textAlign = "center";
     pts.forEach((p, i) => { if (i % step === 0 || i === dates.length - 1) ctx.fillText(fmtDate(dates[i]), p.x, H - 6); });
-  }, [filteredData]);
+  }, [filteredData, rates]);
 
   useEffect(() => {
     drawTimeline();
@@ -225,13 +234,16 @@ export default function StatsTab({ data }) {
   }
   function handleTimelineLeave() { setTooltip(null); }
 
-  const topEntries = [...filteredData].sort((a, b) => entryTotal(b) - entryTotal(a)).slice(0, 10);
+  const topEntries = [...filteredData].sort((a, b) => entryTotalPLN(b, rates) - entryTotalPLN(a, rates)).slice(0, 10);
 
   // ── Render ───────────────────────────────────────────────────────────
   return (
     <div className={styles.root}>
 
       {/* Stat cards */}
+      {ratesError && (
+        <div className={styles.ratesWarning}>⚠ {ratesError}</div>
+      )}
       <div className={styles.statsBar}>
         <SCard label="Загальні витрати" value={`${total.toFixed(0)} zł`} sub={`${filteredData.length} записів`} />
         <SCard label="Середня витрата"  value={`${avg.toFixed(1)} zł`}   sub="на запис" />
@@ -405,7 +417,7 @@ export default function StatsTab({ data }) {
                       <div className={styles.topDate}>{fmtDate(e.date)}</div>
                       <div className={styles.topTags}>{e.places.map((p) => p.name).join(", ")}</div>
                     </div>
-                    <div className={styles.topAmount}>−{entryTotal(e).toFixed(0)} zł</div>
+                    <div className={styles.topAmount}>−{entryTotalPLN(e, rates).toFixed(0)} zł</div>
                   </div>
                 ))}
               </div>
@@ -427,13 +439,13 @@ export default function StatsTab({ data }) {
       </div>
 
       {tooltip && (
-        <TooltipPortal tooltip={tooltip} />
+        <TooltipPortal tooltip={tooltip} rates={rates} />
       )}
     </div>
   );
 }
 
-function TooltipPortal({ tooltip }) {
+function TooltipPortal({ tooltip, rates }) {
   const ref = useRef(null);
   const [pos, setPos] = useState({ left: -9999, top: -9999, visible: false });
 
@@ -470,14 +482,23 @@ function TooltipPortal({ tooltip }) {
       <div className={styles.tooltipDate}>{fmtDate(tooltip.date)}</div>
       <div className={styles.tooltipTotal}>{tooltip.total.toFixed(2)} zł</div>
       <div className={styles.tooltipList}>
-        {tooltip.entries.flatMap((entry) =>
-          entry.places.map((place) => (
-            <div key={place.id} className={styles.tooltipPlace}>
-              <span>{place.name}</span>
-              <strong>{Number(place.amount).toFixed(2)} zł</strong>
-            </div>
-          ))
-        )}
+        {tooltip.entries.flatMap((entry) => {
+          const cur = entryCurrency(entry);
+          return entry.places.map((place) => {
+            const amtPLN = toBase(place.amount, cur, rates);
+            const showOrig = cur !== "PLN";
+            return (
+              <div key={place.id} className={styles.tooltipPlace}>
+                <span>{place.name}</span>
+                <strong>
+                  {showOrig
+                    ? `${Number(place.amount).toFixed(2)} ${cur} (${amtPLN.toFixed(2)} zł)`
+                    : `${amtPLN.toFixed(2)} zł`}
+                </strong>
+              </div>
+            );
+          });
+        })}
       </div>
     </div>,
     document.body
