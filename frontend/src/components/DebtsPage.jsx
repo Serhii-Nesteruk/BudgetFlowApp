@@ -5,12 +5,17 @@ import DebtsModal from "./DebtsModal";
 import PaymentModal from "./PaymentModal";
 import styles from "./DebtsPage.module.css";
 
+const DIRECTION_FILTERS = [
+  { value: "payable",    label: "Я винен",     hint: "Мої зобов’язання" },
+  { value: "receivable", label: "Винні мені",  hint: "Мої позики" },
+];
+
 const STATUS_FILTERS = [
   { value: "all",     label: "Всі" },
-  { value: "unpaid",  label: "Не оплачено" },
+  { value: "unpaid",  label: "Не закрито" },
   { value: "overdue", label: "Прострочено" },
   { value: "partial", label: "Частково" },
-  { value: "paid",    label: "Оплачено" },
+  { value: "paid",    label: "Закрито" },
 ];
 
 const TYPE_FILTERS = [
@@ -32,31 +37,38 @@ const STATUS_ORDER = { overdue: 0, unpaid: 1, partial: 2, paid: 3 };
 export default function DebtsPage() {
   const { debts, addDebt, updateDebt, deleteDebt, markPaid, addPayment, addRecurringCharge } = useDebts();
 
+  const [direction, setDirection]           = useState("payable");
   const [statusFilter, setStatusFilter]     = useState("all");
   const [typeFilter, setTypeFilter]         = useState("all");
   const [sortBy, setSortBy]                 = useState("priority");
 
   const [modalOpen, setModalOpen]           = useState(false);
   const [editDebt, setEditDebt]             = useState(null);
-
   const [payModal, setPayModal]             = useState({ open: false, debtId: null, mode: "payment" });
+
+  const directionDebts = useMemo(() => debts.filter(d => (d.direction || "payable") === direction), [debts, direction]);
 
   // ── Stats ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const active = debts.filter(d => d.status !== "paid");
+    const active = directionDebts.filter(d => d.status !== "paid");
     const totalRemaining = active.reduce((s, d) => s + d.remaining, 0);
-    const overdue = debts.filter(d => d.status === "overdue").length;
+    const overdue = directionDebts.filter(d => d.status === "overdue").length;
     const dueThisMonth = active.filter(d => {
       const today = new Date();
       const due = new Date(d.dueDate);
       return due.getFullYear() === today.getFullYear() && due.getMonth() === today.getMonth();
     }).length;
-    return { totalRemaining, overdue, dueThisMonth, total: debts.length };
-  }, [debts]);
+    return { totalRemaining, overdue, dueThisMonth, total: directionDebts.length };
+  }, [directionDebts]);
+
+  const directionCounts = useMemo(() => ({
+    payable: debts.filter(d => (d.direction || "payable") === "payable" && d.status !== "paid").length,
+    receivable: debts.filter(d => d.direction === "receivable" && d.status !== "paid").length,
+  }), [debts]);
 
   // ── Filter + sort ──────────────────────────────────────────────────────
   const visible = useMemo(() => {
-    let list = [...debts];
+    let list = [...directionDebts];
     if (statusFilter !== "all") list = list.filter(d => d.status === statusFilter);
     if (typeFilter !== "all")   list = list.filter(d => d.type === typeFilter);
 
@@ -68,13 +80,22 @@ export default function DebtsPage() {
       return 0;
     });
     return list;
-  }, [debts, statusFilter, typeFilter, sortBy]);
+  }, [directionDebts, statusFilter, typeFilter, sortBy]);
 
   // ── Handlers ───────────────────────────────────────────────────────────
+  function handleDirectionChange(next) {
+    setDirection(next);
+    setStatusFilter("all");
+    setTypeFilter("all");
+  }
   function handleAdd()        { setEditDebt(null); setModalOpen(true); }
   function handleEdit(id)     { setEditDebt(debts.find(d => d.id === id)); setModalOpen(true); }
   function handleSave(data)   { editDebt ? updateDebt(editDebt.id, data) : addDebt(data); setModalOpen(false); }
-  function handleDelete(id)   { if (window.confirm("Видалити цей борг?")) deleteDebt(id); }
+  function handleDelete(id)   {
+    const debt = debts.find(d => d.id === id);
+    const text = debt?.direction === "receivable" ? "Видалити запис про позику?" : "Видалити цей борг?";
+    if (window.confirm(text)) deleteDebt(id);
+  }
 
   function handleAddPayment(id)   { setPayModal({ open: true, debtId: id, mode: "payment" }); }
   function handleAddRecurring(id) { setPayModal({ open: true, debtId: id, mode: "recurring" }); }
@@ -86,15 +107,40 @@ export default function DebtsPage() {
   }
 
   const payDebt = debts.find(d => d.id === payModal.debtId) || null;
+  const isReceivable = direction === "receivable";
 
   return (
     <div className={styles.page}>
+      {/* ── Direction switch ── */}
+      <div className={styles.directionPanel}>
+        <div>
+          <div className={styles.directionEyebrow}>Борговий баланс</div>
+          <div className={styles.directionTitle}>Контролюй обидві сторони</div>
+        </div>
+        <div className={styles.directionSwitch}>
+          {DIRECTION_FILTERS.map(item => (
+            <button
+              key={item.value}
+              className={[
+                styles.directionBtn,
+                direction === item.value ? styles.directionBtnActive : "",
+                item.value === "receivable" ? styles.directionBtnReceivable : "",
+              ].join(" ")}
+              onClick={() => handleDirectionChange(item.value)}
+            >
+              <span className={styles.directionBtnText}>{item.label}</span>
+              <span className={styles.directionBtnMeta}>{item.hint} · {directionCounts[item.value]}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ── Summary cards ── */}
-      <div className={styles.summaryRow}>
-        <SumCard label="Загальний борг"    value={`₴${stats.totalRemaining.toLocaleString("uk-UA")}`} accent="red" />
-        <SumCard label="Прострочено"       value={stats.overdue}       accent={stats.overdue > 0 ? "red" : "gray"} />
-        <SumCard label="Платежів цього міс" value={stats.dueThisMonth} accent="blue" />
-        <SumCard label="Всього боргів"     value={stats.total}         accent="gray" />
+      <div className={[styles.summaryRow, isReceivable ? styles.summaryRowReceivable : ""].join(" ")}>
+        <SumCard label={isReceivable ? "Мені мають повернути" : "Загальний борг"} value={`₴${stats.totalRemaining.toLocaleString("uk-UA")}`} accent={isReceivable ? "green" : "red"} />
+        <SumCard label="Прострочено" value={stats.overdue} accent={stats.overdue > 0 ? "red" : "gray"} />
+        <SumCard label={isReceivable ? "Повернень цього міс" : "Платежів цього міс"} value={stats.dueThisMonth} accent="blue" />
+        <SumCard label={isReceivable ? "Всього позик" : "Всього боргів"} value={stats.total} accent="gray" />
       </div>
 
       {/* ── Controls ── */}
@@ -112,24 +158,14 @@ export default function DebtsPage() {
         </div>
 
         <div className={styles.rightControls}>
-          <select
-            className={styles.select}
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-          >
+          <select className={styles.select} value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
             {TYPE_FILTERS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
-
-          <select
-            className={styles.select}
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-          >
+          <select className={styles.select} value={sortBy} onChange={e => setSortBy(e.target.value)}>
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>↕ {o.label}</option>)}
           </select>
-
           <button className={styles.addBtn} onClick={handleAdd}>
-            + Новий борг
+            {isReceivable ? "+ Записати позику" : "+ Новий борг"}
           </button>
         </div>
       </div>
@@ -137,10 +173,10 @@ export default function DebtsPage() {
       {/* ── List ── */}
       {visible.length === 0 ? (
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}>🎉</span>
-          <p>Боргів не знайдено</p>
+          <span className={styles.emptyIcon}>{isReceivable ? "🤝" : "🎉"}</span>
+          <p>{isReceivable ? "Ніхто нічого не винен" : "Боргів не знайдено"}</p>
           {statusFilter === "all" && typeFilter === "all" && (
-            <button className={styles.addBtn} onClick={handleAdd}>Додати перший борг</button>
+            <button className={styles.addBtn} onClick={handleAdd}>{isReceivable ? "Записати першу позику" : "Додати перший борг"}</button>
           )}
         </div>
       ) : (
@@ -160,20 +196,8 @@ export default function DebtsPage() {
       )}
 
       {/* ── Modals ── */}
-      <DebtsModal
-        open={modalOpen}
-        debt={editDebt}
-        onSave={handleSave}
-        onClose={() => setModalOpen(false)}
-      />
-
-      <PaymentModal
-        open={payModal.open}
-        debt={payDebt}
-        mode={payModal.mode}
-        onSave={handlePaySave}
-        onClose={() => setPayModal({ open: false, debtId: null, mode: "payment" })}
-      />
+      <DebtsModal open={modalOpen} debt={editDebt} defaultDirection={direction} onSave={handleSave} onClose={() => setModalOpen(false)} />
+      <PaymentModal open={payModal.open} debt={payDebt} mode={payModal.mode} onSave={handlePaySave} onClose={() => setPayModal({ open: false, debtId: null, mode: "payment" })} />
     </div>
   );
 }

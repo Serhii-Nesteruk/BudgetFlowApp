@@ -511,3 +511,31 @@
   .expanded { padding-top: 10px; }
   .section { padding: 10px; border-radius: 17px; }
 }
+
+/* Direction-specific debt card accents */
+.directionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid rgba(0,40,95,.10);
+  border-radius: 999px;
+  background: rgba(0,40,95,.055);
+  color: #31506f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.directionBadgeReceivable {
+  border-color: rgba(0,184,107,.20);
+  background: rgba(0,184,107,.10);
+  color: #008c54;
+}
+.direction_receivable::before { background: linear-gradient(90deg, #00b86b, #00d17a); }
+.direction_receivable .progressFill { background: linear-gradient(90deg, #00b86b, #00d17a); }
+.direction_receivable .histAmt { color: #008c54; }
+.direction_receivable:hover { border-color: rgba(0,184,107,.22); }
+.direction_receivable .actBtnPaid,
+.direction_receivable .actBtnPaid:hover {
+  color: #fff;
+}

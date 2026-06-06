@@ -2,12 +2,28 @@
 
 const KEY = "debts_v1";
 
+export const DEBT_DIRECTIONS = {
+  PAYABLE: "payable",       // I owe someone
+  RECEIVABLE: "receivable", // Someone owes me
+};
+
+function normalizeDebt(debt) {
+  return {
+    ...debt,
+    // Backward-compatible migration: all records created before directions
+    // existed represented the user's own debts.
+    direction: debt.direction || DEBT_DIRECTIONS.PAYABLE,
+    paymentHistory: debt.paymentHistory || [],
+  };
+}
+
 export function loadDebts() {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : getSampleDebts();
+    const debts = raw ? JSON.parse(raw) : getSampleDebts();
+    return Array.isArray(debts) ? debts.map(normalizeDebt) : getSampleDebts().map(normalizeDebt);
   } catch {
-    return getSampleDebts();
+    return getSampleDebts().map(normalizeDebt);
   }
 }
 
@@ -25,6 +41,7 @@ function getSampleDebts() {
   return [
     {
       id: "d1",
+      direction: DEBT_DIRECTIONS.PAYABLE,
       type: "one-time",          // "one-time" | "installment" | "recurring"
       creditor: "Олег Мороз",
       amount: 5000,
@@ -41,6 +58,7 @@ function getSampleDebts() {
     },
     {
       id: "d2",
+      direction: DEBT_DIRECTIONS.PAYABLE,
       type: "installment",
       creditor: "ПриватБанк",
       amount: 24000,
@@ -63,6 +81,7 @@ function getSampleDebts() {
     },
     {
       id: "d3",
+      direction: DEBT_DIRECTIONS.PAYABLE,
       type: "recurring",
       creditor: "Квартирна оренда",
       amount: 8000,
@@ -81,6 +100,7 @@ function getSampleDebts() {
     },
     {
       id: "d4",
+      direction: DEBT_DIRECTIONS.PAYABLE,
       type: "one-time",
       creditor: "Сестра Наталя",
       amount: 1200,
@@ -94,6 +114,7 @@ function getSampleDebts() {
     },
     {
       id: "d5",
+      direction: DEBT_DIRECTIONS.PAYABLE,
       type: "recurring",
       creditor: "Комунальні послуги",
       amount: 1800,
@@ -108,6 +129,22 @@ function getSampleDebts() {
         { id: "p1", date: sub(5), amount: 1800, note: "Травень" },
       ],
       createdAt: sub(200),
+    },
+    {
+      id: "d6",
+      direction: DEBT_DIRECTIONS.RECEIVABLE,
+      type: "one-time",
+      creditor: "Андрій Коваль",
+      amount: 3200,
+      remaining: 2200,
+      dueDate: add(9),
+      status: "partial",
+      priority: 3,
+      notes: "Позика на квитки",
+      paymentHistory: [
+        { id: "p1", date: sub(7), amount: 1000, note: "Повернув частину" },
+      ],
+      createdAt: sub(18),
     },
   ];
 }

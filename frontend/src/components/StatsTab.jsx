@@ -6,8 +6,8 @@ import { entryTotalPLN, placeCurrency } from "../utils/expenseStats";
 import styles from "./StatsTab.module.css";
 
 const COLORS = [
-  "#1a56db","#e35d3a","#16a34a","#b45309","#7c3aed",
-  "#0891b2","#be185d","#65a30d","#0369a1","#9333ea",
+  "#00b86b", "#00285f", "#2dd4bf", "#3b82f6", "#84cc16",
+  "#0f766e", "#6366f1", "#14b8a6", "#0891b2", "#22c55e",
 ];
 
 const TABS = [
@@ -208,18 +208,18 @@ export default function StatsTab({ data, rates, ratesError }) {
     }));
     pointsRef.current = pts;
     const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
-    grad.addColorStop(0, "rgba(26,86,219,0.13)"); grad.addColorStop(1, "rgba(26,86,219,0)");
+    grad.addColorStop(0, "rgba(0,184,107,0.20)"); grad.addColorStop(1, "rgba(0,184,107,0)");
     ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad.b);
     pts.forEach((p) => ctx.lineTo(p.x, p.y));
     ctx.lineTo(pts[pts.length - 1].x, H - pad.b); ctx.closePath();
     ctx.fillStyle = grad; ctx.fill();
-    ctx.beginPath(); ctx.strokeStyle = "#1a56db"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.strokeStyle = "#00b86b"; ctx.lineWidth = 2.25;
     pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.stroke();
     pts.forEach((p) => {
       ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
       ctx.fillStyle = "#fff"; ctx.fill();
-      ctx.strokeStyle = "#1a56db"; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.strokeStyle = "#00b86b"; ctx.lineWidth = 1.75; ctx.stroke();
     });
     const step = Math.ceil(dates.length / 9);
     ctx.fillStyle = "#9ca3af"; ctx.font = "9px DM Mono, monospace"; ctx.textAlign = "center";

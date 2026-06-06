@@ -138,3 +138,63 @@
 .input:focus, .textarea:focus { border-color: rgba(0,184,107,.42); box-shadow: 0 0 0 4px rgba(0,184,107,.10); background: #fff; }
 .typeBtnActive, .priBtnActive, .btnSave { background: linear-gradient(135deg, var(--accent2), #00a160) !important; border-color: transparent !important; color: #fff !important; box-shadow: 0 14px 28px rgba(0,184,107,.22); }
 .btnCancel, .btnSave, .close { border-radius: 999px; transition-duration: var(--dur-mid); }
+
+/* Payable / receivable selector */
+.directionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px;
+  border-radius: 20px;
+  background: rgba(0,40,95,.045);
+}
+.directionBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition:
+    transform var(--dur-mid) var(--ease-spring),
+    color var(--dur-mid) var(--ease-out),
+    background var(--dur-mid) var(--ease-out),
+    box-shadow var(--dur-mid) var(--ease-out);
+}
+.directionBtn:hover { transform: translateY(-1px); color: var(--text); }
+.directionBtnActive {
+  background: linear-gradient(135deg, #00285f, #061a3d);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(0,40,95,.16);
+}
+.directionBtnActive:nth-child(2) {
+  background: linear-gradient(135deg, #00b86b, #008c54);
+  box-shadow: 0 10px 22px rgba(0,184,107,.18);
+}
+.directionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(0,40,95,.07);
+  font-size: 15px;
+  font-weight: 800;
+}
+.directionBtnActive .directionIcon { background: rgba(255,255,255,.16); }
+.directionBtn strong { display: block; font-size: 12px; }
+.directionBtn small { display: block; margin-top: 2px; font-size: 10px; opacity: .72; }
+
+@media (max-width: 480px) {
+  .directionBtn { gap: 7px; padding: 9px 8px; }
+  .directionIcon { width: 24px; height: 24px; font-size: 13px; }
+  .directionBtn strong { font-size: 11px; }
+  .directionBtn small { font-size: 9px; }
+}

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { loadDebts, saveDebts } from "../data/debtsStore";
+import { loadDebts, saveDebts, DEBT_DIRECTIONS } from "../data/debtsStore";
 
 function recalcStatus(debt) {
   if (debt.status === "paid") return "paid";
@@ -24,6 +24,7 @@ export function useDebts() {
   const addDebt = useCallback((data) => {
     const newDebt = {
       ...data,
+      direction: data.direction || DEBT_DIRECTIONS.PAYABLE,
       id: `d${Date.now()}`,
       remaining: data.type === "installment"
         ? data.amount - (data.paidInstallments || 0) * (data.monthlyPayment || 0)
@@ -52,7 +53,12 @@ export function useDebts() {
   const markPaid = useCallback((id) => {
     const next = debts.map(d => {
       if (d.id !== id) return d;
-      const payment = { id: `p${Date.now()}`, date: new Date().toISOString().slice(0, 10), amount: d.remaining, note: "Позначено як оплачено" };
+      const payment = {
+        id: `p${Date.now()}`,
+        date: new Date().toISOString().slice(0, 10),
+        amount: d.remaining,
+        note: d.direction === DEBT_DIRECTIONS.RECEIVABLE ? "Позначено як повернено" : "Позначено як оплачено",
+      };
       return { ...d, remaining: 0, status: "paid", paymentHistory: [...d.paymentHistory, payment] };
     });
     persist(next);
