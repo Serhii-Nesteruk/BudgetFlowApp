@@ -19,7 +19,7 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
     public async Task<IEnumerable<Transaction>> GetByCounterpartyAsync(string counterparty)
     {
         return await _transactionRepository.GetByCounterpartyAsync(counterparty);
-    }    
+    }
 
     public async Task<IEnumerable<Transaction>> GetByUserIdAsync(int userId)
     {
@@ -47,6 +47,11 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
         transaction.Currency = dto.Currency;
         transaction.Date = dto.Date;
         transaction.Type = dto.Type;
+        transaction.Tags.Clear();
+        foreach (var tag in TransactionMapping.NormalizeTags(dto.Tags))
+        {
+            transaction.Tags.Add(new TransactionTag { Value = tag });
+        }
         transaction.UpdatedAt = DateTime.UtcNow;
 
         await _transactionRepository.UpdateAsync(transaction);
@@ -67,9 +72,9 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
     }
     public Task<Transaction> CreateTransactionFromReceiptFields(ReceiptDto fields)
     {
-       var transaction = TransactionMapping.FromReceiptFieldsToTransaction(fields);
-       transaction.CreatedAt = DateTime.UtcNow;
-       return _transactionRepository.AddAsync(transaction);
+        var transaction = TransactionMapping.FromReceiptFieldsToTransaction(fields);
+        transaction.CreatedAt = DateTime.UtcNow;
+        return _transactionRepository.AddAsync(transaction);
     }
 
     public async Task<Transaction> AddAsync(TransactionDto dto, int userId)

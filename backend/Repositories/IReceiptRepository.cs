@@ -4,5 +4,5 @@ namespace BudgetFlowAPi.Repositories;
 
 public interface IReceiptRepository : IRepository<Receipt>
 {
-    
+
 }

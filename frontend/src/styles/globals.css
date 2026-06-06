@@ -1,43 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
 
 :root {
-  --bg:        #eef4ff;
-  --surface:   rgba(255, 255, 255, 0.84);
+  --bg: #eef4ff;
+  --surface: rgba(255, 255, 255, 0.84);
   --surface-solid: #ffffff;
-  --surface2:  rgba(244, 248, 255, 0.86);
-  --surface3:  #eaf2ff;
-  --border:    rgba(15, 35, 71, 0.10);
-  --border2:   rgba(15, 35, 71, 0.075);
-  --accent:    #00285f;
-  --accent2:   #00b86b;
-  --accent-bg: rgba(0, 184, 107, 0.10);
-  --text:      #071a33;
-  --muted:     #6a7890;
-  --danger:    #e5484d;
+  --surface2: rgba(244, 248, 255, 0.86);
+  --surface3: #eaf2ff;
+  --border: rgba(15, 35, 71, 0.1);
+  --border2: rgba(15, 35, 71, 0.075);
+  --accent: #00285f;
+  --accent2: #00b86b;
+  --accent-bg: rgba(0, 184, 107, 0.1);
+  --text: #071a33;
+  --muted: #6a7890;
+  --danger: #e5484d;
   --danger-bg: #fff0f0;
-  --success:   #00b86b;
+  --success: #00b86b;
   --success-bg: rgba(0, 184, 107, 0.12);
-  --warning:   #f59e0b;
-  --font:      'DM Sans', sans-serif;
-  --mono:      'DM Mono', monospace;
-  --r:         22px;
-  --r-sm:      14px;
+  --warning: #f59e0b;
+  --font: "DM Sans", sans-serif;
+  --mono: "DM Mono", monospace;
+  --r: 22px;
+  --r-sm: 14px;
 
-  --shadow-soft: 0 24px 70px rgba(7, 26, 51, 0.10);
+  --shadow-soft: 0 24px 70px rgba(7, 26, 51, 0.1);
   --shadow-card: 0 16px 42px rgba(7, 26, 51, 0.075);
   --shadow-float: 0 22px 64px rgba(0, 40, 95, 0.16);
   --glass-blur: 20px;
 
-  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring:   cubic-bezier(0.22, 1.4, 0.36, 1);
-  --ease-decel:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.22, 1.4, 0.36, 1);
+  --ease-decel: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 
-  --dur-fast:  180ms;
-  --dur-mid:   340ms;
-  --dur-slow:  620ms;
+  --dur-fast: 180ms;
+  --dur-mid: 340ms;
+  --dur-slow: 620ms;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   /* Prevent text size adjustment on orientation change */
@@ -59,32 +63,58 @@ body {
   overscroll-behavior: none;
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
 
 /* Prevent callout on long-press for buttons */
-button { -webkit-touch-callout: none; }
+button {
+  -webkit-touch-callout: none;
+}
 
-
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   transition-timing-function: var(--ease-out) !important;
 }
 
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 3px solid rgba(0, 184, 107, 0.20);
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(0, 184, 107, 0.2);
   outline-offset: 2px;
 }
 
-::selection { background: rgba(0, 184, 107, 0.18); color: var(--text); }
+::selection {
+  background: rgba(0, 184, 107, 0.18);
+  color: var(--text);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

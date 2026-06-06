@@ -9,8 +9,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Summary cards ────────────────────────────────────────────────────────── */
@@ -33,18 +39,38 @@
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.sumCard:nth-child(1) { animation-delay: 0ms; }
-.sumCard:nth-child(2) { animation-delay: 40ms; }
-.sumCard:nth-child(3) { animation-delay: 80ms; }
-.sumCard:nth-child(4) { animation-delay: 120ms; }
+.sumCard:nth-child(1) {
+  animation-delay: 0ms;
+}
+.sumCard:nth-child(2) {
+  animation-delay: 40ms;
+}
+.sumCard:nth-child(3) {
+  animation-delay: 80ms;
+}
+.sumCard:nth-child(4) {
+  animation-delay: 120ms;
+}
 
-.sumCard_red  { border-color: rgba(239, 68, 68, .3); }
-.sumCard_blue { border-color: rgba(59, 130, 246, .3); }
-.sumCard_gray { border-color: var(--border); }
+.sumCard_red {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.sumCard_blue {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.sumCard_gray {
+  border-color: var(--border);
+}
 
 .sumValue {
   font-family: var(--mono);
@@ -55,8 +81,12 @@
   line-height: 1;
 }
 
-.sumCard_red  .sumValue { color: #dc2626; }
-.sumCard_blue .sumValue { color: #007aff; }
+.sumCard_red .sumValue {
+  color: #dc2626;
+}
+.sumCard_blue .sumValue {
+  color: #007aff;
+}
 
 .sumLabel {
   font-size: 10px;
@@ -98,9 +128,9 @@
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background  var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
-    color       var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out);
 }
 
 .filterBtn:hover {
@@ -133,10 +163,13 @@
   outline: none;
   transition:
     border-color var(--dur-fast) var(--ease-out),
-    color        var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out);
 }
 
-.select:focus { border-color: rgba(0, 184, 107, 0.55); color: var(--text); }
+.select:focus {
+  border-color: rgba(0, 184, 107, 0.55);
+  color: var(--text);
+}
 
 .addBtn {
   padding: 7px 14px;
@@ -153,12 +186,16 @@
   align-items: center;
   gap: 5px;
   transition:
-    opacity   var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out),
     transform var(--dur-fast) var(--ease-spring);
 }
 
-.addBtn:hover  { opacity: 0.82; }
-.addBtn:active { transform: scale(0.97); }
+.addBtn:hover {
+  opacity: 0.82;
+}
+.addBtn:active {
+  transform: scale(0.97);
+}
 
 /* ── List ─────────────────────────────────────────────────────────────────── */
 .list {
@@ -181,7 +218,9 @@
   border-radius: var(--r);
 }
 
-.emptyIcon { font-size: 2.5rem; }
+.emptyIcon {
+  font-size: 2.5rem;
+}
 
 .empty p {
   font-size: 13px;
@@ -202,7 +241,9 @@
    MOBILE  (≤ 640px)
 ══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .page { gap: 10px; }
+  .page {
+    gap: 10px;
+  }
 
   /* Summary: 2×2 grid, first card spans full width */
   .summaryRow {
@@ -218,13 +259,17 @@
     padding: 14px 16px;
   }
 
-  .sumCard:first-child .sumValue { font-size: 24px; }
+  .sumCard:first-child .sumValue {
+    font-size: 24px;
+  }
 
   .sumCard {
     padding: 12px 14px;
   }
 
-  .sumValue { font-size: 18px; }
+  .sumValue {
+    font-size: 18px;
+  }
 
   /* Controls: stack vertically */
   .controls {
@@ -271,19 +316,39 @@
 }
 
 /* Landing-inspired visual skin */
-.sumCard, .controls, .empty {
-  background: rgba(255,255,255,.78);
-  border-color: rgba(15,35,71,.085);
+.sumCard,
+.controls,
+.empty {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(15, 35, 71, 0.085);
   border-radius: 26px;
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
-.sumCard_blue { background: radial-gradient(circle at 90% 10%, rgba(0,184,107,.20), transparent 38%), linear-gradient(135deg, var(--accent), #061a3d); color: #fff; }
-.addBtn, .filterBtn, .select { border-radius: 999px; transition-duration: var(--dur-mid); }
-.addBtn, .filterBtnActive { background: linear-gradient(135deg, var(--accent2), #00a160) !important; color: #fff !important; border-color: transparent !important; box-shadow: 0 12px 26px rgba(0,184,107,.20); }
-.filterBtn:hover { transform: translateY(-1px); background: rgba(0,184,107,.08); }
-
+.sumCard_blue {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(0, 184, 107, 0.2), transparent 38%),
+    linear-gradient(135deg, var(--accent), #061a3d);
+  color: #fff;
+}
+.addBtn,
+.filterBtn,
+.select {
+  border-radius: 999px;
+  transition-duration: var(--dur-mid);
+}
+.addBtn,
+.filterBtnActive {
+  background: linear-gradient(135deg, var(--accent2), #00a160) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 12px 26px rgba(0, 184, 107, 0.2);
+}
+.filterBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 184, 107, 0.08);
+}
 
 /* ══════════════════════════════════════════════════════════════
    Debts dashboard redesign · visual-only layer
@@ -308,49 +373,68 @@
   right: -30px;
   top: -34px;
   border-radius: 50%;
-  background: rgba(0,184,107,.10);
+  background: rgba(0, 184, 107, 0.1);
   pointer-events: none;
 }
 .sumCard:first-child {
   background:
-    radial-gradient(circle at 88% 12%, rgba(0,209,122,.34), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(0, 209, 122, 0.34), transparent 34%),
     linear-gradient(135deg, #00285f 0%, #061a3d 100%);
-  border-color: rgba(0,184,107,.22);
-  box-shadow: 0 20px 52px rgba(0,40,95,.20);
+  border-color: rgba(0, 184, 107, 0.22);
+  box-shadow: 0 20px 52px rgba(0, 40, 95, 0.2);
 }
 .sumCard:first-child::after {
   width: 150px;
   height: 150px;
   right: -38px;
   top: -66px;
-  border: 1px solid rgba(255,255,255,.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background: transparent;
 }
 .sumCard:first-child .sumValue,
-.sumCard:first-child .sumLabel { color: #fff; }
-.sumCard:first-child .sumValue { font-size: 30px; }
-.sumCard:first-child .sumLabel { opacity: .72; }
-.sumValue { font-size: 22px; }
-.sumLabel { max-width: 150px; line-height: 1.3; }
+.sumCard:first-child .sumLabel {
+  color: #fff;
+}
+.sumCard:first-child .sumValue {
+  font-size: 30px;
+}
+.sumCard:first-child .sumLabel {
+  opacity: 0.72;
+}
+.sumValue {
+  font-size: 22px;
+}
+.sumLabel {
+  max-width: 150px;
+  line-height: 1.3;
+}
 
 .controls {
   padding: 12px 14px;
   border-radius: 24px;
-  box-shadow: 0 12px 32px rgba(7,26,51,.055);
+  box-shadow: 0 12px 32px rgba(7, 26, 51, 0.055);
 }
 .filterGroup {
   padding: 3px;
   border-radius: 999px;
-  background: rgba(0,40,95,.045);
+  background: rgba(0, 40, 95, 0.045);
 }
 .filterBtn {
   border-color: transparent;
   background: transparent;
   min-height: 34px;
 }
-.rightControls { gap: 8px; }
-.select { min-height: 38px; padding-inline: 13px; }
-.addBtn { min-height: 38px; padding-inline: 17px; }
+.rightControls {
+  gap: 8px;
+}
+.select {
+  min-height: 38px;
+  padding-inline: 13px;
+}
+.addBtn {
+  min-height: 38px;
+  padding-inline: 17px;
+}
 
 .list {
   display: grid;
@@ -360,21 +444,51 @@
 }
 
 @media (max-width: 1120px) {
-  .summaryRow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .sumCard:first-child { grid-column: 1 / -1; }
-  .list { grid-template-columns: 1fr; }
+  .summaryRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sumCard:first-child {
+    grid-column: 1 / -1;
+  }
+  .list {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .summaryRow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .sumCard { min-height: 88px; padding: 14px 15px; }
-  .sumCard:first-child { grid-column: 1 / -1; min-height: 104px; align-items: flex-start; flex-direction: column; gap: 7px; }
-  .sumCard:first-child .sumValue { font-size: 28px; }
-  .sumValue { font-size: 19px; }
-  .controls { border-radius: 22px; }
-  .filterGroup { border-radius: 18px; }
-  .filterBtn { min-height: 32px; }
-  .list { gap: 10px; }
+  .summaryRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .sumCard {
+    min-height: 88px;
+    padding: 14px 15px;
+  }
+  .sumCard:first-child {
+    grid-column: 1 / -1;
+    min-height: 104px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .sumCard:first-child .sumValue {
+    font-size: 28px;
+  }
+  .sumValue {
+    font-size: 19px;
+  }
+  .controls {
+    border-radius: 22px;
+  }
+  .filterGroup {
+    border-radius: 18px;
+  }
+  .filterBtn {
+    min-height: 32px;
+  }
+  .list {
+    gap: 10px;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -386,9 +500,9 @@
   justify-content: space-between;
   gap: 18px;
   padding: 16px 18px;
-  border: 1px solid rgba(15,35,71,.085);
+  border: 1px solid rgba(15, 35, 71, 0.085);
   border-radius: 26px;
-  background: rgba(255,255,255,.78);
+  background: rgba(255, 255, 255, 0.78);
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -399,13 +513,13 @@
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
 }
 .directionTitle {
   color: var(--text);
   font-size: 16px;
   font-weight: 650;
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
 }
 .directionSwitch {
   display: grid;
@@ -413,7 +527,7 @@
   gap: 6px;
   padding: 4px;
   border-radius: 20px;
-  background: rgba(0,40,95,.055);
+  background: rgba(0, 40, 95, 0.055);
 }
 .directionBtn {
   display: flex;
@@ -435,31 +549,59 @@
     color var(--dur-mid) var(--ease-out),
     box-shadow var(--dur-mid) var(--ease-out);
 }
-.directionBtn:hover { transform: translateY(-1px); color: var(--text); }
+.directionBtn:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+}
 .directionBtnActive {
   background: linear-gradient(135deg, #00285f, #061a3d);
   color: #fff;
-  box-shadow: 0 12px 24px rgba(0,40,95,.18);
+  box-shadow: 0 12px 24px rgba(0, 40, 95, 0.18);
 }
 .directionBtnActive.directionBtnReceivable {
   background: linear-gradient(135deg, #00b86b, #008c54);
-  box-shadow: 0 12px 24px rgba(0,184,107,.20);
+  box-shadow: 0 12px 24px rgba(0, 184, 107, 0.2);
 }
-.directionBtnText { font-size: 13px; font-weight: 700; }
-.directionBtnMeta { font-size: 10.5px; opacity: .72; }
-.sumCard_green .sumValue { color: #00a160; }
+.directionBtnText {
+  font-size: 13px;
+  font-weight: 700;
+}
+.directionBtnMeta {
+  font-size: 10.5px;
+  opacity: 0.72;
+}
+.sumCard_green .sumValue {
+  color: #00a160;
+}
 .summaryRowReceivable .sumCard:first-child {
   background:
-    radial-gradient(circle at 88% 12%, rgba(255,255,255,.24), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.24), transparent 34%),
     linear-gradient(135deg, #00b86b 0%, #008c54 100%);
-  border-color: rgba(0,184,107,.28);
-  box-shadow: 0 20px 52px rgba(0,184,107,.20);
+  border-color: rgba(0, 184, 107, 0.28);
+  box-shadow: 0 20px 52px rgba(0, 184, 107, 0.2);
 }
 
 @media (max-width: 760px) {
-  .directionPanel { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; border-radius: 22px; }
-  .directionSwitch { grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 18px; }
-  .directionBtn { min-height: 52px; padding: 9px 11px; border-radius: 14px; }
-  .directionBtnText { font-size: 12px; }
-  .directionBtnMeta { font-size: 9.5px; }
+  .directionPanel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 22px;
+  }
+  .directionSwitch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 18px;
+  }
+  .directionBtn {
+    min-height: 52px;
+    padding: 9px 11px;
+    border-radius: 14px;
+  }
+  .directionBtnText {
+    font-size: 12px;
+  }
+  .directionBtnMeta {
+    font-size: 9.5px;
+  }
 }

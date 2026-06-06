@@ -26,7 +26,10 @@ public class AuthController : ControllerBase
         {
             return Unauthorized("Invalid email or password");
         }
-        return Ok(new { Token = token });
+        return Ok(new
+        {
+            Token = token
+        });
     }
 
     [HttpPost("register")]

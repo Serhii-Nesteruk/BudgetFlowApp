@@ -1,6 +1,13 @@
 import styles from "./UI.module.css";
 
-export function Btn({ children, variant = "default", size = "md", onClick, type = "button", style }) {
+export function Btn({
+  children,
+  variant = "default",
+  size = "md",
+  onClick,
+  type = "button",
+  style,
+}) {
   return (
     <button
       type={type}

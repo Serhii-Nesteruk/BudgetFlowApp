@@ -3,7 +3,7 @@
 const KEY = "debts_v1";
 
 export const DEBT_DIRECTIONS = {
-  PAYABLE: "payable",       // I owe someone
+  PAYABLE: "payable", // I owe someone
   RECEIVABLE: "receivable", // Someone owes me
 };
 
@@ -35,19 +35,27 @@ export function saveDebts(debts) {
 function getSampleDebts() {
   const today = new Date();
   const fmt = (d) => d.toISOString().slice(0, 10);
-  const add = (days) => { const d = new Date(today); d.setDate(d.getDate() + days); return fmt(d); };
-  const sub = (days) => { const d = new Date(today); d.setDate(d.getDate() - days); return fmt(d); };
+  const add = (days) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + days);
+    return fmt(d);
+  };
+  const sub = (days) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - days);
+    return fmt(d);
+  };
 
   return [
     {
       id: "d1",
       direction: DEBT_DIRECTIONS.PAYABLE,
-      type: "one-time",          // "one-time" | "installment" | "recurring"
+      type: "one-time", // "one-time" | "installment" | "recurring"
       creditor: "Олег Мороз",
       amount: 5000,
       remaining: 2000,
       dueDate: add(15),
-      status: "partial",         // "unpaid" | "overdue" | "partial" | "paid"
+      status: "partial", // "unpaid" | "overdue" | "partial" | "paid"
       priority: 3,
       notes: "Позичив на ремонт",
       paymentHistory: [
@@ -75,7 +83,7 @@ function getSampleDebts() {
       paymentHistory: [
         { id: "p1", date: sub(60), amount: 2000, note: "Платіж 1" },
         { id: "p2", date: sub(30), amount: 2000, note: "Платіж 2" },
-        { id: "p3", date: sub(1),  amount: 2000, note: "Платіж 3" },
+        { id: "p3", date: sub(1), amount: 2000, note: "Платіж 3" },
       ],
       createdAt: sub(90),
     },
@@ -125,9 +133,7 @@ function getSampleDebts() {
       notes: "Газ + світло + вода",
       recurringDay: 25,
       recurringPeriod: "monthly",
-      paymentHistory: [
-        { id: "p1", date: sub(5), amount: 1800, note: "Травень" },
-      ],
+      paymentHistory: [{ id: "p1", date: sub(5), amount: 1800, note: "Травень" }],
       createdAt: sub(200),
     },
     {
@@ -141,9 +147,7 @@ function getSampleDebts() {
       status: "partial",
       priority: 3,
       notes: "Позика на квитки",
-      paymentHistory: [
-        { id: "p1", date: sub(7), amount: 1000, note: "Повернув частину" },
-      ],
+      paymentHistory: [{ id: "p1", date: sub(7), amount: 1000, note: "Повернув частину" }],
       createdAt: sub(18),
     },
   ];

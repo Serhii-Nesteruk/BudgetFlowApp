@@ -1,12 +1,22 @@
 /* ─────────────────────────────────────────────
    Visibility helpers
 ───────────────────────────────────────────── */
-.desktopOnly { display: block; }
-.mobileOnly  { display: none; }
+.desktopOnly {
+  display: block;
+}
+.mobileOnly {
+  display: none;
+}
 
 @media (max-width: 640px) {
-  .desktopOnly { display: none; }
-  .mobileOnly  { display: flex; flex-direction: column; gap: 8px; }
+  .desktopOnly {
+    display: none;
+  }
+  .mobileOnly {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -22,8 +32,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .table {
@@ -33,7 +49,9 @@
   table-layout: fixed;
 }
 
-.table thead { background: var(--surface2); }
+.table thead {
+  background: var(--surface2);
+}
 
 .table th {
   padding: 8px 16px;
@@ -50,7 +68,9 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 
-.table th:hover { color: var(--text); }
+.table th:hover {
+  color: var(--text);
+}
 
 .table td {
   padding: 10px 16px;
@@ -60,15 +80,21 @@
   overflow: hidden;
 }
 
-.table tr:last-child td { border-bottom: none; }
+.table tr:last-child td {
+  border-bottom: none;
+}
 
 .dataRow {
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
 
-.dataRow:hover { background: var(--surface2); }
-.expanded { background: #fafaf8; }
+.dataRow:hover {
+  background: var(--surface2);
+}
+.expanded {
+  background: #fafaf8;
+}
 
 .arrow {
   display: inline-flex;
@@ -82,7 +108,7 @@
   color: var(--muted);
   font-size: 10px;
   transition:
-    transform  var(--dur-mid) var(--ease-spring),
+    transform var(--dur-mid) var(--ease-spring),
     background var(--dur-fast) var(--ease-out);
 }
 
@@ -93,7 +119,11 @@
   color: #fff;
 }
 
-.amount { font-family: var(--mono); font-weight: 500; color: var(--danger); }
+.amount {
+  font-family: var(--mono);
+  font-weight: 500;
+  color: var(--danger);
+}
 
 .detailSummary {
   color: var(--muted);
@@ -105,8 +135,14 @@
   text-overflow: ellipsis;
 }
 
-.sa { margin-left: 3px; color: var(--muted); font-size: 10px; }
-.sorted { color: var(--text); }
+.sa {
+  margin-left: 3px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.sorted {
+  color: var(--text);
+}
 
 .rowActions {
   display: flex;
@@ -131,13 +167,20 @@
   white-space: nowrap;
   flex-shrink: 0;
   transition:
-    background   var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
-    color        var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-out);
 }
 
-.btnSm:hover { background: var(--surface2); color: var(--text); }
-.btnSmDanger:hover { background: var(--danger-bg); border-color: #e8b4b0; color: var(--danger); }
+.btnSm:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.btnSmDanger:hover {
+  background: var(--danger-bg);
+  border-color: #e8b4b0;
+  color: var(--danger);
+}
 
 .pager {
   display: flex;
@@ -147,8 +190,14 @@
   border-top: 1px solid var(--border2);
 }
 
-.pagerInfo { font-size: 11px; color: var(--muted); }
-.pagerButtons { display: flex; gap: 4px; }
+.pagerInfo {
+  font-size: 11px;
+  color: var(--muted);
+}
+.pagerButtons {
+  display: flex;
+  gap: 4px;
+}
 
 .pagerBtn {
   background: none;
@@ -163,25 +212,52 @@
   align-items: center;
   gap: 4px;
   transition:
-    background  var(--dur-fast) var(--ease-out),
-    color       var(--dur-fast) var(--ease-out),
-    transform   var(--dur-fast) var(--ease-spring);
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-spring);
 }
 
-.pagerBtn:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
-.pagerBtn:active:not(:disabled) { transform: scale(0.96); }
-.pagerBtnActive { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
-.pagerBtn:disabled { opacity: 0.32; cursor: default; }
+.pagerBtn:hover:not(:disabled) {
+  background: var(--surface2);
+  color: var(--text);
+}
+.pagerBtn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.pagerBtnActive {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+.pagerBtn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
 
-.empty { text-align: center; padding: 50px; color: var(--muted); font-size: 13px; }
+.empty {
+  text-align: center;
+  padding: 50px;
+  color: var(--muted);
+  font-size: 13px;
+}
 
 /* Tablet: icon-only action buttons */
 @media (max-width: 1024px) and (min-width: 641px) {
   .table th,
-  .table td { padding: 9px 12px; }
-  .btnLabel { display: none; }
-  .btnSm { padding: 5px 7px; min-width: 30px; justify-content: center; }
-  .rowActions { gap: 3px; }
+  .table td {
+    padding: 9px 12px;
+  }
+  .btnLabel {
+    display: none;
+  }
+  .btnSm {
+    padding: 5px 7px;
+    min-width: 30px;
+    justify-content: center;
+  }
+  .rowActions {
+    gap: 3px;
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -213,7 +289,9 @@
   min-height: 60px;
 }
 
-.mobileCardMain:active { background: var(--surface2); }
+.mobileCardMain:active {
+  background: var(--surface2);
+}
 
 .mobileCardLeft {
   flex: 1;
@@ -300,13 +378,19 @@
   justify-content: center;
   gap: 6px;
   transition:
-    background   var(--dur-fast) var(--ease-out),
-    color        var(--dur-fast) var(--ease-out);
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 
-.mobileBtn:active { background: var(--surface2); color: var(--text); }
-.mobileBtnDanger:active { background: var(--danger-bg); color: var(--danger); }
+.mobileBtn:active {
+  background: var(--surface2);
+  color: var(--text);
+}
+.mobileBtnDanger:active {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
 
 .mobileEmpty {
   text-align: center;
@@ -339,8 +423,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.mobilePagerBtn:disabled { opacity: 0.3; cursor: default; }
-.mobilePagerBtn:not(:disabled):active { background: var(--surface2); }
+.mobilePagerBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.mobilePagerBtn:not(:disabled):active {
+  background: var(--surface2);
+}
 
 .mobilePagerInfo {
   font-size: 12px;
@@ -349,35 +438,62 @@
 }
 
 /* Landing-inspired visual skin */
-.tableCard, .mobileCard {
-  background: rgba(255,255,255,.78);
-  border-color: rgba(15,35,71,.085);
+.tableCard,
+.mobileCard {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(15, 35, 71, 0.085);
   border-radius: 26px;
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
-.table thead { background: rgba(234,242,255,.78); }
-.dataRow { transition: background var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out); }
-.dataRow:hover { background: rgba(0,184,107,.055); }
-.expanded { background: rgba(0,184,107,.07); }
-.arrow, .btnSm, .pagerBtn { border-radius: 999px; transition-duration: var(--dur-mid); }
-.arrowOpen, .pagerBtnActive { background: linear-gradient(135deg, var(--accent), #0b3978) !important; border-color: transparent !important; }
-.btnSm:hover, .pagerBtn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(0,40,95,.06); }
-.amount { color: #f04438; }
-
+.table thead {
+  background: rgba(234, 242, 255, 0.78);
+}
+.dataRow {
+  transition:
+    background var(--dur-mid) var(--ease-out),
+    transform var(--dur-mid) var(--ease-out);
+}
+.dataRow:hover {
+  background: rgba(0, 184, 107, 0.055);
+}
+.expanded {
+  background: rgba(0, 184, 107, 0.07);
+}
+.arrow,
+.btnSm,
+.pagerBtn {
+  border-radius: 999px;
+  transition-duration: var(--dur-mid);
+}
+.arrowOpen,
+.pagerBtnActive {
+  background: linear-gradient(135deg, var(--accent), #0b3978) !important;
+  border-color: transparent !important;
+}
+.btnSm:hover,
+.pagerBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(0, 40, 95, 0.06);
+}
+.amount {
+  color: #f04438;
+}
 
 /* Mobile expanded expense alignment fix */
 @media (max-width: 640px) {
   .mobileExpanded {
     width: 100%;
     overflow: hidden;
-    background: rgba(0,184,107,.045);
-    border-top-color: rgba(15,35,71,.075);
+    background: rgba(0, 184, 107, 0.045);
+    border-top-color: rgba(15, 35, 71, 0.075);
   }
   .mobileActions {
     width: 100%;
     padding: 10px 12px 12px;
   }
-  .mobileBtn { border-radius: 14px; }
+  .mobileBtn {
+    border-radius: 14px;
+  }
 }

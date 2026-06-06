@@ -22,7 +22,7 @@ public class TransactionsController : ControllerBase
     public async Task<IActionResult> GetAllTransactions()
     {
         var userId = ClaimsPrincipalExtensions.GetUserId(User);
-        
+
         var transactions = await _transactionService.GetByUserIdAsync(userId);
 
         return Ok(TransactionMapping.ToDtoList(transactions));
@@ -72,19 +72,13 @@ public class TransactionsController : ControllerBase
             return NotFound();
         }
 
-        transaction.Counterparty = dto.Counterparty;
-        transaction.Title = dto.Title;
-        transaction.Description = dto.Description;
-        transaction.Amount = dto.Amount;
-        transaction.Currency = dto.Currency;
-        transaction.Date = dto.Date;
-        transaction.Type = dto.Type;
-        transaction.Details = dto.Details;
+        dto.Id = id;
+        dto.UserId = userId;
+        await _transactionService.UpdateAsync(dto);
 
-        await _transactionService.UpdateAsync(transaction);
+        var updated = await _transactionService.GetByIdForUserIdAsync(id, userId);
+        return Ok(TransactionMapping.ToDto(updated!));
 
-        return Ok(TransactionMapping.ToDto(transaction));
-        
     }
 
     [Authorize]
@@ -95,8 +89,11 @@ public class TransactionsController : ControllerBase
         var createdTransaction = await _transactionService.AddAsync(dto, userId);
         return CreatedAtAction
         (
-            nameof(GetTransactionDetails), 
-            new { id = createdTransaction.Id },
+            nameof(GetTransactionDetails),
+            new
+            {
+                id = createdTransaction.Id
+            },
             TransactionMapping.ToDto(createdTransaction)
         );
     }

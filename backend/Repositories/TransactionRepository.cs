@@ -14,16 +14,16 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
 
     public async Task<IEnumerable<Transaction>> GetByCounterpartyAsync(string counterparty)
     {
-        return await _context.Transactions.Where(t => t.Counterparty == counterparty).ToListAsync();
+        return await _context.Transactions.Include(t => t.Tags).Where(t => t.Counterparty == counterparty).ToListAsync();
     }
 
     public async Task<IEnumerable<Transaction>> GetByUserIdAsync(int userId)
     {
-        return await _context.Transactions.Where(t => t.UserId == userId).ToListAsync();
+        return await _context.Transactions.Include(t => t.Tags).Where(t => t.UserId == userId).ToListAsync();
     }
 
     public async Task<Transaction?> GetByIdForUserIdAsync(int id, int userId)
     {
-        return await _context.Transactions.Where(t => t.Id == id && t.UserId == userId).Include(t => t.User).FirstOrDefaultAsync();  
+        return await _context.Transactions.Where(t => t.Id == id && t.UserId == userId).Include(t => t.User).Include(t => t.Tags).FirstOrDefaultAsync();
     }
 }

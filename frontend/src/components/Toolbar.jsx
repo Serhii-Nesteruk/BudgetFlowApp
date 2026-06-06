@@ -1,10 +1,14 @@
 import styles from "./Toolbar.module.css";
 
 export default function Toolbar({
-  filterFrom, onFilterFrom,
-  filterTo, onFilterTo,
+  filterFrom,
+  onFilterFrom,
+  filterTo,
+  onFilterTo,
   onClear,
-  allPlaces, activePlaceFilter, onPlaceFilter,
+  allPlaces,
+  activePlaceFilter,
+  onPlaceFilter,
 }) {
   if (!allPlaces.length && !filterFrom && !filterTo) return null;
 
@@ -27,7 +31,9 @@ export default function Toolbar({
           onChange={(e) => onFilterTo(e.target.value)}
         />
         <div className={styles.divider} />
-        <button className={styles.btnClear} onClick={onClear}>Скинути</button>
+        <button className={styles.btnClear} onClick={onClear}>
+          Скинути
+        </button>
       </div>
 
       {/* Place chips - horizontally scrollable on mobile */}

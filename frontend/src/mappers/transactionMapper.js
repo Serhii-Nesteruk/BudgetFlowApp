@@ -13,6 +13,7 @@ export function placeToTransactionPayload(place, date, currency = "PLN") {
     currency: currency,
     date: `${date}T00:00:00Z`,
     type: 0,
+    tags: place.tags ?? [],
   };
 }
 

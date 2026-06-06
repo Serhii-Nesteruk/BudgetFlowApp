@@ -181,32 +181,38 @@ export const MOCK_BUDGET_PERIODS = [
 // Derived / computed values used across components
 export function computeBudgetSummary(budget, incomeSources, mandatoryExpenses, categories) {
   const totalIncome = incomeSources.reduce((s, i) => s + i.amount, 0);
-  const totalSpent = categories
-    .filter((c) => c.active)
-    .reduce((s, c) => s + Math.min(c.spent, c.limit), 0)
-    + mandatoryExpenses.reduce((s, m) => s + m.paid, 0);
+  const totalSpent =
+    categories.filter((c) => c.active).reduce((s, c) => s + Math.min(c.spent, c.limit), 0) +
+    mandatoryExpenses.reduce((s, m) => s + m.paid, 0);
   const overflowCategories = categories.filter((c) => c.active && c.spent > c.limit);
   const remaining = budget.totalLimit - totalSpent;
   const spentPct = Math.round((totalSpent / budget.totalLimit) * 100);
   const todayPct = Math.round((budget.todayDay / budget.endDay) * 100);
 
-  return { totalIncome, totalSpent, remaining, spentPct, todayPct, overflowCount: overflowCategories.length };
+  return {
+    totalIncome,
+    totalSpent,
+    remaining,
+    spentPct,
+    todayPct,
+    overflowCount: overflowCategories.length,
+  };
 }
 
 // Timeline bar segments for spending bar
 export const MOCK_TIMELINE_SEGMENTS = [
   { label: "Обов'язкові", color: "#1a56db", widthPct: 36 },
-  { label: "Продукти",    color: "#16a34a", widthPct: 14 },
-  { label: "Розваги",     color: "#7c3aed", widthPct: 14 },
-  { label: "Одяг",        color: "#b45309", widthPct: 8  },
-  { label: "Перевищення", color: "#c0392b", widthPct: 6  },
+  { label: "Продукти", color: "#16a34a", widthPct: 14 },
+  { label: "Розваги", color: "#7c3aed", widthPct: 14 },
+  { label: "Одяг", color: "#b45309", widthPct: 8 },
+  { label: "Перевищення", color: "#c0392b", widthPct: 6 },
 ];
 
 // Donut chart slices
 export const MOCK_DONUT_SLICES = [
   { label: "Обов'язкові", color: "#1a56db", amount: 2260 },
-  { label: "Розваги",     color: "#c0392b", amount: 920  },
-  { label: "Транспорт",   color: "#7c3aed", amount: 680  },
-  { label: "Кафе",        color: "#16a34a", amount: 340  },
-  { label: "Одяг",        color: "#b45309", amount: 480  },
+  { label: "Розваги", color: "#c0392b", amount: 920 },
+  { label: "Транспорт", color: "#7c3aed", amount: 680 },
+  { label: "Кафе", color: "#16a34a", amount: 340 },
+  { label: "Одяг", color: "#b45309", amount: 480 },
 ];

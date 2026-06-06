@@ -4,5 +4,5 @@ namespace BudgetFlowAPi.Services;
 
 public interface IReceiptService
 {
-    Task<ReceiptDto?>  ExtractReceiptFieldsAsync(IFormFile receiptImage, CancellationToken cancellationToken = default);
+    Task<ReceiptDto?> ExtractReceiptFieldsAsync(IFormFile receiptImage, CancellationToken cancellationToken = default);
 }

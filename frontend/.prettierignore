@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+bin
+obj
+Migrations
+*.min.css
+*.min.js

@@ -60,10 +60,7 @@ export function useExpenses() {
 
     return data
       .filter((entry) => {
-        if (
-          activePlaceFilter &&
-          !entry.places.some((place) => place.name === activePlaceFilter)
-        ) {
+        if (activePlaceFilter && !entry.places.some((place) => place.name === activePlaceFilter)) {
           return false;
         }
 
@@ -76,9 +73,7 @@ export function useExpenses() {
           const text = [
             entry.date,
             String(total),
-            ...entry.places.map((place) =>
-              [place.name, place.details, place.notes].join(" ")
-            ),
+            ...entry.places.map((place) => [place.name, place.details, place.notes].join(" ")),
           ]
             .join(" ")
             .toLowerCase();
@@ -94,15 +89,7 @@ export function useExpenses() {
 
         return av < bv ? -sortDir : av > bv ? sortDir : 0;
       });
-  }, [
-    data,
-    search,
-    filterFrom,
-    filterTo,
-    activePlaceFilter,
-    sortCol,
-    sortDir,
-  ]);
+  }, [data, search, filterFrom, filterTo, activePlaceFilter, sortCol, sortDir]);
 
   function sort(col) {
     setSortDir((dir) => (sortCol === col ? -dir : 1));
@@ -166,9 +153,7 @@ export function useExpenses() {
         return createTransaction(payload);
       });
 
-      const newPlaceIds = newPlaces
-        .map((p) => Number(p.id))
-        .filter(Boolean);
+      const newPlaceIds = newPlaces.map((p) => Number(p.id)).filter(Boolean);
 
       const removedIds = oldPlaceIds.filter((oldId) => {
         return !newPlaceIds.includes(oldId);

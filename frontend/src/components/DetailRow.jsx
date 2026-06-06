@@ -16,6 +16,13 @@ function PlaceCards({ entry }) {
             </div>
             {place.details && <div className={styles.placeDetail}>{place.details}</div>}
             {place.notes && <div className={styles.placeNotes}>{place.notes}</div>}
+            {!!place.tags?.length && (
+              <div className={styles.placeTags}>
+                {place.tags.map((tag) => (
+                  <span key={tag}>#{tag}</span>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
@@ -24,7 +31,7 @@ function PlaceCards({ entry }) {
 }
 
 function DetailsContent({ entry, compact = false }) {
-  const total  = entryTotal(entry);
+  const total = entryTotal(entry);
   const symbol = currencySymbol(entryCurrency(entry));
 
   return (
@@ -36,7 +43,9 @@ function DetailsContent({ entry, compact = false }) {
         </div>
         <div className={styles.totalBadge}>
           <span className={styles.totalLabel}>Разом</span>
-          <strong>{total.toFixed(2).replace(/\.00$/, "")} {symbol}</strong>
+          <strong>
+            {total.toFixed(2).replace(/\.00$/, "")} {symbol}
+          </strong>
         </div>
       </div>
       <PlaceCards entry={entry} />

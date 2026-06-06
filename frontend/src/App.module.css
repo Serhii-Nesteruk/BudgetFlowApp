@@ -12,8 +12,14 @@
 }
 
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .content {
@@ -42,7 +48,9 @@
 
 /* ── Tablet ── */
 @media (max-width: 1024px) and (min-width: 641px) {
-  .content { padding: 16px 20px 80px; }
+  .content {
+    padding: 16px 20px 80px;
+  }
 }
 
 /* ── Mobile ── */
@@ -56,8 +64,8 @@
 /* Landing-inspired visual skin */
 .layout {
   background:
-    radial-gradient(circle at 5% 5%, rgba(0,184,107,.12), transparent 28%),
-    radial-gradient(circle at 95% 10%, rgba(0,40,95,.14), transparent 32%);
+    radial-gradient(circle at 5% 5%, rgba(0, 184, 107, 0.12), transparent 28%),
+    radial-gradient(circle at 95% 10%, rgba(0, 40, 95, 0.14), transparent 32%);
 }
 
 .content {
@@ -65,8 +73,9 @@
   gap: 18px;
 }
 
-.error, .loading {
-  background: rgba(255,255,255,.78);
+.error,
+.loading {
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid var(--border);
   border-radius: var(--r);
   box-shadow: var(--shadow-card);
@@ -75,10 +84,21 @@
 }
 
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); filter: blur(8px); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.985);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
 }
 
 @media (max-width: 640px) {
-  .content { padding: 14px 12px calc(86px + env(safe-area-inset-bottom, 0px)); gap: 12px; }
+  .content {
+    padding: 14px 12px calc(86px + env(safe-area-inset-bottom, 0px));
+    gap: 12px;
+  }
 }

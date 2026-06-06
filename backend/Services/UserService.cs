@@ -1,14 +1,76 @@
-using BudgetFlowAPi.Data; using BudgetFlowAPi.DTO; using BudgetFlowAPi.Mappings; using BudgetFlowAPi.Models; using BudgetFlowAPi.Repositories; using System.Security.Cryptography;
+using BudgetFlowAPi.Data;
+using BudgetFlowAPi.DTO;
+using BudgetFlowAPi.Mappings;
+using BudgetFlowAPi.Models;
+using BudgetFlowAPi.Repositories;
+using System.Security.Cryptography;
 namespace BudgetFlowAPi.Services;
 public sealed class UserService : CrudService<User>, IUserService
 {
- private readonly IUserRepository _userRepository; private readonly AppDbContext _context;
- public UserService(IUserRepository userRepository,AppDbContext context):base(userRepository){_userRepository=userRepository;_context=context;}
- public Task<User?> GetByEmailAsync(string email)=>_userRepository.GetByEmailAsync(email);
- public async Task<UserSettingsDto> GetSettingsAsync(int userId){var settings=await GetOrCreateSettings(userId);var accounts=await _userRepository.GetTelegramAccountsByUserIdAsync(userId);return settings.ToDto(accounts);}
- public async Task<UserSettingsDto> UpdateSettingsAsync(int userId,UserSettingsDto dto){var settings=await GetOrCreateSettings(userId);dto.Apply(settings);await _userRepository.SaveChangesAsync();return settings.ToDto(await _userRepository.GetTelegramAccountsByUserIdAsync(userId));}
- public async Task<TelegramConnectionCodeDto> GenerateTelegramConnectionCodeAsync(int userId,string botLink){await GetOrCreateSettings(userId);string code;do{code=RandomNumberGenerator.GetInt32(100000,1000000).ToString();}while(await _userRepository.GetValidTelegramConnectionCodeAsync(code)!=null);var item=new TelegramConnectionCode{UserId=userId,Code=code,ExpiresAt=DateTime.UtcNow.AddMinutes(10)};_context.TelegramConnectionCodes.Add(item);await _context.SaveChangesAsync();return new TelegramConnectionCodeDto{Code=code,ExpiresAt=item.ExpiresAt,BotLink=botLink};}
- public async Task<TelegramAccountDto?> VerifyTelegramConnectionCodeAsync(TelegramVerifyCodeDto dto){var code=await _userRepository.GetValidTelegramConnectionCodeAsync(dto.Code);if(code==null)return null;var account=await _userRepository.GetTelegramAccountByTelegramUserIdAsync(dto.TelegramUserId);if(account!=null&&account.UserId!=code.UserId)throw new ArgumentException("This Telegram account is already connected to another user.");account??=new TelegramAccount{UserId=code.UserId,TelegramUserId=dto.TelegramUserId,ConnectedAt=DateTime.UtcNow};account.Username=dto.Username;account.DisplayName=dto.DisplayName;if(account.Id==0)_context.TelegramAccounts.Add(account);code.IsUsed=true;code.UsedAt=DateTime.UtcNow;await _context.SaveChangesAsync();return new TelegramAccountDto{Id=account.Id,TelegramUserId=account.TelegramUserId,Username=account.Username,DisplayName=account.DisplayName,ConnectedAt=account.ConnectedAt};}
- public async Task<bool> DeleteTelegramAccountAsync(int userId,int telegramAccountId){var account=await _userRepository.GetTelegramAccountByIdForUserIdAsync(telegramAccountId,userId);if(account==null)return false;_context.TelegramAccounts.Remove(account);await _context.SaveChangesAsync();return true;}
- private async Task<UserSettings> GetOrCreateSettings(int userId){var settings=await _userRepository.GetSettingsByUserIdAsync(userId);if(settings!=null)return settings;settings=new UserSettings{UserId=userId,CreatedAt=DateTime.UtcNow};_context.UserSettings.Add(settings);await _context.SaveChangesAsync();return settings;}
+    private readonly IUserRepository _userRepository; private readonly AppDbContext _context;
+    public UserService(IUserRepository userRepository, AppDbContext context) : base(userRepository) { _userRepository = userRepository; _context = context; }
+    public Task<User?> GetByEmailAsync(string email) => _userRepository.GetByEmailAsync(email);
+    public async Task<UserSettingsDto> GetSettingsAsync(int userId)
+    {
+        var settings = await GetOrCreateSettings(userId);
+        var accounts = await _userRepository.GetTelegramAccountsByUserIdAsync(userId);
+        return settings.ToDto(accounts);
+    }
+    public async Task<UserSettingsDto> UpdateSettingsAsync(int userId, UserSettingsDto dto)
+    {
+        var settings = await GetOrCreateSettings(userId);
+        dto.Apply(settings);
+        await _userRepository.SaveChangesAsync();
+        return settings.ToDto(await _userRepository.GetTelegramAccountsByUserIdAsync(userId));
+    }
+    public async Task<TelegramConnectionCodeDto> GenerateTelegramConnectionCodeAsync(int userId, string botLink)
+    {
+        await GetOrCreateSettings(userId);
+        string code;
+        do
+        {
+            code = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+        } while (await _userRepository.GetValidTelegramConnectionCodeAsync(code) != null);
+        var item = new TelegramConnectionCode { UserId = userId, Code = code, ExpiresAt = DateTime.UtcNow.AddMinutes(10) };
+        _context.TelegramConnectionCodes.Add(item);
+        await _context.SaveChangesAsync();
+        return new TelegramConnectionCodeDto { Code = code, ExpiresAt = item.ExpiresAt, BotLink = botLink };
+    }
+    public async Task<TelegramAccountDto?> VerifyTelegramConnectionCodeAsync(TelegramVerifyCodeDto dto)
+    {
+        var code = await _userRepository.GetValidTelegramConnectionCodeAsync(dto.Code);
+        if (code == null)
+            return null;
+        var account = await _userRepository.GetTelegramAccountByTelegramUserIdAsync(dto.TelegramUserId);
+        if (account != null && account.UserId != code.UserId)
+            throw new ArgumentException("This Telegram account is already connected to another user.");
+        account ??= new TelegramAccount { UserId = code.UserId, TelegramUserId = dto.TelegramUserId, ConnectedAt = DateTime.UtcNow };
+        account.Username = dto.Username;
+        account.DisplayName = dto.DisplayName;
+        if (account.Id == 0)
+            _context.TelegramAccounts.Add(account);
+        code.IsUsed = true;
+        code.UsedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return new TelegramAccountDto { Id = account.Id, TelegramUserId = account.TelegramUserId, Username = account.Username, DisplayName = account.DisplayName, ConnectedAt = account.ConnectedAt };
+    }
+    public async Task<bool> DeleteTelegramAccountAsync(int userId, int telegramAccountId)
+    {
+        var account = await _userRepository.GetTelegramAccountByIdForUserIdAsync(telegramAccountId, userId);
+        if (account == null)
+            return false;
+        _context.TelegramAccounts.Remove(account);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    private async Task<UserSettings> GetOrCreateSettings(int userId)
+    {
+        var settings = await _userRepository.GetSettingsByUserIdAsync(userId);
+        if (settings != null)
+            return settings;
+        settings = new UserSettings { UserId = userId, CreatedAt = DateTime.UtcNow };
+        _context.UserSettings.Add(settings);
+        await _context.SaveChangesAsync();
+        return settings;
+    }
 }

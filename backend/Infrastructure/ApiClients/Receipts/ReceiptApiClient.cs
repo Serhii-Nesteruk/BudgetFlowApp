@@ -11,7 +11,7 @@ public class ReceiptApiClient : BaseApiClient<ReceiptDto>, IReceiptApiClient<Rec
     }
 
     public async Task<ReceiptDto?> ExtractReceiptFieldsFromImageAsync(
-        byte[] imageData, 
+        byte[] imageData,
         CancellationToken cancellationToken = default)
     {
         using var content = new MultipartFormDataContent();
@@ -21,7 +21,7 @@ public class ReceiptApiClient : BaseApiClient<ReceiptDto>, IReceiptApiClient<Rec
         content.Add(imageContent, "file", "receipt.jpg");
 
         var response = await HttpClient.PostAsync("receipts/extract", content, cancellationToken);
-        
+
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<ReceiptDto>(cancellationToken: cancellationToken);

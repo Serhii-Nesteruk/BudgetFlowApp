@@ -12,15 +12,26 @@ public class TransactionListDto
 
     [Required]
     [Range(0.01, double.MaxValue)]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
 
     [Required]
     [MaxLength(5)]
     public string Currency { get; set; } = string.Empty;
 
     [Required]
-    public TransactionType Type { get; set; }
+    public TransactionType Type
+    {
+        get; set;
+    }
 
     [Required]
-    public DateTime Date { get; set; }
+    public DateTime Date
+    {
+        get; set;
+    }
+
+    public List<string> Tags { get; set; } = [];
 }

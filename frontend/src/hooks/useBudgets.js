@@ -28,18 +28,24 @@ function toUtcDate(value) {
 }
 
 function normalizeLabel(value) {
-  return String(value || "").trim().toLocaleLowerCase("uk-UA");
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
 }
 
 function textLabels(...values) {
-  return [...new Set(values
-    .filter(Boolean)
-    .flatMap((value) => String(value).split(/[,;\n#]/g))
-    .flatMap((value) => {
-      const normalized = normalizeLabel(value);
-      return normalized ? [normalized, ...normalized.split(/\s+/g)] : [];
-    })
-    .filter(Boolean))];
+  return [
+    ...new Set(
+      values
+        .filter(Boolean)
+        .flatMap((value) => String(value).split(/[,;\n#]/g))
+        .flatMap((value) => {
+          const normalized = normalizeLabel(value);
+          return normalized ? [normalized, ...normalized.split(/\s+/g)] : [];
+        })
+        .filter(Boolean)
+    ),
+  ];
 }
 
 function flattenExpenseEntries(entries, rates, displayCurrency) {
@@ -95,7 +101,9 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
     budgetCategoryId: item.budgetCategoryId == null ? null : Number(item.budgetCategoryId),
     amount: money(item.amount),
     dueDate: dateOnly(item.dueDate),
-    dateLabel: item.dueDate ? new Date(item.dueDate).toLocaleDateString("uk-UA", { day: "numeric", month: "long" }) : "Без дати",
+    dateLabel: item.dueDate
+      ? new Date(item.dueDate).toLocaleDateString("uk-UA", { day: "numeric", month: "long" })
+      : "Без дати",
     paid: item.isPaid,
   }));
 
@@ -107,7 +115,9 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
     desc: item.name || "Запланована витрата",
     planned: money(item.amount),
     actual: item.isPaid ? money(item.amount) : null,
-    category: categories.find((category) => category.id === Number(item.budgetCategoryId))?.name || "Без категорії",
+    category:
+      categories.find((category) => category.id === Number(item.budgetCategoryId))?.name ||
+      "Без категорії",
   }));
 
   const budget = {
@@ -215,7 +225,8 @@ function plannedPayload(item, amount = (value) => Number(value || 0)) {
 
 function budgetPayload(budget, rates, displayCurrency) {
   const storageCurrency = budget.storageCurrency || budget.currency || displayCurrency || "PLN";
-  const amount = (value) => convertAmount(value, displayCurrency || storageCurrency, storageCurrency, rates);
+  const amount = (value) =>
+    convertAmount(value, displayCurrency || storageCurrency, storageCurrency, rates);
   return {
     type: budget.type,
     name: budget.name,
@@ -231,7 +242,9 @@ function budgetPayload(budget, rates, displayCurrency) {
     sharingEnabled: Boolean(budget.sharingEnabled),
     categories: (budget.categories || []).map((item) => categoryPayload(item, amount)),
     incomeSources: (budget.incomeSources || []).map((item) => incomePayload(item, amount)),
-    mandatoryExpenses: (budget.mandatoryExpenses || []).map((item) => mandatoryPayload(item, amount)),
+    mandatoryExpenses: (budget.mandatoryExpenses || []).map((item) =>
+      mandatoryPayload(item, amount)
+    ),
     plannedExpenses: (budget.plannedExpenses || []).map((item) => plannedPayload(item, amount)),
   };
 }
@@ -258,7 +271,10 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
   }, [expenseTransactions]);
 
   const budgets = useMemo(
-    () => rawBudgets.map((budget) => normalizeBudget(budget, expenseTransactions, rates, displayCurrency)),
+    () =>
+      rawBudgets.map((budget) =>
+        normalizeBudget(budget, expenseTransactions, rates, displayCurrency)
+      ),
     [rawBudgets, expenseTransactions, rates, displayCurrency]
   );
 
@@ -266,7 +282,7 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
     try {
       setLoading(true);
       setError(null);
-      setRawBudgets(await getBudgets() || []);
+      setRawBudgets((await getBudgets()) || []);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -282,29 +298,51 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
     setRawBudgets((items) => {
       const exists = items.some((item) => Number(item.id) === Number(updated.id));
       return exists
-        ? items.map((item) => Number(item.id) === Number(updated.id) ? updated : item)
+        ? items.map((item) => (Number(item.id) === Number(updated.id) ? updated : item))
         : [updated, ...items];
     });
     return updated;
   }, []);
 
-  const run = useCallback(async (request) => {
-    try {
-      setError(null);
-      return replaceBudget(await request());
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [replaceBudget]);
+  const run = useCallback(
+    async (request) => {
+      try {
+        setError(null);
+        return replaceBudget(await request());
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [replaceBudget]
+  );
 
-  const storageAmount = useCallback((budgetId, value) => {
-    const raw = rawBudgets.find((item) => Number(item.id) === Number(budgetId));
-    return convertAmount(value, displayCurrency, raw?.currency || displayCurrency, rates);
-  }, [rawBudgets, displayCurrency, rates]);
+  const storageAmount = useCallback(
+    (budgetId, value) => {
+      const raw = rawBudgets.find((item) => Number(item.id) === Number(budgetId));
+      return convertAmount(value, displayCurrency, raw?.currency || displayCurrency, rates);
+    },
+    [rawBudgets, displayCurrency, rates]
+  );
 
-  const createBudget = useCallback(async (budget) => run(() => createBudgetRequest(budgetPayload({ ...budget, currency: displayCurrency, storageCurrency: displayCurrency }, rates, displayCurrency))), [run, displayCurrency, rates]);
-  const updateBudget = useCallback(async (budget) => run(() => updateBudgetRequest(budget.id, budgetPayload(budget, rates, displayCurrency))), [run, displayCurrency, rates]);
+  const createBudget = useCallback(
+    async (budget) =>
+      run(() =>
+        createBudgetRequest(
+          budgetPayload(
+            { ...budget, currency: displayCurrency, storageCurrency: displayCurrency },
+            rates,
+            displayCurrency
+          )
+        )
+      ),
+    [run, displayCurrency, rates]
+  );
+  const updateBudget = useCallback(
+    async (budget) =>
+      run(() => updateBudgetRequest(budget.id, budgetPayload(budget, rates, displayCurrency))),
+    [run, displayCurrency, rates]
+  );
 
   const deleteBudget = useCallback(async (id) => {
     try {
@@ -317,39 +355,115 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
     }
   }, []);
 
-  const addCategory = useCallback((budgetId, item) => run(() => addBudgetCategory(budgetId, categoryPayload(item, (value) => storageAmount(budgetId, value)))), [run, storageAmount]);
-  const updateCategory = useCallback((budgetId, categoryId, item) => run(() => updateBudgetCategory(budgetId, categoryId, categoryPayload(item, (value) => storageAmount(budgetId, value)))), [run, storageAmount]);
-  const addIncome = useCallback((budgetId, item) => run(() => addBudgetIncomeSource(budgetId, incomePayload(item, (value) => storageAmount(budgetId, value)))), [run, storageAmount]);
-  const addMandatory = useCallback((budgetId, item) => run(() => addBudgetMandatoryExpense(budgetId, mandatoryPayload(item, (value) => storageAmount(budgetId, value)))), [run, storageAmount]);
-  const addPlanned = useCallback((budgetId, item) => run(() => addBudgetPlannedExpense(budgetId, plannedPayload(item, (value) => storageAmount(budgetId, value)))), [run, storageAmount]);
+  const addCategory = useCallback(
+    (budgetId, item) =>
+      run(() =>
+        addBudgetCategory(
+          budgetId,
+          categoryPayload(item, (value) => storageAmount(budgetId, value))
+        )
+      ),
+    [run, storageAmount]
+  );
+  const updateCategory = useCallback(
+    (budgetId, categoryId, item) =>
+      run(() =>
+        updateBudgetCategory(
+          budgetId,
+          categoryId,
+          categoryPayload(item, (value) => storageAmount(budgetId, value))
+        )
+      ),
+    [run, storageAmount]
+  );
+  const addIncome = useCallback(
+    (budgetId, item) =>
+      run(() =>
+        addBudgetIncomeSource(
+          budgetId,
+          incomePayload(item, (value) => storageAmount(budgetId, value))
+        )
+      ),
+    [run, storageAmount]
+  );
+  const addMandatory = useCallback(
+    (budgetId, item) =>
+      run(() =>
+        addBudgetMandatoryExpense(
+          budgetId,
+          mandatoryPayload(item, (value) => storageAmount(budgetId, value))
+        )
+      ),
+    [run, storageAmount]
+  );
+  const addPlanned = useCallback(
+    (budgetId, item) =>
+      run(() =>
+        addBudgetPlannedExpense(
+          budgetId,
+          plannedPayload(item, (value) => storageAmount(budgetId, value))
+        )
+      ),
+    [run, storageAmount]
+  );
 
-  const copyStructure = useCallback(async (target, source) => {
-    if (!source) return null;
-    let updated = target;
-    for (const category of target.categories || []) updated = await deleteBudgetCategory(target.id, category.id);
-    for (const income of target.incomeSources || []) updated = await deleteBudgetIncomeSource(target.id, income.id);
-    for (const item of target.mandatoryExpenses || []) updated = await deleteBudgetMandatoryExpense(target.id, item.id);
-    for (const category of source.categories || []) updated = await addBudgetCategory(target.id, categoryPayload(category, (value) => storageAmount(target.id, value)));
-    for (const income of source.incomeSources || []) updated = await addBudgetIncomeSource(target.id, incomePayload({ ...income, status: "pending" }, (value) => storageAmount(target.id, value)));
-    for (const item of source.mandatoryExpenses || []) updated = await addBudgetMandatoryExpense(target.id, mandatoryPayload({ ...item, paid: false }, (value) => storageAmount(target.id, value)));
-    replaceBudget(updated);
-    return updated;
-  }, [replaceBudget, storageAmount]);
+  const copyStructure = useCallback(
+    async (target, source) => {
+      if (!source) return null;
+      let updated = target;
+      for (const category of target.categories || [])
+        updated = await deleteBudgetCategory(target.id, category.id);
+      for (const income of target.incomeSources || [])
+        updated = await deleteBudgetIncomeSource(target.id, income.id);
+      for (const item of target.mandatoryExpenses || [])
+        updated = await deleteBudgetMandatoryExpense(target.id, item.id);
+      for (const category of source.categories || [])
+        updated = await addBudgetCategory(
+          target.id,
+          categoryPayload(category, (value) => storageAmount(target.id, value))
+        );
+      for (const income of source.incomeSources || [])
+        updated = await addBudgetIncomeSource(
+          target.id,
+          incomePayload({ ...income, status: "pending" }, (value) =>
+            storageAmount(target.id, value)
+          )
+        );
+      for (const item of source.mandatoryExpenses || [])
+        updated = await addBudgetMandatoryExpense(
+          target.id,
+          mandatoryPayload({ ...item, paid: false }, (value) => storageAmount(target.id, value))
+        );
+      replaceBudget(updated);
+      return updated;
+    },
+    [replaceBudget, storageAmount]
+  );
 
-  const share = useCallback(async (budgetId, email) => run(() => shareBudgetWithUser(budgetId, email)), [run]);
-  const enableSharing = useCallback(async (budgetId, regenerateToken = false) => run(() => setBudgetSharing(budgetId, true, regenerateToken)), [run]);
+  const share = useCallback(
+    async (budgetId, email) => run(() => shareBudgetWithUser(budgetId, email)),
+    [run]
+  );
+  const enableSharing = useCallback(
+    async (budgetId, regenerateToken = false) =>
+      run(() => setBudgetSharing(budgetId, true, regenerateToken)),
+    [run]
+  );
 
-  const planNextMonths = useCallback(async (budgetId, months) => {
-    try {
-      setError(null);
-      const items = await planBudgetNextMonths(budgetId, months);
-      await loadBudgets();
-      return items || [];
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [loadBudgets]);
+  const planNextMonths = useCallback(
+    async (budgetId, months) => {
+      try {
+        setError(null);
+        const items = await planBudgetNextMonths(budgetId, months);
+        await loadBudgets();
+        return items || [];
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [loadBudgets]
+  );
 
   return {
     budgets,

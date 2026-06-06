@@ -24,7 +24,7 @@ public class AuthService : IAuthService
         var user = await _userService.GetByEmailAsync(loginRequest.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
         {
-            return string.Empty; 
+            return string.Empty;
         }
         return GenerateJwtToken(user);
     }
@@ -50,9 +50,9 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.Email, user.Email)
         };
-        
+
         var keyString = _configuration.GetValue<string>("Jwt:Key") ?? throw new Exception("JWT key not configured");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString)); 
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(

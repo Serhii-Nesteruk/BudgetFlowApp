@@ -57,19 +57,21 @@ function toPayload(data) {
     dueDate: toUtcDate(data.dueDate),
     priority: Number(data.priority || 3),
     notes: data.notes?.trim() || "",
-    totalInstallments: data.totalInstallments == null || data.totalInstallments === ""
-      ? null
-      : Number(data.totalInstallments),
-    paidInstallments: data.paidInstallments == null || data.paidInstallments === ""
-      ? null
-      : Number(data.paidInstallments),
-    monthlyPayment: data.monthlyPayment == null || data.monthlyPayment === ""
-      ? null
-      : Number(data.monthlyPayment),
+    totalInstallments:
+      data.totalInstallments == null || data.totalInstallments === ""
+        ? null
+        : Number(data.totalInstallments),
+    paidInstallments:
+      data.paidInstallments == null || data.paidInstallments === ""
+        ? null
+        : Number(data.paidInstallments),
+    monthlyPayment:
+      data.monthlyPayment == null || data.monthlyPayment === ""
+        ? null
+        : Number(data.monthlyPayment),
     startDate: toUtcDate(data.startDate),
-    recurringDay: data.recurringDay == null || data.recurringDay === ""
-      ? null
-      : Number(data.recurringDay),
+    recurringDay:
+      data.recurringDay == null || data.recurringDay === "" ? null : Number(data.recurringDay),
     recurringPeriod: data.recurringPeriod || null,
   };
 }
@@ -98,7 +100,7 @@ export function useDebts() {
 
   const replaceDebt = useCallback((updated) => {
     const normalized = normalizeDebt(updated);
-    setDebts((items) => items.map((item) => item.id === normalized.id ? normalized : item));
+    setDebts((items) => items.map((item) => (item.id === normalized.id ? normalized : item)));
     return normalized;
   }, []);
 
@@ -114,15 +116,18 @@ export function useDebts() {
     }
   }, []);
 
-  const updateDebt = useCallback(async (id, data) => {
-    try {
-      setError(null);
-      return replaceDebt(await updateDebtRequest(id, toPayload(data)));
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [replaceDebt]);
+  const updateDebt = useCallback(
+    async (id, data) => {
+      try {
+        setError(null);
+        return replaceDebt(await updateDebtRequest(id, toPayload(data)));
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [replaceDebt]
+  );
 
   const deleteDebt = useCallback(async (id) => {
     try {
@@ -135,43 +140,56 @@ export function useDebts() {
     }
   }, []);
 
-  const markPaid = useCallback(async (id) => {
-    try {
-      setError(null);
-      return replaceDebt(await markDebtPaid(id));
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [replaceDebt]);
+  const markPaid = useCallback(
+    async (id) => {
+      try {
+        setError(null);
+        return replaceDebt(await markDebtPaid(id));
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [replaceDebt]
+  );
 
-  const addPayment = useCallback(async (id, payment) => {
-    try {
-      setError(null);
-      return replaceDebt(await addDebtPayment(id, {
-        date: toUtcDate(payment.date),
-        amount: Number(payment.amount),
-        note: payment.note?.trim() || "",
-      }));
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [replaceDebt]);
+  const addPayment = useCallback(
+    async (id, payment) => {
+      try {
+        setError(null);
+        return replaceDebt(
+          await addDebtPayment(id, {
+            date: toUtcDate(payment.date),
+            amount: Number(payment.amount),
+            note: payment.note?.trim() || "",
+          })
+        );
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [replaceDebt]
+  );
 
-  const addRecurringCharge = useCallback(async (id, charge) => {
-    try {
-      setError(null);
-      return replaceDebt(await addDebtRecurringCharge(id, {
-        dueDate: toUtcDate(charge.dueDate || charge.date),
-        amount: Number(charge.amount),
-        note: charge.note?.trim() || "",
-      }));
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [replaceDebt]);
+  const addRecurringCharge = useCallback(
+    async (id, charge) => {
+      try {
+        setError(null);
+        return replaceDebt(
+          await addDebtRecurringCharge(id, {
+            dueDate: toUtcDate(charge.dueDate || charge.date),
+            amount: Number(charge.amount),
+            note: charge.note?.trim() || "",
+          })
+        );
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [replaceDebt]
+  );
 
   return {
     debts,

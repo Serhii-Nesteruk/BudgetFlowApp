@@ -53,7 +53,10 @@ public class DebtsController : ControllerBase
             var createdDebt = await _debtService.AddAsync(dto, userId);
             return CreatedAtAction(
                 nameof(GetDebtDetails),
-                new { id = createdDebt.Id },
+                new
+                {
+                    id = createdDebt.Id
+                },
                 DebtMapping.ToDto(createdDebt));
         }
         catch (ArgumentException exception)

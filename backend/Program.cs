@@ -25,7 +25,8 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-var keyString = builder.Configuration.GetValue<string>("Jwt:Key") ?? throw new Exception("JWT key not configured");;              
+var keyString = builder.Configuration.GetValue<string>("Jwt:Key") ?? throw new Exception("JWT key not configured");
+;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(
         options =>
@@ -61,6 +62,8 @@ builder.Services.AddScoped<IRepository<Debt>, DebtRepository>();
 builder.Services.AddScoped<IDebtRepository, DebtRepository>();
 builder.Services.AddScoped<IRepository<Budget>, BudgetRepository>();
 builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+builder.Services.AddScoped<IRepository<SavingsGoal>, SavingsGoalRepository>();
+builder.Services.AddScoped<ISavingsGoalRepository, SavingsGoalRepository>();
 builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:8000/");
@@ -73,17 +76,18 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<ISavingsGoalService, SavingsGoalService>();
 
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-   
+
     app.UseHsts();
 }
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
@@ -93,7 +97,7 @@ app.UseCors("AllowFrontend");
 
 if (!app.Environment.IsProduction())
 {
-    app.UseHttpsRedirection();    
+    app.UseHttpsRedirection();
 }
 
 app.UseStaticFiles();

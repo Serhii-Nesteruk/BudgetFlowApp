@@ -8,7 +8,10 @@ namespace BudgetFlowAPi.Models;
 public class Receipt
 {
     [Key]
-    public int Id { get; set; }
+    public int Id
+    {
+        get; set;
+    }
 
     [Required]
     [Column("photo", TypeName = "bytea")]
@@ -20,19 +23,31 @@ public class Receipt
     [Required]
     [Column("content_type")]
     public string ContentType { get; set; } = string.Empty;
-    
+
     [Required]
     [Column("date")]
-    public DateTime Date { get; set; }
+    public DateTime Date
+    {
+        get; set;
+    }
 
     [Required]
     [Column("amount")]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
 
     [Required]
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt
+    {
+        get; set;
+    }
 
     [Column("updated_at")]
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt
+    {
+        get; set;
+    }
 }

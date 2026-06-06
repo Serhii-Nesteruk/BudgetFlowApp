@@ -4,27 +4,116 @@ namespace BudgetFlowAPi.Data;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
-    public DbSet<Models.User> Users { get; set; }
-    public DbSet<Models.Transaction> Transactions { get; set; }
-    public DbSet<Models.Receipt> Receipts { get; set; }
-    public DbSet<Models.Debt> Debts { get; set; }
-    public DbSet<Models.DebtPayment> DebtPayments { get; set; }
-    public DbSet<Models.DebtInstallment> DebtInstallments { get; set; }
-    public DbSet<Models.UserSettings> UserSettings { get; set; }
-    public DbSet<Models.TelegramAccount> TelegramAccounts { get; set; }
-    public DbSet<Models.TelegramConnectionCode> TelegramConnectionCodes { get; set; }
-    public DbSet<Models.Budget> Budgets { get; set; }
-    public DbSet<Models.BudgetCategory> BudgetCategories { get; set; }
-    public DbSet<Models.BudgetCategoryLabel> BudgetCategoryLabels { get; set; }
-    public DbSet<Models.BudgetIncomeSource> BudgetIncomeSources { get; set; }
-    public DbSet<Models.BudgetMandatoryExpense> BudgetMandatoryExpenses { get; set; }
-    public DbSet<Models.BudgetPlannedExpense> BudgetPlannedExpenses { get; set; }
-    public DbSet<Models.BudgetSharedUser> BudgetSharedUsers { get; set; }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    public DbSet<Models.User> Users
+    {
+        get; set;
+    }
+    public DbSet<Models.Transaction> Transactions
+    {
+        get; set;
+    }
+    public DbSet<Models.Receipt> Receipts
+    {
+        get; set;
+    }
+    public DbSet<Models.Debt> Debts
+    {
+        get; set;
+    }
+    public DbSet<Models.DebtPayment> DebtPayments
+    {
+        get; set;
+    }
+    public DbSet<Models.DebtInstallment> DebtInstallments
+    {
+        get; set;
+    }
+    public DbSet<Models.UserSettings> UserSettings
+    {
+        get; set;
+    }
+    public DbSet<Models.TelegramAccount> TelegramAccounts
+    {
+        get; set;
+    }
+    public DbSet<Models.TelegramConnectionCode> TelegramConnectionCodes
+    {
+        get; set;
+    }
+    public DbSet<Models.Budget> Budgets
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetCategory> BudgetCategories
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetCategoryLabel> BudgetCategoryLabels
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetIncomeSource> BudgetIncomeSources
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetMandatoryExpense> BudgetMandatoryExpenses
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetPlannedExpense> BudgetPlannedExpenses
+    {
+        get; set;
+    }
+    public DbSet<Models.BudgetSharedUser> BudgetSharedUsers
+    {
+        get; set;
+    }
+    public DbSet<Models.TransactionTag> TransactionTags
+    {
+        get; set;
+    }
+    public DbSet<Models.SavingsGoal> SavingsGoals
+    {
+        get; set;
+    }
+    public DbSet<Models.SavingsGoalTag> SavingsGoalTags
+    {
+        get; set;
+    }
+    public DbSet<Models.SavingsEntry> SavingsEntries
+    {
+        get; set;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+
+        modelBuilder.Entity<Models.TransactionTag>()
+            .HasOne(x => x.Transaction)
+            .WithMany(x => x.Tags)
+            .HasForeignKey(x => x.TransactionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Models.SavingsGoal>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.SavingsGoals)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Models.SavingsGoalTag>()
+            .HasOne(x => x.SavingsGoal)
+            .WithMany(x => x.Tags)
+            .HasForeignKey(x => x.SavingsGoalId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Models.SavingsEntry>()
+            .HasOne(x => x.SavingsGoal)
+            .WithMany(x => x.Entries)
+            .HasForeignKey(x => x.SavingsGoalId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Models.UserSettings>()
             .HasOne(x => x.User)

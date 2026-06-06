@@ -6,14 +6,22 @@ import { entryTotalPLN, placeCurrency } from "../utils/expenseStats";
 import styles from "./StatsTab.module.css";
 
 const COLORS = [
-  "#00b86b", "#00285f", "#2dd4bf", "#3b82f6", "#84cc16",
-  "#0f766e", "#6366f1", "#14b8a6", "#0891b2", "#22c55e",
+  "#00b86b",
+  "#00285f",
+  "#2dd4bf",
+  "#3b82f6",
+  "#84cc16",
+  "#0f766e",
+  "#6366f1",
+  "#14b8a6",
+  "#0891b2",
+  "#22c55e",
 ];
 
 const TABS = [
   { id: "overview", label: "Огляд" },
-  { id: "places",   label: "Місця" },
-  { id: "top",      label: "Топ витрат" },
+  { id: "places", label: "Місця" },
+  { id: "top", label: "Топ витрат" },
 ];
 
 function daysAgo(n) {
@@ -23,30 +31,32 @@ function daysAgo(n) {
 }
 
 export default function StatsTab({ data, rates, ratesError }) {
-
   const [activeSection, setActiveSection] = useState("overview");
-  const [panelKey, setPanelKey]           = useState(0);
+  const [panelKey, setPanelKey] = useState(0);
 
   const allDates = useMemo(() => [...new Set(data.map((e) => e.date))].sort(), [data]);
-  const minDate  = allDates[0]  ?? "";
-  const maxDate  = allDates[allDates.length - 1] ?? "";
+  const minDate = allDates[0] ?? "";
+  const maxDate = allDates[allDates.length - 1] ?? "";
 
-  const [range, setRange]       = useState([0, 1]);
+  const [range, setRange] = useState([0, 1]);
   const [activePreset, setActivePreset] = useState("all");
   const sliderRef = useRef(null);
-  const dragRef   = useRef(null);
+  const dragRef = useRef(null);
 
   const fromDate = allDates[Math.floor(range[0] * (allDates.length - 1))] ?? minDate;
-  const toDate   = allDates[Math.floor(range[1] * (allDates.length - 1))] ?? maxDate;
+  const toDate = allDates[Math.floor(range[1] * (allDates.length - 1))] ?? maxDate;
 
   function applyPreset(preset) {
     setActivePreset(preset);
-    if (preset === "all" || allDates.length === 0) { setRange([0, 1]); return; }
+    if (preset === "all" || allDates.length === 0) {
+      setRange([0, 1]);
+      return;
+    }
     const cutoff = {
-      "7d":  daysAgo(7),
-      "1m":  daysAgo(30),
-      "3m":  daysAgo(90),
-      "1y":  daysAgo(365),
+      "7d": daysAgo(7),
+      "1m": daysAgo(30),
+      "3m": daysAgo(90),
+      "1y": daysAgo(365),
     }[preset];
     const firstIdx = allDates.findIndex((d) => d >= cutoff);
     const left = firstIdx < 0 ? 0 : firstIdx / (allDates.length - 1);
@@ -92,25 +102,30 @@ export default function StatsTab({ data, rates, ratesError }) {
 
   const [selectedPlace, setSelectedPlace] = useState(null);
 
-  const placeTransactions = useMemo(() => selectedPlace
-    ? filteredData
-        .flatMap((entry) =>
-          entry.places
-            .filter((place) => place.name === selectedPlace)
-            .map((place) => ({
-              ...place,
-              date: entry.date,
-              entryId: entry.id,
-              currency: placeCurrency(place, entry),
-            }))
-        )
-        .sort((a, b) => (a.date < b.date ? 1 : -1))
-    : [], [filteredData, selectedPlace]);
+  const placeTransactions = useMemo(
+    () =>
+      selectedPlace
+        ? filteredData
+            .flatMap((entry) =>
+              entry.places
+                .filter((place) => place.name === selectedPlace)
+                .map((place) => ({
+                  ...place,
+                  date: entry.date,
+                  entryId: entry.id,
+                  currency: placeCurrency(place, entry),
+                }))
+            )
+            .sort((a, b) => (a.date < b.date ? 1 : -1))
+        : [],
+    [filteredData, selectedPlace]
+  );
   const placeTotal = useMemo(
-    () => placeTransactions.reduce(
-      (sum, place) => sum + toBase(place.amount || 0, place.currency || "PLN", rates),
-      0
-    ),
+    () =>
+      placeTransactions.reduce(
+        (sum, place) => sum + toBase(place.amount || 0, place.currency || "PLN", rates),
+        0
+      ),
     [placeTransactions, rates]
   );
   const placeAvg = placeTransactions.length ? placeTotal / placeTransactions.length : 0;
@@ -122,8 +137,8 @@ export default function StatsTab({ data, rates, ratesError }) {
 
   // ── Canvas refs ──────────────────────────────────────────────────────
   const timelineRef = useRef(null);
-  const donutRef    = useRef(null);
-  const pointsRef   = useRef([]);
+  const donutRef = useRef(null);
+  const pointsRef = useRef([]);
   const [tooltip, setTooltip] = useState(null);
 
   function switchSection(id) {
@@ -167,20 +182,27 @@ export default function StatsTab({ data, rates, ratesError }) {
     const dc = donutRef.current;
     if (!dc || !sp.length) return;
     const dctx = dc.getContext("2d");
-    const cx = 60, cy = 60, r = 52, inn = 28;
+    const cx = 60,
+      cy = 60,
+      r = 52,
+      inn = 28;
     dctx.clearRect(0, 0, 120, 120);
     const tot2 = sp.reduce((s, [, v]) => s + v, 0);
     let ang = -Math.PI / 2;
     sp.forEach(([, v], i) => {
       const slice = (v / tot2) * Math.PI * 2;
-      dctx.beginPath(); dctx.moveTo(cx, cy);
+      dctx.beginPath();
+      dctx.moveTo(cx, cy);
       dctx.arc(cx, cy, r, ang, ang + slice);
       dctx.closePath();
-      dctx.fillStyle = COLORS[i % COLORS.length]; dctx.fill();
+      dctx.fillStyle = COLORS[i % COLORS.length];
+      dctx.fill();
       ang += slice;
     });
-    dctx.beginPath(); dctx.arc(cx, cy, inn, 0, Math.PI * 2);
-    dctx.fillStyle = "#fff"; dctx.fill();
+    dctx.beginPath();
+    dctx.arc(cx, cy, inn, 0, Math.PI * 2);
+    dctx.fillStyle = "#fff";
+    dctx.fill();
   }, [sp, activeSection]);
 
   // ── Timeline canvas ──────────────────────────────────────────────────
@@ -189,7 +211,8 @@ export default function StatsTab({ data, rates, ratesError }) {
     if (!canvas) return;
     const W = canvas.parentElement.offsetWidth - 2;
     const H = 160;
-    canvas.width = W; canvas.height = H;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext("2d");
     const byDate = {};
     filteredData.forEach((entry) => {
@@ -199,43 +222,68 @@ export default function StatsTab({ data, rates, ratesError }) {
       };
     });
     const dates = Object.keys(byDate).sort();
-    const vals  = dates.map((d) => byDate[d].total);
-    const maxV  = Math.max(...vals) || 1;
-    const pad   = { l: 46, r: 10, t: 10, b: 28 };
-    const W2 = W - pad.l - pad.r, H2 = H - pad.t - pad.b;
+    const vals = dates.map((d) => byDate[d].total);
+    const maxV = Math.max(...vals) || 1;
+    const pad = { l: 46, r: 10, t: 10, b: 28 };
+    const W2 = W - pad.l - pad.r,
+      H2 = H - pad.t - pad.b;
     ctx.clearRect(0, 0, W, H);
     ctx.font = "10px DM Mono, monospace";
     [0, 0.25, 0.5, 0.75, 1].forEach((t) => {
       const y = pad.t + H2 * (1 - t);
-      ctx.strokeStyle = "#e4e6ea"; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
-      ctx.fillStyle = "#9ca3af"; ctx.textAlign = "right";
+      ctx.strokeStyle = "#e4e6ea";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(W - pad.r, y);
+      ctx.stroke();
+      ctx.fillStyle = "#9ca3af";
+      ctx.textAlign = "right";
       ctx.fillText(Math.round(maxV * t) + "zł", pad.l - 4, y + 4);
     });
-    if (!dates.length) { pointsRef.current = []; return; }
+    if (!dates.length) {
+      pointsRef.current = [];
+      return;
+    }
     const pts = dates.map((date, i) => ({
-      date, total: byDate[date].total, entries: byDate[date].entries,
+      date,
+      total: byDate[date].total,
+      entries: byDate[date].entries,
       x: pad.l + (dates.length > 1 ? i / (dates.length - 1) : 0.5) * W2,
       y: pad.t + H2 * (1 - vals[i] / maxV),
     }));
     pointsRef.current = pts;
     const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
-    grad.addColorStop(0, "rgba(0,184,107,0.20)"); grad.addColorStop(1, "rgba(0,184,107,0)");
-    ctx.beginPath(); ctx.moveTo(pts[0].x, H - pad.b);
+    grad.addColorStop(0, "rgba(0,184,107,0.20)");
+    grad.addColorStop(1, "rgba(0,184,107,0)");
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, H - pad.b);
     pts.forEach((p) => ctx.lineTo(p.x, p.y));
-    ctx.lineTo(pts[pts.length - 1].x, H - pad.b); ctx.closePath();
-    ctx.fillStyle = grad; ctx.fill();
-    ctx.beginPath(); ctx.strokeStyle = "#00b86b"; ctx.lineWidth = 2.25;
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length - 1].x, H - pad.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.strokeStyle = "#00b86b";
+    ctx.lineWidth = 2.25;
+    pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.stroke();
     pts.forEach((p) => {
-      ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff"; ctx.fill();
-      ctx.strokeStyle = "#00b86b"; ctx.lineWidth = 1.75; ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+      ctx.strokeStyle = "#00b86b";
+      ctx.lineWidth = 1.75;
+      ctx.stroke();
     });
     const step = Math.ceil(dates.length / 9);
-    ctx.fillStyle = "#9ca3af"; ctx.font = "9px DM Mono, monospace"; ctx.textAlign = "center";
-    pts.forEach((p, i) => { if (i % step === 0 || i === dates.length - 1) ctx.fillText(fmtDate(dates[i]), p.x, H - 6); });
+    ctx.fillStyle = "#9ca3af";
+    ctx.font = "9px DM Mono, monospace";
+    ctx.textAlign = "center";
+    pts.forEach((p, i) => {
+      if (i % step === 0 || i === dates.length - 1) ctx.fillText(fmtDate(dates[i]), p.x, H - 6);
+    });
   }, [filteredData, rates]);
 
   useEffect(() => {
@@ -263,42 +311,49 @@ export default function StatsTab({ data, rates, ratesError }) {
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;
     if (!canvas) return;
-    const rect   = canvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     const mouseX = (e.clientX - rect.left) * scaleX;
-    const mouseY = (e.clientY - rect.top)  * scaleY;
+    const mouseY = (e.clientY - rect.top) * scaleY;
     const nearest = pointsRef.current
       .map((p) => ({ ...p, distance: Math.hypot(p.x - mouseX, p.y - mouseY) }))
       .sort((a, b) => a.distance - b.distance)[0];
-    if (!nearest || nearest.distance > 36) { setTooltip(null); return; }
+    if (!nearest || nearest.distance > 36) {
+      setTooltip(null);
+      return;
+    }
 
     // Позиція у viewport: беремо координати точки на canvas і переводимо у viewport
-    const ptX = rect.left + (nearest.x / scaleX);
-    const ptY = rect.top  + (nearest.y / scaleY);
+    const ptX = rect.left + nearest.x / scaleX;
+    const ptY = rect.top + nearest.y / scaleY;
     setTooltip({ ptX, ptY, date: nearest.date, total: nearest.total, entries: nearest.entries });
   }
-  function handleTimelineLeave() { setTooltip(null); }
+  function handleTimelineLeave() {
+    setTooltip(null);
+  }
 
   const topEntries = useMemo(
-    () => [...filteredData]
-      .sort((a, b) => entryTotalPLN(b, rates) - entryTotalPLN(a, rates))
-      .slice(0, 10),
+    () =>
+      [...filteredData]
+        .sort((a, b) => entryTotalPLN(b, rates) - entryTotalPLN(a, rates))
+        .slice(0, 10),
     [filteredData, rates]
   );
 
   // ── Render ───────────────────────────────────────────────────────────
   return (
     <div className={styles.root}>
-
       {/* Stat cards */}
-      {ratesError && (
-        <div className={styles.ratesWarning}>⚠ {ratesError}</div>
-      )}
+      {ratesError && <div className={styles.ratesWarning}>⚠ {ratesError}</div>}
       <div className={styles.statsBar}>
-        <SCard label="Загальні витрати" value={`${total.toFixed(0)} zł`} sub={`${filteredData.length} записів`} />
-        <SCard label="Середня витрата"  value={`${avg.toFixed(1)} zł`}   sub="на запис" />
-        <SCard label="Активних днів"    value={String(days)}              sub={`макс. ${max.toFixed(0)} zł`} />
+        <SCard
+          label="Загальні витрати"
+          value={`${total.toFixed(0)} zł`}
+          sub={`${filteredData.length} записів`}
+        />
+        <SCard label="Середня витрата" value={`${avg.toFixed(1)} zł`} sub="на запис" />
+        <SCard label="Активних днів" value={String(days)} sub={`макс. ${max.toFixed(0)} zł`} />
       </div>
 
       <div className={styles.dateFilterCard}>
@@ -307,15 +362,27 @@ export default function StatsTab({ data, rates, ratesError }) {
             <span className={styles.dateFilterRange}>
               {fromDate ? fmtDate(fromDate) : "—"} — {toDate ? fmtDate(toDate) : "—"}
             </span>
-            <span className={styles.dateFilterCount}>{filteredData.length} з {data.length} записів</span>
+            <span className={styles.dateFilterCount}>
+              {filteredData.length} з {data.length} записів
+            </span>
           </div>
           <div className={styles.presets}>
-            {[["7d","7 днів"],["1m","Місяць"],["3m","3 місяці"],["1y","Рік"],["all","Все"]].map(([id, label]) => (
+            {[
+              ["7d", "7 днів"],
+              ["1m", "Місяць"],
+              ["3m", "3 місяці"],
+              ["1y", "Рік"],
+              ["all", "Все"],
+            ].map(([id, label]) => (
               <button
                 key={id}
-                className={[styles.preset, activePreset === id ? styles.presetActive : ""].join(" ")}
+                className={[styles.preset, activePreset === id ? styles.presetActive : ""].join(
+                  " "
+                )}
                 onClick={() => applyPreset(id)}
-              >{label}</button>
+              >
+                {label}
+              </button>
             ))}
           </div>
         </div>
@@ -330,10 +397,7 @@ export default function StatsTab({ data, rates, ratesError }) {
             const rect = sliderRef.current.getBoundingClientRect();
             const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
 
-            dragRef.current =
-              Math.abs(x - range[0]) < Math.abs(x - range[1])
-                ? "left"
-                : "right";
+            dragRef.current = Math.abs(x - range[0]) < Math.abs(x - range[1]) ? "left" : "right";
 
             e.currentTarget.setPointerCapture?.(e.pointerId);
 
@@ -347,13 +411,18 @@ export default function StatsTab({ data, rates, ratesError }) {
           <div className={styles.sliderTrack} />
           <div className={styles.rangeDim} style={{ left: 0, width: `${range[0] * 100}%` }} />
           <div className={styles.rangeDim} style={{ left: `${range[1] * 100}%`, right: 0 }} />
-          <div className={styles.rangeActive} style={{ left: `${range[0] * 100}%`, width: `${(range[1] - range[0]) * 100}%` }} />
+          <div
+            className={styles.rangeActive}
+            style={{ left: `${range[0] * 100}%`, width: `${(range[1] - range[0]) * 100}%` }}
+          />
           <div className={styles.rangeHandle} style={{ left: `${range[0] * 100}%` }} />
           <div className={styles.rangeHandle} style={{ left: `${range[1] * 100}%` }} />
           {/* Мітки всіх дат-місяців під слайдером */}
           <div className={styles.sliderTicks}>
             {buildMonthTicks(allDates).map(({ label, pct }) => (
-              <span key={label} className={styles.sliderTick} style={{ left: `${pct * 100}%` }}>{label}</span>
+              <span key={label} className={styles.sliderTick} style={{ left: `${pct * 100}%` }}>
+                {label}
+              </span>
             ))}
           </div>
         </div>
@@ -363,9 +432,11 @@ export default function StatsTab({ data, rates, ratesError }) {
       <div className={styles.tabsRow}>
         <div className={styles.tabsPill}>
           {TABS.map((tab) => (
-            <button key={tab.id}
+            <button
+              key={tab.id}
               className={[styles.tab, activeSection === tab.id ? styles.tabActive : ""].join(" ")}
-              onClick={() => switchSection(tab.id)}>
+              onClick={() => switchSection(tab.id)}
+            >
               {tab.label}
             </button>
           ))}
@@ -374,14 +445,18 @@ export default function StatsTab({ data, rates, ratesError }) {
 
       {/* Section panels */}
       <div className={styles.panel} key={panelKey}>
-
         {/* ── OVERVIEW ── */}
         {activeSection === "overview" && (
           <div className={styles.grid}>
             <div className={[styles.card, styles.full].join(" ")}>
               <div className={styles.chartTitle}>Витрати по днях</div>
               <div className={styles.timelineWrap}>
-                <canvas ref={timelineRef} height={160} onMouseMove={handleTimelineMove} onMouseLeave={handleTimelineLeave} />
+                <canvas
+                  ref={timelineRef}
+                  height={160}
+                  onMouseMove={handleTimelineMove}
+                  onMouseLeave={handleTimelineLeave}
+                />
               </div>
             </div>
 
@@ -390,8 +465,18 @@ export default function StatsTab({ data, rates, ratesError }) {
               <div className={styles.barChart}>
                 {sp.slice(0, 8).map(([name, val], i) => (
                   <div className={styles.barRow} key={name}>
-                    <div className={styles.barLabel} title={name}>{name}</div>
-                    <div className={styles.barTrack}><div className={styles.barFill} style={{ width: `${(val / mv) * 100}%`, background: COLORS[i % COLORS.length] }} /></div>
+                    <div className={styles.barLabel} title={name}>
+                      {name}
+                    </div>
+                    <div className={styles.barTrack}>
+                      <div
+                        className={styles.barFill}
+                        style={{
+                          width: `${(val / mv) * 100}%`,
+                          background: COLORS[i % COLORS.length],
+                        }}
+                      />
+                    </div>
                     <div className={styles.barVal}>{val.toFixed(0)} zł</div>
                   </div>
                 ))}
@@ -405,7 +490,10 @@ export default function StatsTab({ data, rates, ratesError }) {
                 <div className={styles.donutLegend}>
                   {sp.slice(0, 8).map(([name, val], i) => (
                     <div className={styles.legendRow} key={name}>
-                      <div className={styles.legendDot} style={{ background: COLORS[i % COLORS.length] }} />
+                      <div
+                        className={styles.legendDot}
+                        style={{ background: COLORS[i % COLORS.length] }}
+                      />
                       <span className={styles.legendName}>{name}</span>
                       <span className={styles.legendVal}>{val.toFixed(0)} zł</span>
                     </div>
@@ -425,11 +513,27 @@ export default function StatsTab({ data, rates, ratesError }) {
             )}
             <div className={styles.placeSelector}>
               {allPlaceNames.map((name, i) => (
-                <button key={name}
-                  className={[styles.placeChip, selectedPlace === name ? styles.placeChipActive : ""].join(" ")}
-                  style={selectedPlace === name ? { borderColor: COLORS[i % COLORS.length], background: COLORS[i % COLORS.length] + "18", color: COLORS[i % COLORS.length] } : {}}
-                  onClick={() => setSelectedPlace((prev) => (prev === name ? null : name))}>
-                  <span className={styles.placeChipDot} style={{ background: COLORS[i % COLORS.length] }} />
+                <button
+                  key={name}
+                  className={[
+                    styles.placeChip,
+                    selectedPlace === name ? styles.placeChipActive : "",
+                  ].join(" ")}
+                  style={
+                    selectedPlace === name
+                      ? {
+                          borderColor: COLORS[i % COLORS.length],
+                          background: COLORS[i % COLORS.length] + "18",
+                          color: COLORS[i % COLORS.length],
+                        }
+                      : {}
+                  }
+                  onClick={() => setSelectedPlace((prev) => (prev === name ? null : name))}
+                >
+                  <span
+                    className={styles.placeChipDot}
+                    style={{ background: COLORS[i % COLORS.length] }}
+                  />
                   {name}
                   <span className={styles.placeChipAmt}>{placeTotals[name].toFixed(0)} zł</span>
                 </button>
@@ -453,7 +557,10 @@ export default function StatsTab({ data, rates, ratesError }) {
                 </div>
                 <div className={styles.placeTable}>
                   <div className={styles.placeTableHead}>
-                    <span>Дата</span><span>Деталі</span><span>Нотатки</span><span className={styles.placeTableAmtCol}>Сума</span>
+                    <span>Дата</span>
+                    <span>Деталі</span>
+                    <span>Нотатки</span>
+                    <span className={styles.placeTableAmtCol}>Сума</span>
                   </div>
                   {placeTransactions.map((p) => (
                     <div className={styles.placeTableRow} key={`${p.date}-${p.id || p.amount}`}>
@@ -471,7 +578,9 @@ export default function StatsTab({ data, rates, ratesError }) {
               </div>
             )}
             {!selectedPlace && allPlaceNames.length > 0 && (
-              <div className={styles.placeEmpty}>Оберіть місце вище, щоб побачити всі витрати по ньому</div>
+              <div className={styles.placeEmpty}>
+                Оберіть місце вище, щоб побачити всі витрати по ньому
+              </div>
             )}
           </div>
         )}
@@ -499,8 +608,18 @@ export default function StatsTab({ data, rates, ratesError }) {
               <div className={styles.barChart}>
                 {sf.map(([name, count], i) => (
                   <div className={styles.barRow} key={name}>
-                    <div className={styles.barLabel} title={name}>{name}</div>
-                    <div className={styles.barTrack}><div className={styles.barFill} style={{ width: `${(count / mf) * 100}%`, background: COLORS[i % COLORS.length] }} /></div>
+                    <div className={styles.barLabel} title={name}>
+                      {name}
+                    </div>
+                    <div className={styles.barTrack}>
+                      <div
+                        className={styles.barFill}
+                        style={{
+                          width: `${(count / mf) * 100}%`,
+                          background: COLORS[i % COLORS.length],
+                        }}
+                      />
+                    </div>
                     <div className={styles.barVal}>{count}×</div>
                   </div>
                 ))}
@@ -510,9 +629,7 @@ export default function StatsTab({ data, rates, ratesError }) {
         )}
       </div>
 
-      {tooltip && (
-        <TooltipPortal tooltip={tooltip} rates={rates} />
-      )}
+      {tooltip && <TooltipPortal tooltip={tooltip} rates={rates} />}
     </div>
   );
 }
@@ -522,17 +639,17 @@ function TooltipPortal({ tooltip, rates }) {
   const [pos, setPos] = useState({ left: -9999, top: -9999, visible: false });
 
   useEffect(() => {
-    setPos(p => ({ ...p, visible: false }));
+    setPos((p) => ({ ...p, visible: false }));
 
     const frame = requestAnimationFrame(() => {
       if (!ref.current) return;
-      const w = ref.current.offsetWidth  || 220;
+      const w = ref.current.offsetWidth || 220;
       const h = ref.current.offsetHeight || 100;
       const vw = window.innerWidth;
       const vh = window.innerHeight;
 
       let left = tooltip.ptX - w / 2;
-      let top  = tooltip.ptY - h - 12;
+      let top = tooltip.ptY - h - 12;
 
       if (left < 8) left = 8;
       if (left + w > vw - 8) left = vw - w - 8;
@@ -588,7 +705,20 @@ function buildMonthTicks(allDates) {
     const pct = i / (allDates.length - 1);
     if (ticks.length > 0 && pct - ticks[ticks.length - 1].pct < 0.07) return;
     const [year, month] = ym.split("-");
-    const months = ["Січ","Лют","Бер","Кві","Тра","Чер","Лип","Сер","Вер","Жов","Лис","Гру"];
+    const months = [
+      "Січ",
+      "Лют",
+      "Бер",
+      "Кві",
+      "Тра",
+      "Чер",
+      "Лип",
+      "Сер",
+      "Вер",
+      "Жов",
+      "Лис",
+      "Гру",
+    ];
     ticks.push({ label: `${months[+month - 1]} ${year}`, pct });
   });
   return ticks;

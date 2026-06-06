@@ -15,6 +15,7 @@ import EntryModal from "./components/EntryModal";
 import BudgetPage from "./components/BudgetPage";
 import DebtsPage from "./components/DebtsPage";
 import SettingsPage from "./components/SettingsPage";
+import SavingsPage from "./components/SavingsPage";
 import styles from "./App.module.css";
 
 export default function App() {
@@ -28,29 +29,47 @@ export default function App() {
   const baseCurrency = settings.baseCurrency || "PLN";
 
   const {
-    data, loading, error, filtered, allPlaces,
-    sortCol, sortDir,
-    search, setSearch,
-    filterFrom, setFilterFrom,
-    filterTo, setFilterTo,
-    activePlaceFilter, setActivePlaceFilter,
-    expandedIds, curPage, setCurPage,
-    sort, clearFilters,
-    toggleExpand, addEntry, updateEntry, deleteEntry,
+    data,
+    loading,
+    error,
+    filtered,
+    allPlaces,
+    sortCol,
+    sortDir,
+    search,
+    setSearch,
+    filterFrom,
+    setFilterFrom,
+    filterTo,
+    setFilterTo,
+    activePlaceFilter,
+    setActivePlaceFilter,
+    expandedIds,
+    curPage,
+    setCurPage,
+    sort,
+    clearFilters,
+    toggleExpand,
+    addEntry,
+    updateEntry,
+    deleteEntry,
   } = useExpenses();
 
-  const tableSummary = useMemo(
-    () => buildExpenseSummaryPLN(data, rates),
-    [data, rates]
-  );
+  const tableSummary = useMemo(() => buildExpenseSummaryPLN(data, rates), [data, rates]);
 
   function handleTabChange(tab) {
     if (tab === "stats") setStatsMounted(true);
     setActiveTab(tab);
   }
 
-  function openAdd() { setEditEntry(null); setModalOpen(true); }
-  function openEdit(id) { setEditEntry(data.find((e) => e.id === id)); setModalOpen(true); }
+  function openAdd() {
+    setEditEntry(null);
+    setModalOpen(true);
+  }
+  function openEdit(id) {
+    setEditEntry(data.find((e) => e.id === id));
+    setModalOpen(true);
+  }
 
   function handleSave(formData) {
     if (editEntry) updateEntry(editEntry.id, formData);
@@ -79,7 +98,10 @@ export default function App() {
         <Topbar
           activeTab={activeTab}
           search={search}
-          onSearch={(v) => { setSearch(v); setCurPage(1); }}
+          onSearch={(v) => {
+            setSearch(v);
+            setCurPage(1);
+          }}
           onAdd={openAdd}
           onScanReceipt={() => setScanOpen(true)}
         />
@@ -95,9 +117,21 @@ export default function App() {
                 <>
                   <StatCards data={data} summary={tableSummary} />
                   <Toolbar
-                    search={search} onSearch={(v) => { setSearch(v); setCurPage(1); }}
-                    filterFrom={filterFrom} onFilterFrom={(v) => { setFilterFrom(v); setCurPage(1); }}
-                    filterTo={filterTo} onFilterTo={(v) => { setFilterTo(v); setCurPage(1); }}
+                    search={search}
+                    onSearch={(v) => {
+                      setSearch(v);
+                      setCurPage(1);
+                    }}
+                    filterFrom={filterFrom}
+                    onFilterFrom={(v) => {
+                      setFilterFrom(v);
+                      setCurPage(1);
+                    }}
+                    filterTo={filterTo}
+                    onFilterTo={(v) => {
+                      setFilterTo(v);
+                      setCurPage(1);
+                    }}
                     onClear={clearFilters}
                     allPlaces={allPlaces}
                     activePlaceFilter={activePlaceFilter}
@@ -106,8 +140,11 @@ export default function App() {
                   <ExpenseTable
                     filtered={filtered}
                     expandedIds={expandedIds}
-                    curPage={curPage} setCurPage={setCurPage}
-                    sortCol={sortCol} sortDir={sortDir} onSort={sort}
+                    curPage={curPage}
+                    setCurPage={setCurPage}
+                    sortCol={sortCol}
+                    sortDir={sortDir}
+                    onSort={sort}
                     onToggleExpand={toggleExpand}
                     onEdit={openEdit}
                     onDelete={handleDelete}
@@ -119,9 +156,14 @@ export default function App() {
                   <StatsTab data={data} rates={rates} ratesError={ratesError} />
                 </div>
               )}
-              {activeTab === "budget" && <BudgetPage expenses={data} rates={rates} baseCurrency={baseCurrency} />}
+              {activeTab === "budget" && (
+                <BudgetPage expenses={data} rates={rates} baseCurrency={baseCurrency} />
+              )}
               {activeTab === "debts" && <DebtsPage rates={rates} baseCurrency={baseCurrency} />}
               {activeTab === "settings" && <SettingsPage />}
+              {activeTab === "savings" && (
+                <SavingsPage expenses={data} rates={rates} baseCurrency={baseCurrency} />
+              )}
             </>
           )}
         </div>

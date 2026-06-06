@@ -11,8 +11,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .label {
@@ -35,12 +41,12 @@
   width: 136px;
   transition:
     border-color var(--dur-fast) var(--ease-out),
-    box-shadow   var(--dur-fast) var(--ease-out);
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .inputDate:focus {
   border-color: rgba(0, 184, 107, 0.55);
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
 .divider {
@@ -63,14 +69,19 @@
   font-family: var(--font);
   white-space: nowrap;
   transition:
-    background    var(--dur-fast) var(--ease-out),
-    border-color  var(--dur-fast) var(--ease-out),
-    color         var(--dur-fast) var(--ease-out),
-    transform     var(--dur-fast) var(--ease-spring);
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-spring);
 }
 
-.chip:hover { border-color: rgba(0, 40, 95, 0.22); color: var(--text); }
-.chip:active { transform: scale(0.96); }
+.chip:hover {
+  border-color: rgba(0, 40, 95, 0.22);
+  color: var(--text);
+}
+.chip:active {
+  transform: scale(0.96);
+}
 
 .chipActive {
   background: var(--accent) !important;
@@ -93,15 +104,21 @@
   margin-left: auto;
   white-space: nowrap;
   transition:
-    background   var(--dur-fast) var(--ease-out),
-    color        var(--dur-fast) var(--ease-out);
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
 }
 
-.btnClear:hover { background: var(--surface2); color: var(--text); }
+.btnClear:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
 
 /* ── Tablet ── */
 @media (max-width: 1024px) and (min-width: 641px) {
-  .toolbar { padding: 10px 12px; gap: 6px; }
+  .toolbar {
+    padding: 10px 12px;
+    gap: 6px;
+  }
 }
 
 /* ── Mobile: horizontally scrollable chips row ── */
@@ -125,8 +142,12 @@
     border-bottom: 1px solid var(--border2);
   }
 
-  .label { display: none; }
-  .divider { display: none; }
+  .label {
+    display: none;
+  }
+  .divider {
+    display: none;
+  }
 
   .inputDate {
     flex: 1;
@@ -154,7 +175,9 @@
     scrollbar-width: none;
     width: 100%;
   }
-  .chipsRow::-webkit-scrollbar { display: none; }
+  .chipsRow::-webkit-scrollbar {
+    display: none;
+  }
 
   .chip {
     font-size: 12px;
@@ -165,18 +188,33 @@
 
 /* Landing-inspired visual skin */
 .toolbar {
-  background: rgba(255,255,255,.76);
-  border-color: rgba(15,35,71,.085);
+  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(15, 35, 71, 0.085);
   border-radius: 24px;
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
-.inputDate, .chip, .btnClear {
+.inputDate,
+.chip,
+.btnClear {
   border-radius: 999px;
-  background: rgba(255,255,255,.78);
+  background: rgba(255, 255, 255, 0.78);
   transition-duration: var(--dur-mid);
 }
-.inputDate:focus { border-color: rgba(0,184,107,.42); box-shadow: 0 0 0 4px rgba(0,184,107,.10); }
-.chip:hover, .btnClear:hover { transform: translateY(-1px); background: rgba(0,184,107,.09); color: var(--text); }
-.chipActive { background: linear-gradient(135deg, var(--accent), #0b3978) !important; border-color: transparent !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0,40,95,.18); }
+.inputDate:focus {
+  border-color: rgba(0, 184, 107, 0.42);
+  box-shadow: 0 0 0 4px rgba(0, 184, 107, 0.1);
+}
+.chip:hover,
+.btnClear:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 184, 107, 0.09);
+  color: var(--text);
+}
+.chipActive {
+  background: linear-gradient(135deg, var(--accent), #0b3978) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: 0 10px 26px rgba(0, 40, 95, 0.18);
+}

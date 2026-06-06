@@ -14,12 +14,19 @@ public class GroupedTransactionDto
 public class GroupedPlaceDto
 {
     [Required]
-    public int Id { get; set; }
+    public int Id
+    {
+        get; set;
+    }
     [Required]
     public string Name { get; set; } = string.Empty;
     [Required]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
     public string Details { get; set; } = string.Empty;
     public string Currency { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
+    public List<string> Tags { get; set; } = [];
 }

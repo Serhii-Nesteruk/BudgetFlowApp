@@ -12,7 +12,10 @@ namespace BudgetFlowAPi.Models;
 public class Debt
 {
     [Key]
-    public int Id { get; set; }
+    public int Id
+    {
+        get; set;
+    }
 
     [Required]
     [Column("direction", TypeName = "varchar(20)")]
@@ -31,11 +34,17 @@ public class Debt
 
     [Required]
     [Column("amount")]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
 
     [Required]
     [Column("remaining")]
-    public decimal Remaining { get; set; }
+    public decimal Remaining
+    {
+        get; set;
+    }
 
     [Required]
     [Column("currency", TypeName = "varchar(5)")]
@@ -44,7 +53,10 @@ public class Debt
 
     [Required]
     [Column("due_date")]
-    public DateTime DueDate { get; set; }
+    public DateTime DueDate
+    {
+        get; set;
+    }
 
     [Required]
     [Column("status", TypeName = "varchar(20)")]
@@ -59,34 +71,61 @@ public class Debt
     public string Notes { get; set; } = string.Empty;
 
     [Column("total_installments")]
-    public int? TotalInstallments { get; set; }
+    public int? TotalInstallments
+    {
+        get; set;
+    }
 
     [Column("paid_installments")]
-    public int? PaidInstallments { get; set; }
+    public int? PaidInstallments
+    {
+        get; set;
+    }
 
     [Column("monthly_payment")]
-    public decimal? MonthlyPayment { get; set; }
+    public decimal? MonthlyPayment
+    {
+        get; set;
+    }
 
     [Column("start_date")]
-    public DateTime? StartDate { get; set; }
+    public DateTime? StartDate
+    {
+        get; set;
+    }
 
     [Column("recurring_day")]
-    public int? RecurringDay { get; set; }
+    public int? RecurringDay
+    {
+        get; set;
+    }
 
     [Column("recurring_period", TypeName = "varchar(20)")]
     [MaxLength(20)]
-    public string? RecurringPeriod { get; set; }
+    public string? RecurringPeriod
+    {
+        get; set;
+    }
 
     [Required]
     [Column("user_id")]
-    public int UserId { get; set; }
+    public int UserId
+    {
+        get; set;
+    }
 
     [Required]
     [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt
+    {
+        get; set;
+    }
 
     [Column("updated_at")]
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt
+    {
+        get; set;
+    }
 
     [ForeignKey(nameof(UserId))]
     public User User { get; set; } = null!;

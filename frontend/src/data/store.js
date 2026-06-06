@@ -40,10 +40,24 @@ export function fmtAmount(n) {
 }
 
 const CURRENCY_SYMBOLS = {
-  PLN: "zł", EUR: "€", USD: "$", UAH: "₴", GBP: "£",
-  CHF: "Fr", CZK: "Kč", SEK: "kr", NOK: "kr", DKK: "kr",
-  HUF: "Ft", RON: "lei", BGN: "лв", HRK: "kn",
-  JPY: "¥", CNY: "¥", CAD: "C$", AUD: "A$",
+  PLN: "zł",
+  EUR: "€",
+  USD: "$",
+  UAH: "₴",
+  GBP: "£",
+  CHF: "Fr",
+  CZK: "Kč",
+  SEK: "kr",
+  NOK: "kr",
+  DKK: "kr",
+  HUF: "Ft",
+  RON: "lei",
+  BGN: "лв",
+  HRK: "kn",
+  JPY: "¥",
+  CNY: "¥",
+  CAD: "C$",
+  AUD: "A$",
 };
 
 /** Returns symbol for a currency code, e.g. "€" for "EUR" */

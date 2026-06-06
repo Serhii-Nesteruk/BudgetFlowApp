@@ -582,6 +582,127 @@ namespace BudgetFlowAPi.Migrations
                     b.ToTable("receipts");
                 });
 
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<int>("SavingsGoalId")
+                        .HasColumnType("integer")
+                        .HasColumnName("savings_goal_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.HasIndex("SavingsGoalId");
+
+                    b.ToTable("savings_entries");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsGoal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("icon");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal?>("TargetAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("target_amount");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("savings_goals");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsGoalTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("SavingsGoalId")
+                        .HasColumnType("integer")
+                        .HasColumnName("savings_goal_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SavingsGoalId");
+
+                    b.HasIndex("Value");
+
+                    b.ToTable("savings_goal_tags");
+                });
+
             modelBuilder.Entity("BudgetFlowAPi.Models.TelegramAccount", b =>
                 {
                     b.Property<int>("Id")
@@ -737,6 +858,33 @@ namespace BudgetFlowAPi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("transactions");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.TransactionTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("transaction_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId");
+
+                    b.HasIndex("Value");
+
+                    b.ToTable("transaction_tags");
                 });
 
             modelBuilder.Entity("BudgetFlowAPi.Models.User", b =>
@@ -977,6 +1125,39 @@ namespace BudgetFlowAPi.Migrations
                     b.Navigation("Debt");
                 });
 
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsEntry", b =>
+                {
+                    b.HasOne("BudgetFlowAPi.Models.SavingsGoal", "SavingsGoal")
+                        .WithMany("Entries")
+                        .HasForeignKey("SavingsGoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SavingsGoal");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsGoal", b =>
+                {
+                    b.HasOne("BudgetFlowAPi.Models.User", "User")
+                        .WithMany("SavingsGoals")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsGoalTag", b =>
+                {
+                    b.HasOne("BudgetFlowAPi.Models.SavingsGoal", "SavingsGoal")
+                        .WithMany("Tags")
+                        .HasForeignKey("SavingsGoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SavingsGoal");
+                });
+
             modelBuilder.Entity("BudgetFlowAPi.Models.TelegramAccount", b =>
                 {
                     b.HasOne("BudgetFlowAPi.Models.User", "User")
@@ -1008,6 +1189,17 @@ namespace BudgetFlowAPi.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.TransactionTag", b =>
+                {
+                    b.HasOne("BudgetFlowAPi.Models.Transaction", "Transaction")
+                        .WithMany("Tags")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("BudgetFlowAPi.Models.UserSettings", b =>
@@ -1046,11 +1238,25 @@ namespace BudgetFlowAPi.Migrations
                     b.Navigation("PaymentHistory");
                 });
 
+            modelBuilder.Entity("BudgetFlowAPi.Models.SavingsGoal", b =>
+                {
+                    b.Navigation("Entries");
+
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("BudgetFlowAPi.Models.Transaction", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
             modelBuilder.Entity("BudgetFlowAPi.Models.User", b =>
                 {
                     b.Navigation("Debts");
 
                     b.Navigation("OwnedBudgets");
+
+                    b.Navigation("SavingsGoals");
 
                     b.Navigation("Settings");
 

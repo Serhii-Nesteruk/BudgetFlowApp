@@ -3,27 +3,29 @@ import { genPlaceId } from "../data/store";
 import styles from "./EntryModal.module.css";
 
 const today = () => new Date().toISOString().slice(0, 10);
-function emptyPlace() { return { id: genPlaceId(), name: "", amount: "", details: "", notes: "" }; }
+function emptyPlace() {
+  return { id: genPlaceId(), name: "", amount: "", details: "", notes: "", tags: [] };
+}
 
 const CURRENCIES = [
-  { code: "PLN", symbol: "zł",  name: "Польський злотий" },
-  { code: "EUR", symbol: "€",   name: "Євро" },
-  { code: "USD", symbol: "$",   name: "Долар США" },
-  { code: "UAH", symbol: "₴",   name: "Гривня" },
-  { code: "GBP", symbol: "£",   name: "Британський фунт" },
-  { code: "CHF", symbol: "Fr",  name: "Швейцарський франк" },
-  { code: "CZK", symbol: "Kč",  name: "Чеська крона" },
-  { code: "SEK", symbol: "kr",  name: "Шведська крона" },
-  { code: "NOK", symbol: "kr",  name: "Норвезька крона" },
-  { code: "DKK", symbol: "kr",  name: "Данська крона" },
-  { code: "HUF", symbol: "Ft",  name: "Угорський форинт" },
+  { code: "PLN", symbol: "zł", name: "Польський злотий" },
+  { code: "EUR", symbol: "€", name: "Євро" },
+  { code: "USD", symbol: "$", name: "Долар США" },
+  { code: "UAH", symbol: "₴", name: "Гривня" },
+  { code: "GBP", symbol: "£", name: "Британський фунт" },
+  { code: "CHF", symbol: "Fr", name: "Швейцарський франк" },
+  { code: "CZK", symbol: "Kč", name: "Чеська крона" },
+  { code: "SEK", symbol: "kr", name: "Шведська крона" },
+  { code: "NOK", symbol: "kr", name: "Норвезька крона" },
+  { code: "DKK", symbol: "kr", name: "Данська крона" },
+  { code: "HUF", symbol: "Ft", name: "Угорський форинт" },
   { code: "RON", symbol: "lei", name: "Румунський лей" },
-  { code: "BGN", symbol: "лв",  name: "Болгарський лев" },
-  { code: "HRK", symbol: "kn",  name: "Хорватська куна" },
-  { code: "JPY", symbol: "¥",   name: "Японська єна" },
-  { code: "CNY", symbol: "¥",   name: "Китайський юань" },
-  { code: "CAD", symbol: "C$",  name: "Канадський долар" },
-  { code: "AUD", symbol: "A$",  name: "Австралійський долар" },
+  { code: "BGN", symbol: "лв", name: "Болгарський лев" },
+  { code: "HRK", symbol: "kn", name: "Хорватська куна" },
+  { code: "JPY", symbol: "¥", name: "Японська єна" },
+  { code: "CNY", symbol: "¥", name: "Китайський юань" },
+  { code: "CAD", symbol: "C$", name: "Канадський долар" },
+  { code: "AUD", symbol: "A$", name: "Австралійський долар" },
 ];
 
 function PlaceCombobox({ value, onChange, allPlaces }) {
@@ -31,7 +33,9 @@ function PlaceCombobox({ value, onChange, allPlaces }) {
   const [inputVal, setInputVal] = useState(value);
   const wrapRef = useRef(null);
 
-  useEffect(() => { setInputVal(value); }, [value]);
+  useEffect(() => {
+    setInputVal(value);
+  }, [value]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -76,17 +80,15 @@ function PlaceCombobox({ value, onChange, allPlaces }) {
             onClick={() => setOpen((o) => !o)}
             tabIndex={-1}
             aria-label="Показати список місць"
-          >▾</button>
+          >
+            ▾
+          </button>
         )}
       </div>
       {open && filtered.length > 0 && (
         <ul className={styles.comboDropdown}>
           {filtered.map((place) => (
-            <li
-              key={place}
-              className={styles.comboOption}
-              onMouseDown={() => handleSelect(place)}
-            >
+            <li key={place} className={styles.comboOption} onMouseDown={() => handleSelect(place)}>
               {place}
             </li>
           ))}
@@ -96,20 +98,72 @@ function PlaceCombobox({ value, onChange, allPlaces }) {
   );
 }
 
+function normalizeTag(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
+}
+
+function PlaceTags({ tags = [], onChange }) {
+  const [value, setValue] = useState("");
+
+  function addTag() {
+    const tag = normalizeTag(value);
+    if (!tag || tags.some((item) => normalizeTag(item) === tag)) return;
+    onChange([...tags, tag]);
+    setValue("");
+  }
+
+  return (
+    <div className={styles.tagsEditor}>
+      {!!tags.length && (
+        <div className={styles.tagsList}>
+          {tags.map((tag) => (
+            <span key={tag}>
+              #{tag}
+              <button type="button" onClick={() => onChange(tags.filter((item) => item !== tag))}>
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className={styles.tagInputRow}>
+        <input
+          type="text"
+          className={styles.input}
+          placeholder="Тег, наприклад: на макбук"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              addTag();
+            }
+          }}
+        />
+        <button type="button" onClick={addTag}>
+          + Тег
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [] }) {
-  const [date, setDate]         = useState(today());
-  const [places, setPlaces]     = useState([emptyPlace()]);
+  const [date, setDate] = useState(today());
+  const [places, setPlaces] = useState([emptyPlace()]);
   const [currency, setCurrency] = useState("PLN");
 
   useEffect(() => {
     if (open) {
       if (entry) {
         setDate(entry.date);
-        setPlaces(entry.places.map((p) => ({ ...p, amount: String(p.amount ?? "") })));
+        setPlaces(
+          entry.places.map((p) => ({ ...p, amount: String(p.amount ?? ""), tags: p.tags || [] }))
+        );
         // currency lives on each place (transaction), take it from the first one
-        const entryCurrency = entry.currency
-          || entry.places?.[0]?.currency
-          || "PLN";
+        const entryCurrency = entry.currency || entry.places?.[0]?.currency || "PLN";
         setCurrency(entryCurrency);
       } else {
         setDate(today());
@@ -123,13 +177,20 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
     setPlaces((prev) => [...prev, emptyPlace()]);
   }, []);
 
-  const removePlace  = (id) => setPlaces((prev) => prev.filter((p) => p.id !== id));
-  const updatePlace  = (id, field, value) => setPlaces((prev) => prev.map((p) => p.id === id ? { ...p, [field]: value } : p));
+  const removePlace = (id) => setPlaces((prev) => prev.filter((p) => p.id !== id));
+  const updatePlace = (id, field, value) =>
+    setPlaces((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
 
   const handleSave = () => {
-    if (!date) { alert("Вкажіть дату"); return; }
+    if (!date) {
+      alert("Вкажіть дату");
+      return;
+    }
     const valid = places.filter((p) => p.name.trim());
-    if (!valid.length) { alert("Додайте хоча б одне місце"); return; }
+    if (!valid.length) {
+      alert("Додайте хоча б одне місце");
+      return;
+    }
     onSave({
       date,
       currency,
@@ -147,7 +208,9 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
       <div className={styles.modal}>
         <div className={styles.header}>
           <span className={styles.title}>{entry ? "Редагувати запис" : "Новий запис"}</span>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <div className={styles.body}>
@@ -155,7 +218,12 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
           <div className={styles.dateRow}>
             <div className={styles.group} style={{ flex: 1 }}>
               <label className={styles.label}>Дата</label>
-              <input type="date" className={styles.input} value={date} onChange={(e) => setDate(e.target.value)} />
+              <input
+                type="date"
+                className={styles.input}
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </div>
             <div className={styles.group} style={{ width: 160 }}>
               <label className={styles.label}>Валюта</label>
@@ -177,7 +245,9 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
           <div className={styles.group}>
             <div className={styles.placesHeader}>
               <label className={styles.label}>Місця</label>
-              <button className={styles.addBtn} onClick={addPlace}>+ Додати місце</button>
+              <button className={styles.addBtn} onClick={addPlace}>
+                + Додати місце
+              </button>
             </div>
           </div>
 
@@ -201,11 +271,29 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
                       />
                     </div>
                     {places.length > 1 && (
-                      <button className={styles.removeBtn} onClick={() => removePlace(place.id)}>×</button>
+                      <button className={styles.removeBtn} onClick={() => removePlace(place.id)}>
+                        ×
+                      </button>
                     )}
                   </div>
-                  <input type="text" className={styles.input} placeholder="Деталі / продукти" value={place.details} onChange={(e) => updatePlace(place.id, "details", e.target.value)} />
-                  <input type="text" className={styles.input} placeholder="Нотатки" value={place.notes} onChange={(e) => updatePlace(place.id, "notes", e.target.value)} />
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Деталі / продукти"
+                    value={place.details}
+                    onChange={(e) => updatePlace(place.id, "details", e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Нотатки"
+                    value={place.notes}
+                    onChange={(e) => updatePlace(place.id, "notes", e.target.value)}
+                  />
+                  <PlaceTags
+                    tags={place.tags || []}
+                    onChange={(tags) => updatePlace(place.id, "tags", tags)}
+                  />
                 </div>
               ))}
               <div className={styles.totalRow}>
@@ -219,8 +307,12 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.footerBtn} onClick={onClose}>Скасувати</button>
-          <button className={styles.footerBtnPrimary} onClick={handleSave}>Зберегти</button>
+          <button className={styles.footerBtn} onClick={onClose}>
+            Скасувати
+          </button>
+          <button className={styles.footerBtnPrimary} onClick={handleSave}>
+            Зберегти
+          </button>
         </div>
       </div>
     </div>

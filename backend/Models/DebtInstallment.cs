@@ -10,27 +10,45 @@ namespace BudgetFlowAPi.Models;
 public class DebtInstallment
 {
     [Key]
-    public int Id { get; set; }
+    public int Id
+    {
+        get; set;
+    }
 
     [Required]
     [Column("debt_id")]
-    public int DebtId { get; set; }
+    public int DebtId
+    {
+        get; set;
+    }
 
     [Required]
     [Column("installment_index")]
-    public int Index { get; set; }
+    public int Index
+    {
+        get; set;
+    }
 
     [Required]
     [Column("date")]
-    public DateTime Date { get; set; }
+    public DateTime Date
+    {
+        get; set;
+    }
 
     [Required]
     [Column("amount")]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
 
     [Required]
     [Column("paid")]
-    public bool Paid { get; set; }
+    public bool Paid
+    {
+        get; set;
+    }
 
     [ForeignKey(nameof(DebtId))]
     public Debt Debt { get; set; } = null!;

@@ -17,10 +17,11 @@ public static class TransactionMapping
             Amount = dto.Amount,
             Currency = dto.Currency,
             Date = dto.Date,
-            Type = dto.Type
+            Type = dto.Type,
+            Tags = NormalizeTags(dto.Tags).Select(x => new TransactionTag { Value = x }).ToList()
         };
     }
-    
+
     public static IEnumerable<TransactionListDto> ToDtoList(this IEnumerable<Transaction> transactions)
     {
         return transactions.Select(t => t.ToListDto());
@@ -34,7 +35,8 @@ public static class TransactionMapping
             Counterparty = transaction.Counterparty,
             Title = transaction.Title,
             Currency = transaction.Currency,
-            Date = transaction.Date
+            Date = transaction.Date,
+            Tags = transaction.Tags.Select(x => x.Value).ToList()
         };
     }
 
@@ -51,8 +53,9 @@ public static class TransactionMapping
             Details = transaction.Details,
             Currency = transaction.Currency,
             Date = transaction.Date,
+            Tags = transaction.Tags.Select(x => x.Value).ToList(),
         };
-    }   
+    }
 
     public static List<GroupedTransactionDto> ToGroupedDtoList(IEnumerable<Transaction> transactions)
     {
@@ -113,6 +116,12 @@ public static class TransactionMapping
                 return $"{name} x{quantity} - {price}";
             }));
     }
+    public static IEnumerable<string> NormalizeTags(IEnumerable<string>? tags) =>
+        (tags ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim().ToLowerInvariant())
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
     private static GroupedPlaceDto ToPlaceDto(Transaction transaction)
     {
         return new GroupedPlaceDto
@@ -122,7 +131,8 @@ public static class TransactionMapping
             Amount = transaction.Amount,
             Details = transaction.Details,
             Currency = transaction.Currency,
-            Notes = transaction.Description
+            Notes = transaction.Description,
+            Tags = transaction.Tags.Select(x => x.Value).ToList()
         };
     }
 }

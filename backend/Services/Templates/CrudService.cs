@@ -17,13 +17,13 @@ public abstract class CrudService<T> : ICrudService<T> where T : class
 
     public virtual async Task<T?> GetByIdAsync(int id)
     {
-        return await _repository.GetByIdAsync(id); 
+        return await _repository.GetByIdAsync(id);
     }
 
     public virtual async Task<T> AddAsync(T entity)
     {
-        return await _repository.AddAsync(entity);   
-}
+        return await _repository.AddAsync(entity);
+    }
 
     public virtual async Task UpdateAsync(T entity)
     {

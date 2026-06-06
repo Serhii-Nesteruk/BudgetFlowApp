@@ -3,17 +3,8 @@ import styles from "./Auth.module.css";
 import { Link } from "react-router-dom";
 
 export default function RegisterForm() {
-  const {
-    name,
-    setName,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    error,
-    loading,
-    submit,
-  } = useRegisterForm();
+  const { name, setName, email, setEmail, password, setPassword, error, loading, submit } =
+    useRegisterForm();
 
   return (
     <form onSubmit={submit} className={styles.form}>

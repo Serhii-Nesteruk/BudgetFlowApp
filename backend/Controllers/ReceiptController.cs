@@ -12,7 +12,7 @@ public class ReceiptController : ControllerBase
     {
         _transactionService = transactionService;
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> AddTransactionFromImage([FromForm] IFormFile receiptImage, CancellationToken cancellationToken)
     {

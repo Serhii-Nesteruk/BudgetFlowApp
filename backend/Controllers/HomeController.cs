@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BudgetFlowAPi.Controllers;
 
 [ApiController]
-[Route("home")]    
+[Route("home")]
 public class HomeController : ControllerBase
 {
     [Authorize]
