@@ -1,0 +1,133 @@
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,26,24,0.45);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  animation: fadeIn 150ms ease both;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  width: 100%; max-width: 540px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  animation: slideUp 200ms var(--ease-spring) both;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border2);
+}
+.title { font-size: 15px; font-weight: 600; }
+.close {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: var(--surface2);
+  color: var(--muted); font-size: 11px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 150ms;
+}
+.close:hover { background: var(--border); color: var(--text); }
+
+.body {
+  padding: 18px 22px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.typeGrid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.typeBtn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; padding: 12px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px; background: transparent;
+  cursor: pointer; transition: all 150ms;
+}
+.typeBtn:hover { border-color: var(--accent); background: var(--surface2); }
+.typeBtnActive {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.typeBtnActive .typeIcon,
+.typeBtnActive .typeLabel { color: #fff; }
+.typeIcon { font-size: 20px; }
+.typeLabel { font-size: 11px; font-weight: 500; color: var(--muted); text-align: center; line-height: 1.3; }
+.typeBtnActive .typeLabel { color: rgba(255,255,255,0.85); }
+
+.cols2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+
+.row {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.label { font-size: 11.5px; font-weight: 500; color: var(--muted); }
+.input, .textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  background: var(--surface2);
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  transition: border-color 150ms;
+  outline: none;
+}
+.input:focus, .textarea:focus { border-color: var(--accent); background: var(--surface); }
+.inputErr { border-color: var(--danger) !important; }
+.textarea { resize: vertical; min-height: 56px; }
+.err { font-size: 11px; color: var(--danger); }
+
+.priorityRow {
+  display: flex; align-items: center; gap: 6px;
+}
+.priBtn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all 150ms;
+  font-family: var(--font);
+  color: var(--muted);
+}
+.priBtn:hover { border-color: var(--accent); color: var(--text); }
+.priBtnActive {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff;
+}
+.priHint { font-size: 11.5px; color: var(--muted); margin-left: 4px; }
+
+.footer {
+  padding: 14px 22px 18px;
+  border-top: 1px solid var(--border2);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.btnCancel {
+  padding: 8px 18px; border-radius: var(--r);
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--muted);
+  font-family: var(--font); font-size: 13px; cursor: pointer;
+  transition: all 150ms;
+}
+.btnCancel:hover { background: var(--surface2); color: var(--text); }
+.btnSave {
+  padding: 8px 22px; border-radius: var(--r);
+  border: none; background: var(--accent); color: #fff;
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: opacity 150ms;
+}
+.btnSave:hover { opacity: 0.85; }
+
+@media (max-width: 480px) {
+  .cols2 { grid-template-columns: 1fr; }
+  .typeGrid { grid-template-columns: repeat(3,1fr); }
+}

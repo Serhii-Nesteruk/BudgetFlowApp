@@ -10,6 +10,7 @@ import ExpenseTable from "./components/ExpenseTable";
 import StatsTab from "./components/StatsTab";
 import EntryModal from "./components/EntryModal";
 import BudgetPage from "./components/BudgetPage";
+import DebtsPage from "./components/DebtsPage";
 import styles from "./App.module.css";
 
 export default function App() {
@@ -97,6 +98,7 @@ export default function App() {
               )}
               {activeTab === "stats" && <StatsTab data={data} />}
               {activeTab === "budget" && <BudgetPage />}
+              {activeTab === "debts" && <DebtsPage />}
             </>
           )}
         </div>
