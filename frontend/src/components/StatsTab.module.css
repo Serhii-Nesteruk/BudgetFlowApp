@@ -224,7 +224,11 @@
 
 /* ── Timeline ── */
 .timelineWrap        { position: relative; }
-.timelineWrap canvas { display: block; width: 100%; }
+.timelineWrap canvas {
+  display: block;
+  width: 100%;
+  height: 160px;
+}
 
 /* ── Tooltip ── */
 .tooltip {

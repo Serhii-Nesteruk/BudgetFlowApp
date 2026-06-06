@@ -136,18 +136,30 @@ export default function StatsTab({ data, rates, ratesError }) {
   useEffect(() => {
     const onMove = (e) => {
       if (!dragRef.current || !sliderRef.current) return;
+
       const rect = sliderRef.current.getBoundingClientRect();
       const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+
       handleRangeDrag(
         dragRef.current === "left"
           ? [Math.min(x, range[1] - 0.01), range[1]]
           : [range[0], Math.max(x, range[0] + 0.01)]
       );
     };
-    const onUp = () => { dragRef.current = null; };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+
+    const onUp = () => {
+      dragRef.current = null;
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
   }, [range]);
 
   // ── Donut ────────────────────────────────────────────────────────────
@@ -227,12 +239,26 @@ export default function StatsTab({ data, rates, ratesError }) {
   }, [filteredData, rates]);
 
   useEffect(() => {
-    drawTimeline();
-    const ro = new ResizeObserver(drawTimeline);
+    if (activeSection !== "overview") return;
+
+    const frame = requestAnimationFrame(() => {
+      drawTimeline();
+    });
+
+    const ro = new ResizeObserver(() => {
+      drawTimeline();
+    });
+
     const canvas = timelineRef.current;
-    if (canvas?.parentElement) ro.observe(canvas.parentElement);
-    return () => ro.disconnect();
-  }, [drawTimeline]);
+    if (canvas?.parentElement) {
+      ro.observe(canvas.parentElement);
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+    };
+  }, [drawTimeline, activeSection]);
 
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;
@@ -295,12 +321,29 @@ export default function StatsTab({ data, rates, ratesError }) {
         </div>
 
         {/* Slider */}
-        <div className={styles.rangeSlider} ref={sliderRef}
-          onMouseDown={(e) => {
+        <div
+          className={styles.rangeSlider}
+          ref={sliderRef}
+          onPointerDown={(e) => {
+            e.preventDefault();
+
             const rect = sliderRef.current.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
-            dragRef.current = Math.abs(x - range[0]) < Math.abs(x - range[1]) ? "left" : "right";
-          }}>
+            const x = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+
+            dragRef.current =
+              Math.abs(x - range[0]) < Math.abs(x - range[1])
+                ? "left"
+                : "right";
+
+            e.currentTarget.setPointerCapture?.(e.pointerId);
+
+            handleRangeDrag(
+              dragRef.current === "left"
+                ? [Math.min(x, range[1] - 0.01), range[1]]
+                : [range[0], Math.max(x, range[0] + 0.01)]
+            );
+          }}
+        >
           <div className={styles.sliderTrack} />
           <div className={styles.rangeDim} style={{ left: 0, width: `${range[0] * 100}%` }} />
           <div className={styles.rangeDim} style={{ left: `${range[1] * 100}%`, right: 0 }} />

@@ -535,7 +535,3 @@
 .direction_receivable .progressFill { background: linear-gradient(90deg, #00b86b, #00d17a); }
 .direction_receivable .histAmt { color: #008c54; }
 .direction_receivable:hover { border-color: rgba(0,184,107,.22); }
-.direction_receivable .actBtnPaid,
-.direction_receivable .actBtnPaid:hover {
-  color: #fff;
-}
