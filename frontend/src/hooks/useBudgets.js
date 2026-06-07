@@ -9,12 +9,16 @@ import {
   deleteBudgetCategory,
   deleteBudgetIncomeSource,
   deleteBudgetMandatoryExpense,
+  deleteBudgetPlannedExpense,
   getBudgets,
-  setBudgetSharing,
   planBudgetNextMonths,
+  setBudgetSharing,
   shareBudgetWithUser,
-  updateBudgetCategory,
   updateBudget as updateBudgetRequest,
+  updateBudgetCategory,
+  updateBudgetIncomeSource,
+  updateBudgetMandatoryExpense,
+  updateBudgetPlannedExpense,
 } from "../api/budgetsApi";
 import { convertAmount } from "./useCurrencyRates";
 
@@ -52,10 +56,22 @@ function textLabels(...values) {
   ];
 }
 
+function fallbackMonthlyStart(year, month) {
+  if (!year || !month) return "";
+  return `${year}-${String(month).padStart(2, "0")}-01`;
+}
+
+function fallbackMonthlyEnd(year, month) {
+  if (!year || !month) return "";
+  const day = new Date(Number(year), Number(month), 0).getDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
 function flattenExpenseEntries(entries, rates, displayCurrency) {
   return (entries || []).flatMap((entry) =>
     (entry.places || []).map((place) => {
       const originalCurrency = place.currency || entry.currency || "PLN";
+      const tags = uniqLabels(place.tags || []);
       return {
         id: `expense-${place.id}`,
         date: dateOnly(entry.date),
@@ -67,10 +83,8 @@ function flattenExpenseEntries(entries, rates, displayCurrency) {
         originalCurrency,
         currency: displayCurrency,
         type: "expense",
-        labels: uniqLabels([
-          ...(place.tags || []),
-          ...textLabels(place.name, place.details, place.notes),
-        ]),
+        tags,
+        labels: uniqLabels([...tags, ...textLabels(place.name, place.details, place.notes)]),
         details: place.details || "",
         notes: place.notes || "",
         source: "table",
@@ -82,17 +96,23 @@ function flattenExpenseEntries(entries, rates, displayCurrency) {
 
 function inBudgetPeriod(transaction, budget) {
   if (!transaction.date) return false;
-  if (budget.type === "monthly") {
-    const prefix = `${budget.year}-${String(budget.month).padStart(2, "0")}`;
-    return transaction.date.startsWith(prefix);
-  }
-  if (!budget.startDate || !budget.endDate) return true;
-  return transaction.date >= budget.startDate && transaction.date <= budget.endDate;
+  const startDate = budget.startDate || fallbackMonthlyStart(budget.year, budget.month);
+  const endDate = budget.endDate || fallbackMonthlyEnd(budget.year, budget.month);
+  if (!startDate || !endDate) return true;
+  return transaction.date >= startDate && transaction.date <= endDate;
+}
+
+function transactionMatchesMandatory(transaction, item) {
+  const matchLabel = normalizeLabel(item.matchLabel);
+  if (!matchLabel) return false;
+  return (transaction.tags || []).some((tag) => normalizeLabel(tag) === matchLabel);
 }
 
 function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
   const sourceCurrency = dto.currency || displayCurrency;
   const money = (value) => convertAmount(value, sourceCurrency, displayCurrency, rates);
+  const startDate = dateOnly(dto.startDate) || fallbackMonthlyStart(dto.year, dto.month);
+  const endDate = dateOnly(dto.endDate) || fallbackMonthlyEnd(dto.year, dto.month);
 
   const categories = (dto.categories || []).map((category) => ({
     ...category,
@@ -102,16 +122,16 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
     labels: (category.labels || []).map(normalizeLabel),
   }));
 
-  const mandatoryExpenses = (dto.mandatoryExpenses || []).map((item) => ({
+  const rawMandatoryExpenses = (dto.mandatoryExpenses || []).map((item) => ({
     ...item,
     id: Number(item.id),
     budgetCategoryId: item.budgetCategoryId == null ? null : Number(item.budgetCategoryId),
     amount: money(item.amount),
     dueDate: dateOnly(item.dueDate),
+    matchLabel: normalizeLabel(item.matchLabel),
     dateLabel: item.dueDate
       ? new Date(item.dueDate).toLocaleDateString("uk-UA", { day: "numeric", month: "long" })
       : "Без дати",
-    paid: item.isPaid,
   }));
 
   const plannedExpenses = (dto.plannedExpenses || []).map((item) => ({
@@ -133,8 +153,8 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
     storageCurrency: sourceCurrency,
     currency: displayCurrency,
     totalLimit: money(dto.totalLimit),
-    startDate: dateOnly(dto.startDate),
-    endDate: dateOnly(dto.endDate),
+    startDate,
+    endDate,
     autoCreateNextMonthly: dto.autoCreateNextMonthly ?? true,
     categories,
     incomeSources: (dto.incomeSources || []).map((item) => ({
@@ -145,26 +165,44 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
       status: item.isReceived ? "received" : "pending",
       icon: "💰",
     })),
-    mandatoryExpenses,
     plannedExpenses,
     sharedUsers: dto.sharedUsers || [],
     participants: ["Ви", ...(dto.sharedUsers || []).map((item) => item.name || item.email)],
   };
 
   const tableTransactions = allExpenseTransactions.filter((item) => inBudgetPeriod(item, budget));
-  const mandatoryTransactions = mandatoryExpenses.map((item) => ({
-    id: `mandatory-${item.id}`,
-    date: item.dueDate,
-    desc: item.name,
-    placeName: item.name,
-    amount: Number(item.amount || 0),
-    currency: displayCurrency,
-    type: "expense",
-    labels: [],
-    categoryId: item.budgetCategoryId,
-    source: "mandatory",
-    isActual: true,
+  const mandatoryExpenses = rawMandatoryExpenses.map((item) => {
+    const matchedTransactions = tableTransactions.filter((transaction) =>
+      transactionMatchesMandatory(transaction, item)
+    );
+    const matchedAmount = matchedTransactions.reduce(
+      (sum, transaction) => sum + Number(transaction.amount || 0),
+      0
+    );
+    return {
+      ...item,
+      matchedAmount,
+      matchedTransactions,
+      paid: Boolean(item.isPaid) || matchedAmount >= Number(item.amount || 0),
+    };
+  });
+
+  const mandatoryCategoryByTransactionId = new Map();
+  for (const item of mandatoryExpenses) {
+    if (!item.budgetCategoryId) continue;
+    for (const transaction of item.matchedTransactions || []) {
+      if (!mandatoryCategoryByTransactionId.has(transaction.id)) {
+        mandatoryCategoryByTransactionId.set(transaction.id, item.budgetCategoryId);
+      }
+    }
+  }
+
+  const categorizedTableTransactions = tableTransactions.map((transaction) => ({
+    ...transaction,
+    categoryId:
+      transaction.categoryId || mandatoryCategoryByTransactionId.get(transaction.id) || null,
   }));
+
   const paidPlannedTransactions = plannedExpenses
     .filter((item) => item.actual != null)
     .map((item) => ({
@@ -175,6 +213,7 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
       amount: Number(item.actual || 0),
       currency: displayCurrency,
       type: "expense",
+      tags: [],
       labels: textLabels(item.category, item.notes),
       categoryId: item.budgetCategoryId,
       source: "manual",
@@ -183,7 +222,8 @@ function normalizeBudget(dto, allExpenseTransactions, rates, displayCurrency) {
 
   return {
     ...budget,
-    transactions: [...tableTransactions, ...mandatoryTransactions, ...paidPlannedTransactions],
+    mandatoryExpenses,
+    transactions: [...categorizedTableTransactions, ...paidPlannedTransactions],
   };
 }
 
@@ -215,6 +255,7 @@ function mandatoryPayload(item, amount = (value) => Number(value || 0)) {
     amount: amount(item.amount),
     dueDate: toUtcDate(item.dueDate || item.date),
     frequency: item.frequency || "",
+    matchLabel: normalizeLabel(item.matchLabel),
     isPaid: item.paid ?? item.isPaid ?? false,
   };
 }
@@ -241,8 +282,8 @@ function budgetPayload(budget, rates, displayCurrency) {
     totalLimit: amount(budget.totalLimit),
     month: budget.type === "monthly" ? Number(budget.month) : null,
     year: budget.type === "monthly" ? Number(budget.year) : null,
-    startDate: budget.type === "event" ? toUtcDate(budget.startDate) : null,
-    endDate: budget.type === "event" ? toUtcDate(budget.endDate) : null,
+    startDate: toUtcDate(budget.startDate),
+    endDate: toUtcDate(budget.endDate),
     telegramEnabled: Boolean(budget.telegramEnabled),
     warningThreshold: Number(budget.warningThreshold || 80),
     autoCreateNextMonthly: budget.autoCreateNextMonthly ?? true,
@@ -269,8 +310,10 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
   const availablePlaceLabels = useMemo(() => {
     const map = new Map();
     for (const transaction of expenseTransactions) {
-      if (!transaction.placeLabel) continue;
-      map.set(transaction.placeLabel, transaction.placeName);
+      if (transaction.placeLabel) map.set(transaction.placeLabel, transaction.placeName);
+      for (const tag of transaction.tags || []) {
+        if (!map.has(tag)) map.set(tag, `#${tag}`);
+      }
     }
     return [...map.entries()]
       .map(([value, label]) => ({ value, label }))
@@ -345,6 +388,7 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
       ),
     [run, displayCurrency, rates]
   );
+
   const updateBudget = useCallback(
     async (budget) =>
       run(() => updateBudgetRequest(budget.id, budgetPayload(budget, rates, displayCurrency))),
@@ -362,56 +406,81 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
     }
   }, []);
 
+  const childAmount = useCallback(
+    (budgetId) => (value) => storageAmount(budgetId, value),
+    [storageAmount]
+  );
+
   const addCategory = useCallback(
     (budgetId, item) =>
-      run(() =>
-        addBudgetCategory(
-          budgetId,
-          categoryPayload(item, (value) => storageAmount(budgetId, value))
-        )
-      ),
-    [run, storageAmount]
+      run(() => addBudgetCategory(budgetId, categoryPayload(item, childAmount(budgetId)))),
+    [run, childAmount]
   );
   const updateCategory = useCallback(
     (budgetId, categoryId, item) =>
       run(() =>
-        updateBudgetCategory(
-          budgetId,
-          categoryId,
-          categoryPayload(item, (value) => storageAmount(budgetId, value))
-        )
+        updateBudgetCategory(budgetId, categoryId, categoryPayload(item, childAmount(budgetId)))
       ),
-    [run, storageAmount]
+    [run, childAmount]
   );
+  const removeCategory = useCallback(
+    (budgetId, categoryId) => run(() => deleteBudgetCategory(budgetId, categoryId)),
+    [run]
+  );
+
   const addIncome = useCallback(
     (budgetId, item) =>
-      run(() =>
-        addBudgetIncomeSource(
-          budgetId,
-          incomePayload(item, (value) => storageAmount(budgetId, value))
-        )
-      ),
-    [run, storageAmount]
+      run(() => addBudgetIncomeSource(budgetId, incomePayload(item, childAmount(budgetId)))),
+    [run, childAmount]
   );
+  const updateIncome = useCallback(
+    (budgetId, itemId, item) =>
+      run(() =>
+        updateBudgetIncomeSource(budgetId, itemId, incomePayload(item, childAmount(budgetId)))
+      ),
+    [run, childAmount]
+  );
+  const removeIncome = useCallback(
+    (budgetId, itemId) => run(() => deleteBudgetIncomeSource(budgetId, itemId)),
+    [run]
+  );
+
   const addMandatory = useCallback(
     (budgetId, item) =>
+      run(() => addBudgetMandatoryExpense(budgetId, mandatoryPayload(item, childAmount(budgetId)))),
+    [run, childAmount]
+  );
+  const updateMandatory = useCallback(
+    (budgetId, itemId, item) =>
       run(() =>
-        addBudgetMandatoryExpense(
+        updateBudgetMandatoryExpense(
           budgetId,
-          mandatoryPayload(item, (value) => storageAmount(budgetId, value))
+          itemId,
+          mandatoryPayload(item, childAmount(budgetId))
         )
       ),
-    [run, storageAmount]
+    [run, childAmount]
   );
+  const removeMandatory = useCallback(
+    (budgetId, itemId) => run(() => deleteBudgetMandatoryExpense(budgetId, itemId)),
+    [run]
+  );
+
   const addPlanned = useCallback(
     (budgetId, item) =>
+      run(() => addBudgetPlannedExpense(budgetId, plannedPayload(item, childAmount(budgetId)))),
+    [run, childAmount]
+  );
+  const updatePlanned = useCallback(
+    (budgetId, itemId, item) =>
       run(() =>
-        addBudgetPlannedExpense(
-          budgetId,
-          plannedPayload(item, (value) => storageAmount(budgetId, value))
-        )
+        updateBudgetPlannedExpense(budgetId, itemId, plannedPayload(item, childAmount(budgetId)))
       ),
-    [run, storageAmount]
+    [run, childAmount]
+  );
+  const removePlanned = useCallback(
+    (budgetId, itemId) => run(() => deleteBudgetPlannedExpense(budgetId, itemId)),
+    [run]
   );
 
   const copyStructure = useCallback(
@@ -427,24 +496,22 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
       for (const category of source.categories || [])
         updated = await addBudgetCategory(
           target.id,
-          categoryPayload(category, (value) => storageAmount(target.id, value))
+          categoryPayload(category, childAmount(target.id))
         );
       for (const income of source.incomeSources || [])
         updated = await addBudgetIncomeSource(
           target.id,
-          incomePayload({ ...income, status: "pending" }, (value) =>
-            storageAmount(target.id, value)
-          )
+          incomePayload({ ...income, status: "pending" }, childAmount(target.id))
         );
       for (const item of source.mandatoryExpenses || [])
         updated = await addBudgetMandatoryExpense(
           target.id,
-          mandatoryPayload({ ...item, paid: false }, (value) => storageAmount(target.id, value))
+          mandatoryPayload({ ...item, paid: false }, childAmount(target.id))
         );
       replaceBudget(updated);
       return updated;
     },
-    [replaceBudget, storageAmount]
+    [replaceBudget, childAmount]
   );
 
   const share = useCallback(
@@ -483,9 +550,16 @@ export function useBudgets(expenseEntries = [], rates, displayCurrency = "PLN") 
     deleteBudget,
     addCategory,
     updateCategory,
+    removeCategory,
     addIncome,
+    updateIncome,
+    removeIncome,
     addMandatory,
+    updateMandatory,
+    removeMandatory,
     addPlanned,
+    updatePlanned,
+    removePlanned,
     copyStructure,
     share,
     enableSharing,

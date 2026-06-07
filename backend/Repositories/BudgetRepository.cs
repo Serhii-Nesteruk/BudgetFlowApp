@@ -48,6 +48,15 @@ public class BudgetRepository : Repository<Budget>, IBudgetRepository
         await Full().AsNoTracking().FirstOrDefaultAsync(b =>
             b.OwnerId == ownerId && b.Type == BudgetTypes.Monthly && b.Year == year && b.Month == month);
 
+    public async Task<Budget?> GetMonthlyCoveringDateForOwnerAsync(int ownerId, DateTime date) =>
+        await Full().AsNoTracking().FirstOrDefaultAsync(b =>
+            b.OwnerId == ownerId &&
+            b.Type == BudgetTypes.Monthly &&
+            b.StartDate.HasValue &&
+            b.EndDate.HasValue &&
+            b.StartDate.Value <= date &&
+            b.EndDate.Value >= date);
+
     public async Task<Budget?> GetLatestRenewableMonthlyForOwnerAsync(int ownerId, int beforeYear, int beforeMonth) =>
         await Full()
             .AsNoTracking()

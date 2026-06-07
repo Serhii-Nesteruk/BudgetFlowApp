@@ -62,6 +62,7 @@ public static class BudgetMapping
         Amount = x.Amount,
         DueDate = x.DueDate,
         Frequency = x.Frequency,
+        MatchLabel = x.MatchLabel,
         IsPaid = x.IsPaid,
     };
 
@@ -106,6 +107,7 @@ public static class BudgetMapping
         Amount = x.Amount,
         DueDate = x.DueDate,
         Frequency = x.Frequency,
+        MatchLabel = NormalizeLabel(x.MatchLabel),
         IsPaid = x.IsPaid,
     };
 
@@ -118,4 +120,7 @@ public static class BudgetMapping
         IsPaid = x.IsPaid,
         Notes = x.Notes,
     };
+    private static string NormalizeLabel(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
+
 }

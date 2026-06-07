@@ -324,7 +324,10 @@ export default function SettingsPage() {
               <option value="pl">Polski</option>
             </select>
           </Field>
-          <Field label="Розмір шрифту">
+          <Field
+            label="Розмір шрифту"
+            hint="Змінюється лише в безпечному діапазоні, щоб картки та кнопки не ламалися."
+          >
             <select value={fontSize} onChange={(event) => setFontSize(event.target.value)}>
               {FONT_SIZE_OPTIONS.map((option) => (
                 <option value={option.value} key={option.value}>

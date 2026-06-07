@@ -1,7 +1,9 @@
+using BudgetFlowAPi.Data;
 using BudgetFlowAPi.DTO;
 using BudgetFlowAPi.Mappings;
 using BudgetFlowAPi.Models;
 using BudgetFlowAPi.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace BudgetFlowAPi.Services;
 
@@ -9,31 +11,45 @@ public class BudgetService : CrudService<Budget>, IBudgetService
 {
     private readonly IBudgetRepository _budgetRepository;
     private readonly IUserRepository _userRepository;
+    private readonly AppDbContext _context;
 
-    public BudgetService(IBudgetRepository budgetRepository, IUserRepository userRepository)
+    public BudgetService(
+        IBudgetRepository budgetRepository,
+        IUserRepository userRepository,
+        AppDbContext context)
         : base(budgetRepository)
     {
         _budgetRepository = budgetRepository;
         _userRepository = userRepository;
+        _context = context;
     }
 
     public async Task<IEnumerable<Budget>> GetVisibleForUserIdAsync(int userId)
     {
         await EnsureCurrentMonthlyBudgetAsync(userId);
+        await ReconcileMandatoryExpensesForOwnerAsync(userId);
         return await _budgetRepository.GetVisibleForUserIdAsync(userId);
     }
 
-    public Task<Budget?> GetByIdForVisibleUserIdAsync(int id, int userId) =>
-        _budgetRepository.GetByIdForVisibleUserIdAsync(id, userId);
+    public async Task<Budget?> GetByIdForVisibleUserIdAsync(int id, int userId)
+    {
+        await ReconcileMandatoryExpensesForOwnerAsync(userId);
+        return await _budgetRepository.GetByIdForVisibleUserIdAsync(id, userId);
+    }
 
-    public Task<Budget?> GetByShareTokenForVisibleUserIdAsync(Guid token, int userId) =>
-        _budgetRepository.GetByShareTokenForVisibleUserIdAsync(token, userId);
+    public async Task<Budget?> GetByShareTokenForVisibleUserIdAsync(Guid token, int userId)
+    {
+        await ReconcileMandatoryExpensesForOwnerAsync(userId);
+        return await _budgetRepository.GetByShareTokenForVisibleUserIdAsync(token, userId);
+    }
 
     public async Task<Budget> AddAsync(BudgetDto dto, int ownerId)
     {
         Validate(dto);
         await EnsureMonthlySlotIsFree(dto, ownerId);
-        return await _budgetRepository.AddAsync(NewBudget(dto, ownerId));
+        var budget = await _budgetRepository.AddAsync(NewBudget(dto, ownerId));
+        await ReconcileMandatoryExpensesForOwnerAsync(ownerId);
+        return await _budgetRepository.GetByIdForVisibleUserIdAsync(budget.Id, ownerId) ?? budget;
     }
 
     public async Task<Budget?> UpdateAsync(int id, BudgetDto dto, int ownerId)
@@ -52,6 +68,7 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         Apply(dto, budget);
         budget.UpdatedAt = DateTime.UtcNow;
         await _budgetRepository.UpdateAsync(budget);
+        await ReconcileMandatoryExpensesForOwnerAsync(ownerId);
         return await _budgetRepository.GetByIdForVisibleUserIdAsync(id, ownerId);
     }
 
@@ -66,7 +83,11 @@ public class BudgetService : CrudService<Budget>, IBudgetService
 
     public async Task<Budget?> EnsureCurrentMonthlyBudgetAsync(int ownerId, DateTime? utcNow = null)
     {
-        var now = utcNow ?? DateTime.UtcNow;
+        var now = (utcNow ?? DateTime.UtcNow).Date;
+        var covering = await _budgetRepository.GetMonthlyCoveringDateForOwnerAsync(ownerId, now);
+        if (covering != null)
+            return covering;
+
         var current = await _budgetRepository.GetMonthlyForOwnerAsync(ownerId, now.Year, now.Month);
         if (current != null)
             return current;
@@ -157,7 +178,7 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         await DeleteChild(id, ownerId, b => b.IncomeSources.FirstOrDefault(x => x.Id == itemId), (b, x) => b.IncomeSources.Remove(x));
 
     public async Task<Budget?> AddMandatoryExpenseAsync(int id, BudgetMandatoryExpenseDto dto, int ownerId) =>
-        await AddChild(id, ownerId, b => b.MandatoryExpenses.Add(dto.ToEntity()));
+        await AddChild(id, ownerId, b => b.MandatoryExpenses.Add(dto.ToEntity()), reconcileMandatory: true);
 
     public async Task<Budget?> UpdateMandatoryExpenseAsync(int id, int itemId, BudgetMandatoryExpenseDto dto, int ownerId) =>
         await UpdateChild(id, ownerId, b => b.MandatoryExpenses.FirstOrDefault(x => x.Id == itemId), x =>
@@ -167,8 +188,9 @@ public class BudgetService : CrudService<Budget>, IBudgetService
             x.Amount = dto.Amount;
             x.DueDate = dto.DueDate;
             x.Frequency = dto.Frequency;
+            x.MatchLabel = NormalizeLabel(dto.MatchLabel);
             x.IsPaid = dto.IsPaid;
-        });
+        }, reconcileMandatory: true);
 
     public async Task<Budget?> DeleteMandatoryExpenseAsync(int id, int itemId, int ownerId) =>
         await DeleteChild(id, ownerId, b => b.MandatoryExpenses.FirstOrDefault(x => x.Id == itemId), (b, x) => b.MandatoryExpenses.Remove(x));
@@ -241,12 +263,10 @@ public class BudgetService : CrudService<Budget>, IBudgetService
             return;
         var existing = await _budgetRepository.GetMonthlyForOwnerAsync(ownerId, dto.Year.Value, dto.Month.Value);
         if (existing != null && existing.Id != exceptId)
-        {
             throw new ArgumentException("Monthly budget for this month already exists.");
-        }
     }
 
-    private async Task<Budget?> AddChild(int id, int ownerId, Action<Budget> add)
+    private async Task<Budget?> AddChild(int id, int ownerId, Action<Budget> add, bool reconcileMandatory = false)
     {
         var budget = await _budgetRepository.GetTrackedByIdForOwnerIdAsync(id, ownerId);
         if (budget == null)
@@ -254,10 +274,18 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         add(budget);
         budget.UpdatedAt = DateTime.UtcNow;
         await _budgetRepository.UpdateAsync(budget);
+        if (reconcileMandatory)
+            await ReconcileMandatoryExpensesForOwnerAsync(ownerId);
         return await _budgetRepository.GetByIdForVisibleUserIdAsync(id, ownerId);
     }
 
-    private async Task<Budget?> UpdateChild<T>(int id, int ownerId, Func<Budget, T?> find, Action<T> apply) where T : class
+    private async Task<Budget?> UpdateChild<T>(
+        int id,
+        int ownerId,
+        Func<Budget, T?> find,
+        Action<T> apply,
+        bool reconcileMandatory = false)
+        where T : class
     {
         var budget = await _budgetRepository.GetTrackedByIdForOwnerIdAsync(id, ownerId);
         if (budget == null)
@@ -268,10 +296,13 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         apply(item);
         budget.UpdatedAt = DateTime.UtcNow;
         await _budgetRepository.UpdateAsync(budget);
+        if (reconcileMandatory)
+            await ReconcileMandatoryExpensesForOwnerAsync(ownerId);
         return await _budgetRepository.GetByIdForVisibleUserIdAsync(id, ownerId);
     }
 
-    private async Task<Budget?> DeleteChild<T>(int id, int ownerId, Func<Budget, T?> find, Action<Budget, T> remove) where T : class
+    private async Task<Budget?> DeleteChild<T>(int id, int ownerId, Func<Budget, T?> find, Action<Budget, T> remove)
+        where T : class
     {
         var budget = await _budgetRepository.GetTrackedByIdForOwnerIdAsync(id, ownerId);
         if (budget == null)
@@ -283,6 +314,53 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         budget.UpdatedAt = DateTime.UtcNow;
         await _budgetRepository.UpdateAsync(budget);
         return await _budgetRepository.GetByIdForVisibleUserIdAsync(id, ownerId);
+    }
+
+    private async Task ReconcileMandatoryExpensesForOwnerAsync(int ownerId)
+    {
+        var budgets = await _context.Budgets
+            .Include(x => x.MandatoryExpenses)
+            .Where(x => x.OwnerId == ownerId && x.MandatoryExpenses.Any())
+            .ToListAsync();
+
+        if (budgets.Count == 0)
+            return;
+
+        var earliest = budgets.Min(ResolvePeriodStart);
+        var latest = budgets.Max(ResolvePeriodEnd).Date.AddDays(1).AddTicks(-1);
+        var transactions = await _context.Transactions
+            .Include(x => x.Tags)
+            .Where(x => x.UserId == ownerId &&
+                        x.Type == TransactionType.Expense &&
+                        x.Date >= earliest &&
+                        x.Date <= latest)
+            .ToListAsync();
+
+        var changed = false;
+        foreach (var budget in budgets)
+        {
+            var start = ResolvePeriodStart(budget);
+            var end = ResolvePeriodEnd(budget).Date.AddDays(1).AddTicks(-1);
+            var periodTransactions = transactions.Where(x => x.Date >= start && x.Date <= end).ToList();
+
+            foreach (var item in budget.MandatoryExpenses)
+            {
+                var label = NormalizeLabel(item.MatchLabel);
+                var paidAmount = string.IsNullOrWhiteSpace(label)
+                    ? 0m
+                    : periodTransactions
+                        .Where(x => x.Tags.Any(tag => NormalizeLabel(tag.Value) == label))
+                        .Sum(x => x.Amount);
+                var isPaid = paidAmount >= item.Amount;
+                if (item.IsPaid == isPaid)
+                    continue;
+                item.IsPaid = isPaid;
+                changed = true;
+            }
+        }
+
+        if (changed)
+            await _context.SaveChangesAsync();
     }
 
     private static Budget NewBudget(BudgetDto dto, int ownerId)
@@ -305,8 +383,8 @@ public class BudgetService : CrudService<Budget>, IBudgetService
         budget.TotalLimit = dto.TotalLimit;
         budget.Month = dto.Month;
         budget.Year = dto.Year;
-        budget.StartDate = dto.StartDate;
-        budget.EndDate = dto.EndDate;
+        budget.StartDate = ResolveDtoPeriodStart(dto);
+        budget.EndDate = ResolveDtoPeriodEnd(dto);
         budget.TelegramEnabled = dto.TelegramEnabled;
         budget.WarningThreshold = dto.WarningThreshold;
         budget.AutoCreateNextMonthly = dto.AutoCreateNextMonthly;
@@ -328,6 +406,7 @@ public class BudgetService : CrudService<Budget>, IBudgetService
 
     private static Budget CloneMonthlyBudget(Budget source, int ownerId, int year, int month)
     {
+        var offset = MonthOffset(source.Year, source.Month, year, month);
         var clone = new Budget
         {
             OwnerId = ownerId,
@@ -337,6 +416,8 @@ public class BudgetService : CrudService<Budget>, IBudgetService
             TotalLimit = source.TotalLimit,
             Month = month,
             Year = year,
+            StartDate = ShiftMonths(ResolvePeriodStart(source), offset),
+            EndDate = ShiftMonths(ResolvePeriodEnd(source), offset),
             TelegramEnabled = source.TelegramEnabled,
             WarningThreshold = source.WarningThreshold,
             AutoCreateNextMonthly = source.AutoCreateNextMonthly,
@@ -368,7 +449,7 @@ public class BudgetService : CrudService<Budget>, IBudgetService
                 Name = income.Name,
                 Amount = income.Amount,
                 Frequency = income.Frequency,
-                ExpectedDate = ShiftToMonth(income.ExpectedDate, year, month),
+                ExpectedDate = ShiftNullableMonths(income.ExpectedDate, offset),
                 IsReceived = false,
             });
         }
@@ -379,27 +460,70 @@ public class BudgetService : CrudService<Budget>, IBudgetService
             {
                 Name = item.Name,
                 Amount = item.Amount,
-                DueDate = ShiftToMonth(item.DueDate, year, month),
+                DueDate = ShiftNullableMonths(item.DueDate, offset),
                 Frequency = item.Frequency,
+                MatchLabel = item.MatchLabel,
                 IsPaid = false,
             };
             if (item.BudgetCategoryId.HasValue && categoryMap.TryGetValue(item.BudgetCategoryId.Value, out var category))
-            {
                 copied.Category = category;
-            }
             clone.MandatoryExpenses.Add(copied);
         }
 
         return clone;
     }
 
-    private static DateTime? ShiftToMonth(DateTime? source, int year, int month)
+    private static DateTime ResolveDtoPeriodStart(BudgetDto dto)
     {
-        if (!source.HasValue)
-            return null;
-        var day = Math.Min(source.Value.Day, DateTime.DaysInMonth(year, month));
-        return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
+        if (dto.StartDate.HasValue)
+            return dto.StartDate.Value.Date;
+        if (dto.Type == BudgetTypes.Monthly && dto.Year.HasValue && dto.Month.HasValue)
+            return new DateTime(dto.Year.Value, dto.Month.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+        return DateTime.UtcNow.Date;
     }
+
+    private static DateTime ResolveDtoPeriodEnd(BudgetDto dto)
+    {
+        if (dto.EndDate.HasValue)
+            return dto.EndDate.Value.Date;
+        var start = ResolveDtoPeriodStart(dto);
+        if (dto.Type == BudgetTypes.Monthly && dto.Year.HasValue && dto.Month.HasValue)
+            return new DateTime(dto.Year.Value, dto.Month.Value, DateTime.DaysInMonth(dto.Year.Value, dto.Month.Value), 0, 0, 0, DateTimeKind.Utc);
+        return start;
+    }
+
+    private static DateTime ResolvePeriodStart(Budget budget)
+    {
+        if (budget.StartDate.HasValue)
+            return budget.StartDate.Value.Date;
+        if (budget.Year.HasValue && budget.Month.HasValue)
+            return new DateTime(budget.Year.Value, budget.Month.Value, 1, 0, 0, 0, DateTimeKind.Utc);
+        return budget.CreatedAt.Date;
+    }
+
+    private static DateTime ResolvePeriodEnd(Budget budget)
+    {
+        if (budget.EndDate.HasValue)
+            return budget.EndDate.Value.Date;
+        if (budget.Year.HasValue && budget.Month.HasValue)
+            return new DateTime(budget.Year.Value, budget.Month.Value, DateTime.DaysInMonth(budget.Year.Value, budget.Month.Value), 0, 0, 0, DateTimeKind.Utc);
+        return ResolvePeriodStart(budget);
+    }
+
+    private static int MonthOffset(int? sourceYear, int? sourceMonth, int targetYear, int targetMonth)
+    {
+        if (!sourceYear.HasValue || !sourceMonth.HasValue)
+            return 0;
+        return (targetYear * 12 + targetMonth) - (sourceYear.Value * 12 + sourceMonth.Value);
+    }
+
+    private static DateTime ShiftMonths(DateTime source, int months) => source.AddMonths(months);
+
+    private static DateTime? ShiftNullableMonths(DateTime? source, int months) =>
+        source.HasValue ? source.Value.AddMonths(months) : null;
+
+    private static string NormalizeLabel(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
 
     private static void Validate(BudgetDto dto)
     {
@@ -407,7 +531,9 @@ public class BudgetService : CrudService<Budget>, IBudgetService
             throw new ArgumentException("Invalid budget type.");
         if (dto.Type == BudgetTypes.Monthly && (dto.Month is < 1 or > 12 || dto.Year == null))
             throw new ArgumentException("Monthly budget requires month and year.");
-        if (dto.Type == BudgetTypes.Event && (dto.StartDate == null || dto.EndDate == null || dto.EndDate < dto.StartDate))
+        if (dto.StartDate.HasValue && dto.EndDate.HasValue && dto.EndDate.Value.Date < dto.StartDate.Value.Date)
+            throw new ArgumentException("Budget end date cannot be earlier than start date.");
+        if (dto.Type == BudgetTypes.Event && (dto.StartDate == null || dto.EndDate == null))
             throw new ArgumentException("Event budget requires a valid date range.");
     }
 }

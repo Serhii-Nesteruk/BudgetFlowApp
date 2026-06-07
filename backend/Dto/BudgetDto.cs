@@ -115,6 +115,7 @@ public class BudgetMandatoryExpenseDto
         get; set;
     }
     [MaxLength(120)] public string Frequency { get; set; } = string.Empty;
+    [MaxLength(120)] public string MatchLabel { get; set; } = string.Empty;
     public bool IsPaid
     {
         get; set;

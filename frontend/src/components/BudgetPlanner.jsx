@@ -113,6 +113,26 @@ function addDays(dateString, days) {
   date.setDate(date.getDate() + days);
   return date.toISOString().slice(0, 10);
 }
+function defaultMonthlyRange(year, month) {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDay = new Date(Number(year), Number(month), 0).getDate();
+  return {
+    startDate,
+    endDate: `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`,
+  };
+}
+function formatDateRange(startDate, endDate) {
+  if (!startDate || !endDate) return "Період не вказаний";
+  const options = { day: "numeric", month: "short", year: "numeric" };
+  return `${new Date(`${startDate}T00:00:00`).toLocaleDateString("uk-UA", options)} — ${new Date(`${endDate}T00:00:00`).toLocaleDateString("uk-UA", options)}`;
+}
+function daysBetweenInclusive(startDate, endDate) {
+  if (!startDate || !endDate) return 1;
+  return Math.max(
+    1,
+    Math.floor((new Date(`${endDate}T00:00:00`) - new Date(`${startDate}T00:00:00`)) / 86400000) + 1
+  );
+}
 function formatAmount(value, currency) {
   return formatCurrency(value, currency);
 }
@@ -199,12 +219,15 @@ function currentMonthlyPeriodIndex(now = new Date()) {
 }
 function monthlyLifecycle(budget, now = new Date()) {
   if (budget.type !== "monthly") return "event";
-  const period = monthlyPeriodIndex(budget);
-  const current = currentMonthlyPeriodIndex(now);
-  if (period === current) return "active";
-  if (period > current) return "planned";
-  return "history";
+  const fallback = defaultMonthlyRange(budget.year, budget.month);
+  const startDate = budget.startDate || fallback.startDate;
+  const endDate = budget.endDate || fallback.endDate;
+  const today = now.toISOString().slice(0, 10);
+  if (today < startDate) return "planned";
+  if (today > endDate) return "history";
+  return "active";
 }
+
 function lifecycleLabel(lifecycle) {
   return { active: "Активний", planned: "Запланований", history: "Завершений" }[lifecycle] || "";
 }
@@ -246,31 +269,29 @@ function budgetSummary(budget) {
   const overCategories = (budget.categories || []).filter(
     (category) => spentForCategory(budget, category) > category.limit
   ).length;
-  const today = new Date();
-  let daysLeft = 1;
-  let elapsed = 1;
+  const fallback = defaultMonthlyRange(budget.year, budget.month);
+  const startDate = budget.startDate || fallback.startDate;
+  const endDate = budget.endDate || fallback.endDate;
+  const today = new Date().toISOString().slice(0, 10);
+  const totalDays = daysBetweenInclusive(startDate, endDate);
+  let daysLeft = Math.max(0, daysBetweenInclusive(today > startDate ? today : startDate, endDate));
+  let elapsed = Math.max(1, totalDays - daysLeft + 1);
   let forecast = actualSpent;
-  if (budget.type === "monthly") {
-    const lastDay = new Date(budget.year, budget.month, 0).getDate();
-    const lifecycle = monthlyLifecycle(budget, today);
-    if (lifecycle === "planned") {
-      daysLeft = lastDay;
-      forecast = actualSpent;
-    } else if (lifecycle === "history") {
-      daysLeft = 0;
-      elapsed = lastDay;
-      forecast = actualSpent;
-    } else {
-      daysLeft = Math.max(1, lastDay - today.getDate());
-      elapsed = Math.max(1, today.getDate());
-      forecast = Math.round((actualSpent / elapsed) * lastDay);
-    }
-  } else if (budget.endDate) {
-    daysLeft = Math.max(1, Math.ceil((new Date(`${budget.endDate}T00:00:00`) - today) / 86400000));
+
+  if (today < startDate) {
+    daysLeft = totalDays;
+    elapsed = 1;
+  } else if (today > endDate) {
+    daysLeft = 0;
+    elapsed = totalDays;
+  } else {
+    forecast = Math.round((actualSpent / elapsed) * totalDays);
   }
+
   const dailyLimit = daysLeft > 0 ? Math.max(0, remaining) / daysLeft : 0;
   return { actualSpent, remaining, progress, overCategories, daysLeft, dailyLimit, forecast };
 }
+
 function sourceLabel(source) {
   return (
     { table: "Таблиця витрат", manual: "Додано вручну", mandatory: "Обов’язкова витрата" }[
@@ -397,10 +418,7 @@ function Portfolio({ budgets, currency, onOpen, onCreate }) {
 function BudgetTile({ budget, currency, onOpen }) {
   const summary = budgetSummary(budget);
   const lifecycle = monthlyLifecycle(budget);
-  const dateLabel =
-    budget.type === "monthly"
-      ? `${MONTHS_UA[budget.month - 1]} ${budget.year}`
-      : `${budget.startDate || "Без дати"} — ${budget.endDate || "Без дати"}`;
+  const dateLabel = formatDateRange(budget.startDate, budget.endDate);
   return (
     <button
       className={`budgetTile ${budget.type} ${lifecycle}`}
@@ -448,15 +466,23 @@ function BudgetDashboard({
   onCopyStructure,
   onAddCategoryApi,
   onUpdateCategoryApi,
+  onDeleteCategoryApi,
   onAddPlannedApi,
+  onUpdatePlannedApi,
+  onDeletePlannedApi,
   onAddMandatoryApi,
+  onUpdateMandatoryApi,
+  onDeleteMandatoryApi,
   onAddIncomeApi,
+  onUpdateIncomeApi,
+  onDeleteIncomeApi,
   onShare,
   onPlanNextMonths,
 }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [eventView, setEventView] = useState("overview");
   const [modalType, setModalType] = useState(null);
+  const [modalItem, setModalItem] = useState(null);
   const [modalInitialDate, setModalInitialDate] = useState("");
   const [categoryDetails, setCategoryDetails] = useState(null);
   const [toast, setToast] = useState("");
@@ -469,6 +495,19 @@ function BudgetDashboard({
     window.clearTimeout(showToast.timer);
     showToast.timer = window.setTimeout(() => setToast(""), 2200);
   }
+
+  function openModal(type, item = null, date = "") {
+    setModalType(type);
+    setModalItem(item);
+    setModalInitialDate(date);
+  }
+
+  function closeModal() {
+    setModalType(null);
+    setModalItem(null);
+    setModalInitialDate("");
+  }
+
   async function updateBudget(patch) {
     try {
       await onUpdate({ ...budget, ...patch });
@@ -476,6 +515,7 @@ function BudgetDashboard({
       showToast(`Не вдалося зберегти: ${error.message}`);
     }
   }
+
   async function copyPreviousMonth() {
     if (!previousMonthlyBudget)
       return showToast("Немає попереднього місячного бюджету для копіювання");
@@ -486,47 +526,96 @@ function BudgetDashboard({
       showToast(`Не вдалося скопіювати: ${error.message}`);
     }
   }
-  async function addCategory(category) {
+
+  async function saveCategory(category) {
     try {
-      await onAddCategoryApi(budget.id, { active: true, ...category });
-      showToast("Категорію додано ✓");
-    } catch (error) {
-      showToast(`Не вдалося додати категорію: ${error.message}`);
-    }
-  }
-  async function updateCategory(category, patch) {
-    try {
-      await onUpdateCategoryApi(budget.id, category.id, { ...category, ...patch });
-      showToast("Категорію оновлено ✓");
+      if (category.id) await onUpdateCategoryApi(budget.id, category.id, category);
+      else await onAddCategoryApi(budget.id, { active: true, ...category });
+      showToast(category.id ? "Категорію оновлено ✓" : "Категорію додано ✓");
       setCategoryDetails(null);
+      closeModal();
     } catch (error) {
-      showToast(`Не вдалося оновити категорію: ${error.message}`);
+      showToast(`Не вдалося зберегти категорію: ${error.message}`);
     }
   }
-  async function addTransaction(transaction) {
+
+  async function removeCategory(category) {
+    if (!window.confirm(`Видалити категорію «${category.name}»?`)) return;
     try {
-      await onAddPlannedApi(budget.id, { ...transaction, name: transaction.desc, isPaid: true });
-      showToast("Витрату додано ✓");
+      await onDeleteCategoryApi(budget.id, category.id);
+      setCategoryDetails(null);
+      showToast("Категорію видалено ✓");
     } catch (error) {
-      showToast(`Не вдалося додати витрату: ${error.message}`);
+      showToast(`Не вдалося видалити категорію: ${error.message}`);
     }
   }
-  async function addMandatory(item) {
+
+  async function saveTransaction(transaction) {
     try {
-      await onAddMandatoryApi(budget.id, { paid: false, ...item });
-      showToast("Обов’язкову витрату додано ✓");
+      const payload = { ...transaction, name: transaction.desc, isPaid: true };
+      if (transaction.id) await onUpdatePlannedApi(budget.id, transaction.id, payload);
+      else await onAddPlannedApi(budget.id, payload);
+      showToast(transaction.id ? "Витрату оновлено ✓" : "Витрату додано ✓");
+      closeModal();
     } catch (error) {
-      showToast(`Не вдалося додати витрату: ${error.message}`);
+      showToast(`Не вдалося зберегти витрату: ${error.message}`);
     }
   }
-  async function addIncome(item) {
+
+  async function removeTransaction(item) {
+    if (!window.confirm(`Видалити витрату «${item.desc}»?`)) return;
     try {
-      await onAddIncomeApi(budget.id, { status: "pending", icon: "💰", ...item });
-      showToast("Дохід додано ✓");
+      await onDeletePlannedApi(budget.id, item.id);
+      showToast("Витрату видалено ✓");
     } catch (error) {
-      showToast(`Не вдалося додати дохід: ${error.message}`);
+      showToast(`Не вдалося видалити витрату: ${error.message}`);
     }
   }
+
+  async function saveMandatory(item) {
+    try {
+      const payload = { paid: false, ...item };
+      if (item.id) await onUpdateMandatoryApi(budget.id, item.id, payload);
+      else await onAddMandatoryApi(budget.id, payload);
+      showToast(item.id ? "Обов’язкову витрату оновлено ✓" : "Обов’язкову витрату додано ✓");
+      closeModal();
+    } catch (error) {
+      showToast(`Не вдалося зберегти витрату: ${error.message}`);
+    }
+  }
+
+  async function removeMandatory(item) {
+    if (!window.confirm(`Видалити обов’язкову витрату «${item.name}»?`)) return;
+    try {
+      await onDeleteMandatoryApi(budget.id, item.id);
+      showToast("Обов’язкову витрату видалено ✓");
+    } catch (error) {
+      showToast(`Не вдалося видалити витрату: ${error.message}`);
+    }
+  }
+
+  async function saveIncome(item) {
+    try {
+      const payload = { status: "pending", icon: "💰", ...item };
+      if (item.id) await onUpdateIncomeApi(budget.id, item.id, payload);
+      else await onAddIncomeApi(budget.id, payload);
+      showToast(item.id ? "Дохід оновлено ✓" : "Дохід додано ✓");
+      closeModal();
+    } catch (error) {
+      showToast(`Не вдалося зберегти дохід: ${error.message}`);
+    }
+  }
+
+  async function removeIncome(item) {
+    if (!window.confirm(`Видалити дохід «${item.name}»?`)) return;
+    try {
+      await onDeleteIncomeApi(budget.id, item.id);
+      showToast("Дохід видалено ✓");
+    } catch (error) {
+      showToast(`Не вдалося видалити дохід: ${error.message}`);
+    }
+  }
+
   async function shareBudget() {
     try {
       const email = window.prompt(
@@ -543,6 +632,7 @@ function BudgetDashboard({
       showToast(`Не вдалося поділитися: ${error.message}`);
     }
   }
+
   async function planNextMonths(months) {
     try {
       const planned = await onPlanNextMonths(budget.id, months);
@@ -551,11 +641,6 @@ function BudgetDashboard({
     } catch (error) {
       showToast(`Не вдалося запланувати місяці: ${error.message}`);
     }
-  }
-
-  function addForDate(date) {
-    setModalInitialDate(date);
-    setModalType("transaction");
   }
 
   return (
@@ -586,7 +671,7 @@ function BudgetDashboard({
           <button
             className="primaryButton compact"
             type="button"
-            onClick={() => setModalType("quick")}
+            onClick={() => openModal("quick")}
           >
             ＋ Додати
           </button>
@@ -602,11 +687,7 @@ function BudgetDashboard({
                 {lifecycleLabel(monthlyLifecycle(budget))}
               </span>
             )}
-            <span>
-              {budget.type === "monthly"
-                ? `${MONTHS_UA[budget.month - 1]} ${budget.year}`
-                : `${budget.startDate} — ${budget.endDate}`}
-            </span>
+            <span>{formatDateRange(budget.startDate, budget.endDate)}</span>
           </div>
           <h1>{budget.name}</h1>
           <p className="heroLabel">Залишилось</p>
@@ -649,8 +730,7 @@ function BudgetDashboard({
           <div>
             <b>Це запланований бюджет-чернетка</b>
             <small>
-              Налаштуйте його заздалегідь. Першого числа відповідного місяця він автоматично стане
-              активним — нічого додатково створювати не потрібно.
+              Налаштуйте його заздалегідь. У день початку періоду він автоматично стане активним.
             </small>
           </div>
         </div>
@@ -679,24 +759,43 @@ function BudgetDashboard({
         <PlannedExpensesTable
           budget={budget}
           currency={currency}
-          onAdd={() => setModalType("transaction")}
+          onAdd={() => openModal("transaction")}
+          onEdit={(item) => openModal("transaction", item)}
+          onDelete={removeTransaction}
         />
       ) : budget.type === "event" && eventView === "calendar" ? (
-        <BudgetCalendar budget={budget} currency={currency} expanded onSelectDate={addForDate} />
+        <BudgetCalendar
+          budget={budget}
+          currency={currency}
+          expanded
+          onSelectDate={(date) => openModal("transaction", null, date)}
+        />
       ) : (
         <div className="dashboardGrid">
           <main className="dashboardMain">
             <CategoriesSection
               budget={budget}
               currency={currency}
-              onAdd={() => setModalType("category")}
+              onAdd={() => openModal("category")}
               onOpenCategory={setCategoryDetails}
             />
             {budget.type === "monthly" && (
               <MandatorySection
                 items={budget.mandatoryExpenses}
                 currency={currency}
-                onAdd={() => setModalType("mandatory")}
+                onAdd={() => openModal("mandatory")}
+                onEdit={(item) => openModal("mandatory", item)}
+                onDelete={removeMandatory}
+              />
+            )}
+            {budget.type === "monthly" && (
+              <PlannedExpensesTable
+                budget={budget}
+                currency={currency}
+                compact
+                onAdd={() => openModal("transaction")}
+                onEdit={(item) => openModal("transaction", item)}
+                onDelete={removeTransaction}
               />
             )}
             {budget.type === "event" && (
@@ -704,7 +803,9 @@ function BudgetDashboard({
                 budget={budget}
                 currency={currency}
                 compact
-                onAdd={() => setModalType("transaction")}
+                onAdd={() => openModal("transaction")}
+                onEdit={(item) => openModal("transaction", item)}
+                onDelete={removeTransaction}
               />
             )}
             <section className="glassSection calendarFold">
@@ -728,7 +829,7 @@ function BudgetDashboard({
                   budget={budget}
                   currency={currency}
                   expanded
-                  onSelectDate={addForDate}
+                  onSelectDate={(date) => openModal("transaction", null, date)}
                 />
               )}
             </section>
@@ -739,7 +840,9 @@ function BudgetDashboard({
               <IncomeSection
                 sources={budget.incomeSources}
                 currency={currency}
-                onAdd={() => setModalType("income")}
+                onAdd={() => openModal("income")}
+                onEdit={(item) => openModal("income", item)}
+                onDelete={removeIncome}
               />
             )}
             <TelegramCard
@@ -754,19 +857,17 @@ function BudgetDashboard({
       {modalType && (
         <BudgetActionModal
           type={modalType}
+          initialItem={modalItem}
           budget={budget}
           currency={currency}
           availablePlaceLabels={availablePlaceLabels}
           initialDate={modalInitialDate}
-          onClose={() => {
-            setModalType(null);
-            setModalInitialDate("");
-          }}
-          onChoose={setModalType}
-          onAddCategory={addCategory}
-          onAddTransaction={addTransaction}
-          onAddMandatory={addMandatory}
-          onAddIncome={addIncome}
+          onClose={closeModal}
+          onChoose={(type) => openModal(type)}
+          onSaveCategory={saveCategory}
+          onSaveTransaction={saveTransaction}
+          onSaveMandatory={saveMandatory}
+          onSaveIncome={saveIncome}
         />
       )}
       {categoryDetails && (
@@ -775,7 +876,8 @@ function BudgetDashboard({
           category={categoryDetails}
           currency={currency}
           availablePlaceLabels={availablePlaceLabels}
-          onSaveCategory={updateCategory}
+          onSaveCategory={saveCategory}
+          onDeleteCategory={removeCategory}
           onClose={() => setCategoryDetails(null)}
         />
       )}
@@ -881,13 +983,14 @@ function CategoriesSection({ budget, currency, onAdd, onOpenCategory }) {
   );
 }
 
-function MandatorySection({ items, currency, onAdd }) {
+function MandatorySection({ items, currency, onAdd, onEdit, onDelete }) {
   return (
     <section className="glassSection compactSection">
       <div className="sectionHeader">
         <div>
           <span className="eyebrow">Регулярні платежі</span>
           <h2>Обов’язкові витрати</h2>
+          <p>Стають оплаченими лише після реальної транзакції з відповідною міткою.</p>
         </div>
         <button className="textButton" type="button" onClick={onAdd}>
           ＋ Додати
@@ -895,20 +998,38 @@ function MandatorySection({ items, currency, onAdd }) {
       </div>
       <div className="simpleList">
         {items.map((item) => (
-          <div className="simpleRow" key={item.id}>
+          <div className="simpleRow managedRow" key={item.id}>
             <span className={`statusDot ${item.paid ? "paid" : "pending"}`} />
             <div>
               <b>{item.name}</b>
-              <small>{item.dateLabel || "Без дати"}</small>
+              <small>
+                {item.dateLabel || "Без дати"}
+                {item.matchLabel ? ` · #${item.matchLabel}` : " · додайте мітку"}
+              </small>
+              <small>{item.paid ? "Оплачено реальною транзакцією" : "Очікує транзакцію"}</small>
             </div>
             <strong>{formatAmount(item.amount, currency)}</strong>
+            <div className="rowActions">
+              <button type="button" onClick={() => onEdit(item)} aria-label="Редагувати">
+                ✎
+              </button>
+              <button
+                className="danger"
+                type="button"
+                onClick={() => onDelete(item)}
+                aria-label="Видалити"
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
       </div>
     </section>
   );
 }
-function IncomeSection({ sources, currency, onAdd }) {
+
+function IncomeSection({ sources, currency, onAdd, onEdit, onDelete }) {
   return (
     <section className="glassSection asideSection">
       <div className="sectionHeader mini">
@@ -922,7 +1043,7 @@ function IncomeSection({ sources, currency, onAdd }) {
       </div>
       <div className="simpleList">
         {sources.map((item) => (
-          <div className="simpleRow income" key={item.id}>
+          <div className="simpleRow income managedRow" key={item.id}>
             <span className="incomeEmoji">{item.icon}</span>
             <div>
               <b>{item.name}</b>
@@ -935,12 +1056,26 @@ function IncomeSection({ sources, currency, onAdd }) {
               </small>
             </div>
             <strong>+{formatAmount(item.amount, currency)}</strong>
+            <div className="rowActions">
+              <button type="button" onClick={() => onEdit(item)} aria-label="Редагувати">
+                ✎
+              </button>
+              <button
+                className="danger"
+                type="button"
+                onClick={() => onDelete(item)}
+                aria-label="Видалити"
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
       </div>
     </section>
   );
 }
+
 function AssistantCard({ budget, summary, currency }) {
   const worst = [...budget.categories].sort(
     (a, b) =>
@@ -1010,19 +1145,11 @@ function ParticipantsCard({ budget, onShare }) {
 }
 
 function BudgetCalendar({ budget, currency, expanded = false, onSelectDate }) {
-  const firstDate =
-    budget.type === "monthly"
-      ? `${budget.year}-${String(budget.month).padStart(2, "0")}-01`
-      : budget.startDate;
-  const lastDate =
-    budget.type === "monthly"
-      ? `${budget.year}-${String(budget.month).padStart(2, "0")}-${String(new Date(budget.year, budget.month, 0).getDate()).padStart(2, "0")}`
-      : budget.endDate;
+  const firstDate = budget.startDate;
+  const lastDate = budget.endDate;
   if (!firstDate || !lastDate)
     return <div className="emptyCalendar">Вкажіть період бюджету, щоб побачити календар.</div>;
-  const days =
-    Math.ceil((new Date(`${lastDate}T00:00:00`) - new Date(`${firstDate}T00:00:00`)) / 86400000) +
-    1;
+  const days = daysBetweenInclusive(firstDate, lastDate);
   const firstDow = (new Date(`${firstDate}T00:00:00`).getDay() + 6) % 7;
   const planned = budget.plannedExpenses || [];
   return (
@@ -1060,14 +1187,16 @@ function BudgetCalendar({ budget, currency, expanded = false, onSelectDate }) {
   );
 }
 
-function PlannedExpensesTable({ budget, currency, onAdd, compact = false }) {
+function PlannedExpensesTable({ budget, currency, onAdd, onEdit, onDelete, compact = false }) {
   const items = budget.plannedExpenses || [];
   return (
     <section className={`glassSection plannedSection ${compact ? "compact" : ""}`}>
       <div className="sectionHeader">
         <div>
-          <span className="eyebrow">План події</span>
-          <h2>Заплановані витрати</h2>
+          <span className="eyebrow">
+            {budget.type === "monthly" ? "Окремий облік" : "План події"}
+          </span>
+          <h2>{budget.type === "monthly" ? "Додані вручну витрати" : "Заплановані витрати"}</h2>
         </div>
         <button className="textButton" type="button" onClick={onAdd}>
           ＋ Додати
@@ -1090,6 +1219,19 @@ function PlannedExpensesTable({ budget, currency, onAdd, compact = false }) {
             </div>
             <span>{formatAmount(item.planned, currency)}</span>
             <strong>{item.actual == null ? "—" : formatAmount(item.actual, currency)}</strong>
+            <div className="rowActions">
+              <button type="button" onClick={() => onEdit(item)} aria-label="Редагувати">
+                ✎
+              </button>
+              <button
+                className="danger"
+                type="button"
+                onClick={() => onDelete(item)}
+                aria-label="Видалити"
+              >
+                ×
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -1152,44 +1294,54 @@ function LabelPicker({ options, selected, onChange }) {
 
 function BudgetActionModal({
   type,
+  initialItem,
   budget,
   currency,
   availablePlaceLabels,
   initialDate,
   onClose,
   onChoose,
-  onAddCategory,
-  onAddTransaction,
-  onAddMandatory,
-  onAddIncome,
+  onSaveCategory,
+  onSaveTransaction,
+  onSaveMandatory,
+  onSaveIncome,
 }) {
   const defaultDate =
     initialDate ||
+    initialItem?.date ||
+    initialItem?.dueDate ||
     (budget.type === "event" ? budget.startDate : new Date().toISOString().slice(0, 10));
+  const isEditing = Boolean(initialItem?.id);
   const [form, setForm] = useState({
-    name: "",
-    amount: "",
-    limit: "",
-    icon: "✦",
-    labels: [],
+    id: initialItem?.id,
+    name: initialItem?.name || "",
+    amount: String(initialItem?.amount ?? initialItem?.planned ?? ""),
+    limit: String(initialItem?.limit ?? ""),
+    icon: initialItem?.icon || "✦",
+    labels: initialItem?.labels || [],
+    matchLabel: initialItem?.matchLabel || "",
     date: defaultDate,
-    desc: "",
-    budgetCategoryId: "",
-    frequency: "",
-    expectedDate: defaultDate,
+    desc: initialItem?.desc || initialItem?.name || "",
+    budgetCategoryId: initialItem?.budgetCategoryId || "",
+    frequency: initialItem?.frequency || "",
+    expectedDate: initialItem?.expectedDate || defaultDate,
+    status: initialItem?.status || "pending",
   });
+
   function submit(event) {
     event.preventDefault();
     if (type === "category")
-      onAddCategory({
+      onSaveCategory({
+        id: form.id,
         name: form.name.trim(),
         icon: form.icon || "✦",
-        color: "#00b86b",
+        color: initialItem?.color || "#00b86b",
         limit: Number(form.limit) || 0,
         labels: form.labels,
       });
     if (type === "transaction")
-      onAddTransaction({
+      onSaveTransaction({
+        id: form.id,
         desc: form.desc.trim(),
         amount: Number(form.amount) || 0,
         date: form.date,
@@ -1197,22 +1349,26 @@ function BudgetActionModal({
         labels: form.labels,
       });
     if (type === "mandatory")
-      onAddMandatory({
+      onSaveMandatory({
+        id: form.id,
         name: form.name.trim(),
         amount: Number(form.amount) || 0,
         dueDate: form.date,
         budgetCategoryId: form.budgetCategoryId || null,
         frequency: form.frequency,
+        matchLabel: form.matchLabel,
       });
     if (type === "income")
-      onAddIncome({
+      onSaveIncome({
+        id: form.id,
         name: form.name.trim(),
         amount: Number(form.amount) || 0,
         expectedDate: form.expectedDate,
         frequency: form.frequency || "очікується",
+        status: form.status,
       });
-    onClose();
   }
+
   return createPortal(
     <div className="budgetModalOverlay" onMouseDown={onClose}>
       <div className="budgetModal" onMouseDown={(event) => event.stopPropagation()}>
@@ -1240,7 +1396,7 @@ function BudgetActionModal({
                 <button onClick={() => onChoose("mandatory")}>
                   <span>📌</span>
                   <b>Обов’язкову</b>
-                  <small>Регулярний платіж</small>
+                  <small>Платіж за міткою</small>
                 </button>
               )}
               {budget.type === "monthly" && (
@@ -1256,7 +1412,7 @@ function BudgetActionModal({
           <form onSubmit={submit}>
             <div className="modalHead">
               <div>
-                <span className="eyebrow">Новий запис</span>
+                <span className="eyebrow">{isEditing ? "Редагування" : "Новий запис"}</span>
                 <h2>
                   {type === "category"
                     ? "Категорія бюджету"
@@ -1271,6 +1427,7 @@ function BudgetActionModal({
                 ×
               </button>
             </div>
+
             {type === "transaction" ? (
               <>
                 <label>
@@ -1376,14 +1533,29 @@ function BudgetActionModal({
                         onChange={(event) =>
                           setForm({ ...form, budgetCategoryId: event.target.value })
                         }
+                        required
                       >
-                        <option value="">Без категорії</option>
+                        <option value="">Оберіть категорію</option>
                         {budget.categories.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.name}
                           </option>
                         ))}
                       </select>
+                    </label>
+                    <label>
+                      Мітка для автоматичного зарахування
+                      <small>
+                        Коли транзакція з цією міткою з’явиться у таблиці витрат у межах періоду
+                        бюджету, платіж стане оплаченим.
+                      </small>
+                      <LabelPicker
+                        options={availablePlaceLabels}
+                        selected={form.matchLabel ? [form.matchLabel] : []}
+                        onChange={(labels) =>
+                          setForm({ ...form, matchLabel: labels[labels.length - 1] || "" })
+                        }
+                      />
                     </label>
                     <label>
                       Періодичність
@@ -1413,6 +1585,18 @@ function BudgetActionModal({
                         placeholder="Щомісяця · 1-го числа"
                       />
                     </label>
+                    {isEditing && (
+                      <label>
+                        Статус
+                        <select
+                          value={form.status}
+                          onChange={(event) => setForm({ ...form, status: event.target.value })}
+                        >
+                          <option value="pending">Очікується</option>
+                          <option value="received">Отримано</option>
+                        </select>
+                      </label>
+                    )}
                   </>
                 )}
               </>
@@ -1422,7 +1606,7 @@ function BudgetActionModal({
                 Скасувати
               </button>
               <button className="primaryButton compact" type="submit">
-                Додати
+                {isEditing ? "Зберегти" : "Додати"}
               </button>
             </div>
           </form>
@@ -1459,9 +1643,11 @@ function CategoryExpensesModal({
   currency,
   availablePlaceLabels,
   onSaveCategory,
+  onDeleteCategory,
   onClose,
 }) {
   const [form, setForm] = useState({
+    id: category.id,
     name: category.name || "",
     icon: category.icon || "✦",
     color: category.color || "#00b86b",
@@ -1472,9 +1658,10 @@ function CategoryExpensesModal({
   const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   function save() {
-    onSaveCategory(category, {
+    onSaveCategory({
+      ...category,
       name: form.name.trim() || category.name,
-      icon: form.icon.trim() || "✦",
+      icon: form.icon || "✦",
       color: form.color || "#00b86b",
       limit: Number(form.limit) || 0,
       labels: form.labels,
@@ -1542,9 +1729,6 @@ function CategoryExpensesModal({
             selected={form.labels}
             onChange={(labels) => setForm({ ...form, labels })}
           />
-          <button className="primaryButton compact" type="button" onClick={save}>
-            Зберегти категорію
-          </button>
         </div>
 
         <div className="categoryExpenseList">
@@ -1563,6 +1747,18 @@ function CategoryExpensesModal({
               </div>
             ))
           )}
+        </div>
+        <div className="modalActions splitActions categoryModalActions">
+          <button className="dangerButton" type="button" onClick={() => onDeleteCategory(category)}>
+            Видалити категорію
+          </button>
+          <span />
+          <button className="softButton" type="button" onClick={onClose}>
+            Скасувати
+          </button>
+          <button className="primaryButton compact" type="button" onClick={save}>
+            Зберегти
+          </button>
         </div>
       </section>
     </div>,
@@ -1635,19 +1831,23 @@ function BudgetEditModal({ budget, currency, onClose, onSave, onDelete }) {
     warningThreshold: String(budget.warningThreshold || 80),
     autoCreateNextMonthly: budget.autoCreateNextMonthly ?? true,
   });
+
   function submit(event) {
     event.preventDefault();
     onSave({
       name: form.name.trim() || budget.name,
       totalLimit: Number(form.totalLimit) || 0,
+      startDate: form.startDate,
+      endDate: form.endDate,
       warningThreshold: Number(form.warningThreshold) || 80,
       autoCreateNextMonthly: form.autoCreateNextMonthly,
-      ...(budget.type === "event" ? { startDate: form.startDate, endDate: form.endDate } : {}),
     });
   }
+
   function remove() {
     if (window.confirm(`Видалити бюджет «${budget.name}»?`)) onDelete();
   }
+
   return createPortal(
     <div className="budgetModalOverlay" onMouseDown={onClose}>
       <form
@@ -1682,27 +1882,31 @@ function BudgetEditModal({ budget, currency, onClose, onSave, onDelete }) {
             required
           />
         </label>
-        {budget.type === "event" && (
-          <>
-            <label>
-              Початок
-              <input
-                value={form.startDate}
-                onChange={(event) => setForm({ ...form, startDate: event.target.value })}
-                type="date"
-                required
-              />
-            </label>
-            <label>
-              Завершення
-              <input
-                value={form.endDate}
-                onChange={(event) => setForm({ ...form, endDate: event.target.value })}
-                type="date"
-                required
-              />
-            </label>
-          </>
+        <div className="budgetPeriodFields">
+          <label>
+            Початок періоду
+            <input
+              value={form.startDate}
+              onChange={(event) => setForm({ ...form, startDate: event.target.value })}
+              type="date"
+              required
+            />
+          </label>
+          <label>
+            Завершення періоду
+            <input
+              value={form.endDate}
+              onChange={(event) => setForm({ ...form, endDate: event.target.value })}
+              type="date"
+              required
+            />
+          </label>
+        </div>
+        {budget.type === "monthly" && (
+          <small className="fieldHint">
+            Період може бути довільним: наприклад від зарплати до зарплати або довшим за календарний
+            місяць.
+          </small>
         )}
         <label>
           Попереджати в Telegram при
@@ -1723,7 +1927,7 @@ function BudgetEditModal({ budget, currency, onClose, onSave, onDelete }) {
                 setForm({ ...form, autoCreateNextMonthly: event.target.checked })
               }
             />
-            <span>Автоматично створювати бюджет наступного місяця з цією структурою</span>
+            <span>Автоматично створювати наступний період з цією структурою</span>
           </label>
         )}
         <div className="modalActions splitActions">
@@ -1746,6 +1950,10 @@ function BudgetEditModal({ budget, currency, onClose, onSave, onDelete }) {
 
 function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) {
   const initialPeriod = useMemo(() => findNextAvailableMonthlyPeriod(budgets), [budgets]);
+  const initialRange = useMemo(
+    () => defaultMonthlyRange(initialPeriod.year, initialPeriod.month),
+    [initialPeriod]
+  );
   const [step, setStep] = useState(1);
   const [type, setType] = useState("monthly");
   const [name, setName] = useState("");
@@ -1756,6 +1964,8 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
   const [copyPrevious, setCopyPrevious] = useState(false);
   const [month, setMonth] = useState(initialPeriod.month);
   const [year, setYear] = useState(initialPeriod.year);
+  const [startDate, setStartDate] = useState(initialRange.startDate);
+  const [endDate, setEndDate] = useState(initialRange.endDate);
   const presets = type === "monthly" ? CATEGORY_PRESETS : EVENT_PRESETS;
   const existingMonthlyBudget =
     type === "monthly" ? findMonthlyBudgetForPeriod(budgets, year, month) : null;
@@ -1768,11 +1978,21 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
     return Array.from({ length: max - min + 1 }, (_, index) => min + index);
   }, [year]);
 
+  function setMonthlyPeriod(nextYear, nextMonth) {
+    const range = defaultMonthlyRange(nextYear, nextMonth);
+    setYear(Number(nextYear));
+    setMonth(Number(nextMonth));
+    setStartDate(range.startDate);
+    setEndDate(range.endDate);
+    setCopyPrevious(false);
+  }
+
   function toggle(index) {
     setSelected((value) =>
       value.includes(index) ? value.filter((i) => i !== index) : [...value, index]
     );
   }
+
   function toggleCopyPrevious() {
     setCopyPrevious((value) => {
       const next = !value;
@@ -1780,16 +2000,26 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
       return next;
     });
   }
+
   function selectType(nextType) {
     const nextPresets = nextType === "monthly" ? CATEGORY_PRESETS : EVENT_PRESETS;
+    const now = new Date().toISOString().slice(0, 10);
     setType(nextType);
     setSelected([0, 1, 3].filter((index) => index < nextPresets.length));
     setCategoryLimits(defaultPresetLimits(nextPresets));
     setCopyPrevious(false);
+    if (nextType === "monthly") {
+      const range = defaultMonthlyRange(year, month);
+      setStartDate(range.startDate);
+      setEndDate(range.endDate);
+    } else {
+      setStartDate(now);
+      setEndDate(addDays(now, 3));
+    }
   }
+
   function finish() {
-    if (existingMonthlyBudget) return;
-    const now = new Date();
+    if (existingMonthlyBudget || !startDate || !endDate || endDate < startDate) return;
     const copied =
       type === "monthly" && copyPrevious ? cloneBudgetStructure(previousMonthlyBudget) : null;
     const categories =
@@ -1807,8 +2037,8 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
       currency,
       month: type === "monthly" ? Number(month) : null,
       year: type === "monthly" ? Number(year) : null,
-      startDate: type === "event" ? now.toISOString().slice(0, 10) : null,
-      endDate: type === "event" ? addDays(now.toISOString().slice(0, 10), 3) : null,
+      startDate,
+      endDate,
       totalLimit: Number(limit) || copied?.totalLimit || 0,
       telegramEnabled: telegram,
       warningThreshold: 80,
@@ -1821,8 +2051,10 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
       plannedExpenses: [],
     });
   }
+
   function next() {
-    if (step === 2 && existingMonthlyBudget) return;
+    if (step === 2 && (existingMonthlyBudget || !startDate || !endDate || endDate < startDate))
+      return;
     if (step === 4) finish();
     else setStep((value) => value + 1);
   }
@@ -1851,8 +2083,8 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
                 onClick={() => selectType("monthly")}
               >
                 <span>◷</span>
-                <b>На місяць</b>
-                <small>Регулярний контроль витрат</small>
+                <b>Регулярний бюджет</b>
+                <small>Місяць або довільний період</small>
               </button>
               <button
                 className={type === "event" ? "selected" : ""}
@@ -1870,20 +2102,21 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
         {step === 2 && (
           <section>
             <h2>
-              {type === "monthly" ? "Оберіть місяць і суму" : "Назвіть подію та задайте ліміт"}
+              {type === "monthly" ? "Оберіть період і суму" : "Назвіть подію та задайте ліміт"}
             </h2>
-            <p>Достатньо основного. Деталі додасте вже в бюджеті.</p>
+            <p>
+              {type === "monthly"
+                ? "Можна планувати календарний місяць або власний цикл, наприклад від зарплати до зарплати."
+                : "Достатньо основного. Деталі додасте вже в бюджеті."}
+            </p>
             {type === "monthly" && (
               <>
                 <div className="monthlyPeriodGrid">
                   <label>
-                    Місяць
+                    Базовий місяць
                     <select
                       value={month}
-                      onChange={(event) => {
-                        setMonth(Number(event.target.value));
-                        setCopyPrevious(false);
-                      }}
+                      onChange={(event) => setMonthlyPeriod(year, Number(event.target.value))}
                     >
                       {MONTHS_UA.map((label, index) => (
                         <option value={index + 1} key={label}>
@@ -1896,10 +2129,7 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
                     Рік
                     <select
                       value={year}
-                      onChange={(event) => {
-                        setYear(Number(event.target.value));
-                        setCopyPrevious(false);
-                      }}
+                      onChange={(event) => setMonthlyPeriod(Number(event.target.value), month)}
                     >
                       {yearOptions.map((value) => (
                         <option value={value} key={value}>
@@ -1917,7 +2147,7 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
                       </b>
                       <small>
                         Створювати дубль не потрібно. Відкрийте наявний бюджет або виберіть інший
-                        місяць.
+                        базовий місяць.
                       </small>
                     </div>
                     <button type="button" onClick={() => onOpenExisting(existingMonthlyBudget.id)}>
@@ -1936,6 +2166,29 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
                   placeholder="Поїздка в гори"
                 />
               </label>
+            )}
+            <div className="budgetPeriodFields">
+              <label>
+                Початок періоду
+                <input
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  type="date"
+                  required
+                />
+              </label>
+              <label>
+                Завершення періоду
+                <input
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  type="date"
+                  required
+                />
+              </label>
+            </div>
+            {endDate && startDate && endDate < startDate && (
+              <small className="validationHint">Дата завершення не може бути раніше початку.</small>
             )}
             <label>
               Загальний ліміт ({currency})
@@ -1958,7 +2211,7 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
                   <small>
                     {previousMonthlyBudget
                       ? `Категорії, мітки, доходи та регулярні платежі з «${previousMonthlyBudget.name}»`
-                      : "Перед обраним місяцем ще немає місячного бюджету"}
+                      : "Перед обраним місяцем ще немає регулярного бюджету"}
                   </small>
                 </div>
                 <i>{copyPrevious ? "✓" : ""}</i>
@@ -1970,7 +2223,10 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
         {step === 3 && (
           <section>
             <h2>Додамо базові категорії?</h2>
-            <p>Після створення ви зможете вибрати конкретні місця з таблиці витрат.</p>
+            <p>
+              Кожна категорія має власний ліміт. Після створення ви зможете змінити іконку, колір і
+              мітки.
+            </p>
             <div className="presetGrid">
               {presets.map((item, index) => {
                 const isSelected = selected.includes(index);
@@ -2042,7 +2298,10 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
           <button
             className="primaryButton compact"
             type="button"
-            disabled={step === 2 && Boolean(existingMonthlyBudget)}
+            disabled={
+              step === 2 &&
+              (Boolean(existingMonthlyBudget) || !startDate || !endDate || endDate < startDate)
+            }
             onClick={next}
           >
             {step === 4 ? "Створити бюджет" : "Продовжити →"}
@@ -2065,9 +2324,16 @@ export default function BudgetPlanner({ expenses = [], rates, baseCurrency = "PL
     deleteBudget: deleteBudgetApi,
     addCategory,
     updateCategory,
+    removeCategory,
     addIncome,
+    updateIncome,
+    removeIncome,
     addMandatory,
+    updateMandatory,
+    removeMandatory,
     addPlanned,
+    updatePlanned,
+    removePlanned,
     copyStructure,
     share,
     enableSharing,
@@ -2131,9 +2397,16 @@ export default function BudgetPlanner({ expenses = [], rates, baseCurrency = "PL
           onCopyStructure={copyStructure}
           onAddCategoryApi={addCategory}
           onUpdateCategoryApi={updateCategory}
+          onDeleteCategoryApi={removeCategory}
           onAddPlannedApi={addPlanned}
+          onUpdatePlannedApi={updatePlanned}
+          onDeletePlannedApi={removePlanned}
           onAddMandatoryApi={addMandatory}
+          onUpdateMandatoryApi={updateMandatory}
+          onDeleteMandatoryApi={removeMandatory}
           onAddIncomeApi={addIncome}
+          onUpdateIncomeApi={updateIncome}
+          onDeleteIncomeApi={removeIncome}
           onShare={shareBudget}
           onPlanNextMonths={planNextMonths}
         />
