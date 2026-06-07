@@ -33,6 +33,10 @@ function normalizeLabel(value) {
     .toLocaleLowerCase("uk-UA");
 }
 
+function uniqLabels(values) {
+  return [...new Set((values || []).map(normalizeLabel).filter(Boolean))];
+}
+
 function textLabels(...values) {
   return [
     ...new Set(
@@ -63,7 +67,10 @@ function flattenExpenseEntries(entries, rates, displayCurrency) {
         originalCurrency,
         currency: displayCurrency,
         type: "expense",
-        labels: textLabels(place.name, place.details, place.notes),
+        labels: uniqLabels([
+          ...(place.tags || []),
+          ...textLabels(place.name, place.details, place.notes),
+        ]),
         details: place.details || "",
         notes: place.notes || "",
         source: "table",

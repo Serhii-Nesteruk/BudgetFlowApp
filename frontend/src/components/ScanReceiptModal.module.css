@@ -39,13 +39,13 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: calc(14px * var(--ui-font-scale));
   font-weight: 600;
   color: var(--text);
 }
 
 .subtitle {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 2px;
 }
@@ -117,7 +117,7 @@
 }
 
 .dropText {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   color: var(--text);
 }
 
@@ -128,7 +128,7 @@
 }
 
 .dropHint {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
 }
 
@@ -160,7 +160,7 @@
   border: 1px solid var(--border);
   border-radius: var(--r);
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   font-family: var(--font);
   color: var(--muted);
   cursor: pointer;
@@ -178,7 +178,7 @@
 
 /* Status messages */
 .message {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   padding: 8px 12px;
   border-radius: var(--r);
   border: 1px solid;
@@ -247,7 +247,7 @@
   .footer button {
     flex: 1;
     padding: 13px;
-    font-size: 15px;
+    font-size: calc(15px * var(--ui-font-scale));
     border-radius: 12px;
     justify-content: center;
   }

@@ -20,18 +20,78 @@ const MONTHS_UA = [
 ];
 const DOW_UA = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"];
 const CATEGORY_PRESETS = [
-  { name: "Продукти", icon: "🛒", color: "#00b86b", labels: ["biedronka", "lidl", "супермаркет"] },
-  { name: "Транспорт", icon: "🚕", color: "#2563eb", labels: ["pkp", "ztm", "orlen"] },
-  { name: "Житло", icon: "🏠", color: "#7c3aed", labels: ["оренда", "комунальні"] },
-  { name: "Кафе", icon: "☕", color: "#f59e0b", labels: ["кафе", "ресторан", "starbucks"] },
-  { name: "Розваги", icon: "🎬", color: "#ec4899", labels: ["кіно", "netflix"] },
-  { name: "Здоров’я", icon: "🩺", color: "#0891b2", labels: ["аптека", "лікар"] },
+  {
+    name: "Продукти",
+    icon: "🛒",
+    color: "#00b86b",
+    defaultLimit: 1600,
+    labels: ["biedronka", "lidl", "супермаркет"],
+  },
+  {
+    name: "Транспорт",
+    icon: "🚕",
+    color: "#2563eb",
+    defaultLimit: 600,
+    labels: ["pkp", "ztm", "orlen"],
+  },
+  {
+    name: "Житло",
+    icon: "🏠",
+    color: "#7c3aed",
+    defaultLimit: 2200,
+    labels: ["оренда", "комунальні"],
+  },
+  {
+    name: "Кафе",
+    icon: "☕",
+    color: "#f59e0b",
+    defaultLimit: 500,
+    labels: ["кафе", "ресторан", "starbucks"],
+  },
+  { name: "Розваги", icon: "🎬", color: "#ec4899", defaultLimit: 400, labels: ["кіно", "netflix"] },
+  {
+    name: "Здоров’я",
+    icon: "🩺",
+    color: "#0891b2",
+    defaultLimit: 350,
+    labels: ["аптека", "лікар"],
+  },
 ];
 const EVENT_PRESETS = [
-  { name: "Проживання", icon: "🏡", color: "#7c3aed", labels: ["готель", "будиночок"] },
-  { name: "Дорога", icon: "🚆", color: "#2563eb", labels: ["квитки", "pkp"] },
-  { name: "Їжа", icon: "🥐", color: "#00b86b", labels: ["продукти", "кафе"] },
-  { name: "Розваги", icon: "🎟️", color: "#ec4899", labels: ["екскурсія"] },
+  {
+    name: "Проживання",
+    icon: "🏡",
+    color: "#7c3aed",
+    defaultLimit: 1200,
+    labels: ["готель", "будиночок"],
+  },
+  { name: "Дорога", icon: "🚆", color: "#2563eb", defaultLimit: 700, labels: ["квитки", "pkp"] },
+  { name: "Їжа", icon: "🥐", color: "#00b86b", defaultLimit: 600, labels: ["продукти", "кафе"] },
+  { name: "Розваги", icon: "🎟️", color: "#ec4899", defaultLimit: 500, labels: ["екскурсія"] },
+];
+const CATEGORY_ICONS = [
+  "🛒",
+  "🥐",
+  "☕",
+  "🍽️",
+  "🚕",
+  "🚆",
+  "⛽",
+  "🏠",
+  "🏡",
+  "💡",
+  "📱",
+  "🩺",
+  "💊",
+  "🎬",
+  "🎟️",
+  "🎁",
+  "🎓",
+  "✈️",
+  "🏋️",
+  "🐾",
+  "🧾",
+  "✦",
 ];
 
 function uid(prefix) {
@@ -60,9 +120,14 @@ function makeCategories(presets, limits) {
   return presets.map((preset, index) => ({
     id: uid("cat"),
     ...preset,
-    limit: limits[index] || 500,
+    limit: Number(limits[index] ?? preset.defaultLimit ?? 0),
     active: true,
   }));
+}
+function defaultPresetLimits(presets) {
+  return Object.fromEntries(
+    presets.map((preset, index) => [index, String(preset.defaultLimit ?? 0)])
+  );
 }
 function cloneBudgetStructure(source) {
   if (!source) return null;
@@ -429,13 +494,13 @@ function BudgetDashboard({
       showToast(`Не вдалося додати категорію: ${error.message}`);
     }
   }
-  async function updateCategory(category, labels) {
+  async function updateCategory(category, patch) {
     try {
-      await onUpdateCategoryApi(budget.id, category.id, { ...category, labels });
-      showToast("Мітки категорії оновлено ✓");
+      await onUpdateCategoryApi(budget.id, category.id, { ...category, ...patch });
+      showToast("Категорію оновлено ✓");
       setCategoryDetails(null);
     } catch (error) {
-      showToast(`Не вдалося оновити мітки: ${error.message}`);
+      showToast(`Не вдалося оновити категорію: ${error.message}`);
     }
   }
   async function addTransaction(transaction) {
@@ -710,7 +775,7 @@ function BudgetDashboard({
           category={categoryDetails}
           currency={currency}
           availablePlaceLabels={availablePlaceLabels}
-          onSaveLabels={updateCategory}
+          onSaveCategory={updateCategory}
           onClose={() => setCategoryDetails(null)}
         />
       )}
@@ -1105,6 +1170,7 @@ function BudgetActionModal({
     name: "",
     amount: "",
     limit: "",
+    icon: "✦",
     labels: [],
     date: defaultDate,
     desc: "",
@@ -1117,7 +1183,7 @@ function BudgetActionModal({
     if (type === "category")
       onAddCategory({
         name: form.name.trim(),
-        icon: "✦",
+        icon: form.icon || "✦",
         color: "#00b86b",
         limit: Number(form.limit) || 0,
         labels: form.labels,
@@ -1273,15 +1339,24 @@ function BudgetActionModal({
                   />
                 </label>
                 {type === "category" && (
-                  <label>
-                    Мітки місць
-                    <small>Оберіть місця з таблиці витрат або додайте власну мітку.</small>
-                    <LabelPicker
-                      options={availablePlaceLabels}
-                      selected={form.labels}
-                      onChange={(labels) => setForm({ ...form, labels })}
-                    />
-                  </label>
+                  <>
+                    <div className="categoryIconField">
+                      <span>Іконка</span>
+                      <IconPicker
+                        value={form.icon}
+                        onChange={(icon) => setForm({ ...form, icon })}
+                      />
+                    </div>
+                    <label>
+                      Мітки місць
+                      <small>Оберіть місця з таблиці витрат або додайте власну мітку.</small>
+                      <LabelPicker
+                        options={availablePlaceLabels}
+                        selected={form.labels}
+                        onChange={(labels) => setForm({ ...form, labels })}
+                      />
+                    </label>
+                  </>
                 )}
                 {type === "mandatory" && (
                   <>
@@ -1358,17 +1433,54 @@ function BudgetActionModal({
   );
 }
 
+function IconPicker({ value, onChange }) {
+  return (
+    <div className="categoryIconPicker" role="radiogroup" aria-label="Іконка категорії">
+      {CATEGORY_ICONS.map((icon) => (
+        <button
+          aria-checked={value === icon}
+          aria-label={`Обрати іконку ${icon}`}
+          className={value === icon ? "selected" : ""}
+          key={icon}
+          onClick={() => onChange(icon)}
+          role="radio"
+          type="button"
+        >
+          {icon}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function CategoryExpensesModal({
   budget,
   category,
   currency,
   availablePlaceLabels,
-  onSaveLabels,
+  onSaveCategory,
   onClose,
 }) {
-  const [labels, setLabels] = useState(category.labels || []);
-  const items = categoryTransactions(budget, { ...category, labels });
+  const [form, setForm] = useState({
+    name: category.name || "",
+    icon: category.icon || "✦",
+    color: category.color || "#00b86b",
+    limit: String(category.limit ?? ""),
+    labels: category.labels || [],
+  });
+  const items = categoryTransactions(budget, { ...category, labels: form.labels });
   const total = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+  function save() {
+    onSaveCategory(category, {
+      name: form.name.trim() || category.name,
+      icon: form.icon.trim() || "✦",
+      color: form.color || "#00b86b",
+      limit: Number(form.limit) || 0,
+      labels: form.labels,
+    });
+  }
+
   return createPortal(
     <div className="budgetModalOverlay" onMouseDown={onClose}>
       <section
@@ -1379,7 +1491,7 @@ function CategoryExpensesModal({
           <div>
             <span className="eyebrow">Категорія</span>
             <h2>
-              {category.icon} {category.name}
+              {form.icon} {form.name || category.name}
             </h2>
             <p>
               {formatAmount(total, currency)} · {items.length} витрат
@@ -1389,18 +1501,52 @@ function CategoryExpensesModal({
             ×
           </button>
         </div>
+
+        <div className="categorySettingsGrid">
+          <label>
+            Назва
+            <input
+              value={form.name}
+              onChange={(event) => setForm({ ...form, name: event.target.value })}
+            />
+          </label>
+          <div className="categoryIconField">
+            <span>Іконка</span>
+            <IconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
+          </div>
+          <label>
+            Ліміт ({currency})
+            <input
+              value={form.limit}
+              min="0"
+              type="number"
+              onChange={(event) => setForm({ ...form, limit: event.target.value })}
+            />
+          </label>
+          <label>
+            Колір
+            <input
+              className="categoryColorInput"
+              value={form.color}
+              type="color"
+              onChange={(event) => setForm({ ...form, color: event.target.value })}
+            />
+          </label>
+        </div>
+
         <div className="categoryLabelsEdit">
           <b>Мітки місць</b>
           <small>Виберіть місця з таблиці або додайте власну мітку.</small>
-          <LabelPicker options={availablePlaceLabels} selected={labels} onChange={setLabels} />
-          <button
-            className="primaryButton compact"
-            type="button"
-            onClick={() => onSaveLabels(category, labels)}
-          >
-            Зберегти мітки
+          <LabelPicker
+            options={availablePlaceLabels}
+            selected={form.labels}
+            onChange={(labels) => setForm({ ...form, labels })}
+          />
+          <button className="primaryButton compact" type="button" onClick={save}>
+            Зберегти категорію
           </button>
         </div>
+
         <div className="categoryExpenseList">
           {items.length === 0 ? (
             <p className="emptyList">Поки немає витрат, що відповідають міткам цієї категорії.</p>
@@ -1606,6 +1752,7 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
   const [limit, setLimit] = useState("6000");
   const [telegram, setTelegram] = useState(true);
   const [selected, setSelected] = useState([0, 1, 3]);
+  const [categoryLimits, setCategoryLimits] = useState(() => defaultPresetLimits(CATEGORY_PRESETS));
   const [copyPrevious, setCopyPrevious] = useState(false);
   const [month, setMonth] = useState(initialPeriod.month);
   const [year, setYear] = useState(initialPeriod.year);
@@ -1634,7 +1781,10 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
     });
   }
   function selectType(nextType) {
+    const nextPresets = nextType === "monthly" ? CATEGORY_PRESETS : EVENT_PRESETS;
     setType(nextType);
+    setSelected([0, 1, 3].filter((index) => index < nextPresets.length));
+    setCategoryLimits(defaultPresetLimits(nextPresets));
     setCopyPrevious(false);
   }
   function finish() {
@@ -1646,7 +1796,7 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
       copied?.categories ||
       makeCategories(
         selected.map((index) => presets[index]),
-        selected.map(() => Math.round((Number(limit) || 3000) / Math.max(3, selected.length)))
+        selected.map((index) => Number(categoryLimits[index] ?? presets[index]?.defaultLimit ?? 0))
       );
     onCreate({
       id: uid("budget"),
@@ -1822,23 +1972,40 @@ function BudgetWizard({ currency, budgets, onClose, onCreate, onOpenExisting }) 
             <h2>Додамо базові категорії?</h2>
             <p>Після створення ви зможете вибрати конкретні місця з таблиці витрат.</p>
             <div className="presetGrid">
-              {presets.map((item, index) => (
-                <button
-                  className={selected.includes(index) ? "selected" : ""}
-                  type="button"
-                  onClick={() => toggle(index)}
-                  key={item.name}
-                >
-                  <span>{item.icon}</span>
-                  <b>{item.name}</b>
-                  <small>
-                    {item.labels
-                      .slice(0, 2)
-                      .map((label) => `#${label}`)
-                      .join(" · ")}
-                  </small>
-                </button>
-              ))}
+              {presets.map((item, index) => {
+                const isSelected = selected.includes(index);
+                return (
+                  <div className={`presetCard ${isSelected ? "selected" : ""}`} key={item.name}>
+                    <button
+                      className={isSelected ? "selected" : ""}
+                      type="button"
+                      onClick={() => toggle(index)}
+                    >
+                      <span>{item.icon}</span>
+                      <b>{item.name}</b>
+                      <small>
+                        {item.labels
+                          .slice(0, 2)
+                          .map((label) => `#${label}`)
+                          .join(" · ")}
+                      </small>
+                    </button>
+                    {isSelected && (
+                      <label className="presetLimitField">
+                        Ліміт ({currency})
+                        <input
+                          value={categoryLimits[index] ?? ""}
+                          min="0"
+                          type="number"
+                          onChange={(event) =>
+                            setCategoryLimits({ ...categoryLimits, [index]: event.target.value })
+                          }
+                        />
+                      </label>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}

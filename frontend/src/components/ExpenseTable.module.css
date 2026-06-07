@@ -56,7 +56,7 @@
 .table th {
   padding: 8px 16px;
   text-align: left;
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--ui-font-scale));
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
@@ -74,7 +74,7 @@
 
 .table td {
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   border-bottom: 1px solid var(--border2);
   vertical-align: middle;
   overflow: hidden;
@@ -106,7 +106,7 @@
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   transition:
     transform var(--dur-mid) var(--ease-spring),
     background var(--dur-fast) var(--ease-out);
@@ -127,7 +127,7 @@
 
 .detailSummary {
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ui-font-scale));
   font-style: italic;
   max-width: 200px;
   white-space: nowrap;
@@ -138,7 +138,7 @@
 .sa {
   margin-left: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .sorted {
   color: var(--text);
@@ -157,7 +157,7 @@
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 3px 10px;
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ui-font-scale));
   font-family: var(--font);
   color: var(--muted);
   cursor: pointer;
@@ -191,7 +191,7 @@
 }
 
 .pagerInfo {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
 }
 .pagerButtons {
@@ -204,7 +204,7 @@
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 4px 11px;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-family: var(--font);
   color: var(--muted);
   cursor: pointer;
@@ -238,7 +238,7 @@
   text-align: center;
   padding: 50px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 
 /* Tablet: icon-only action buttons */
@@ -302,7 +302,7 @@
 }
 
 .mobileDate {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -315,7 +315,7 @@
 }
 
 .mobileDetail {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ui-font-scale));
   color: var(--muted);
   font-style: italic;
   white-space: nowrap;
@@ -333,7 +333,7 @@
 
 .mobileAmount {
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: calc(16px * var(--ui-font-scale));
   font-weight: 500;
   color: var(--danger);
   white-space: nowrap;
@@ -368,7 +368,7 @@
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   font-family: var(--font);
   font-weight: 500;
   color: var(--muted);
@@ -396,7 +396,7 @@
   text-align: center;
   padding: 48px 20px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
@@ -416,7 +416,7 @@
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   padding: 10px;
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   font-family: var(--font);
   color: var(--muted);
   cursor: pointer;
@@ -432,7 +432,7 @@
 }
 
 .mobilePagerInfo {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   color: var(--muted);
   white-space: nowrap;
 }

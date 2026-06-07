@@ -20,14 +20,14 @@
 
 .title {
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
   font-weight: 600;
   color: var(--text);
   margin-bottom: 4px;
 }
 
 .error {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   color: var(--danger);
   background: var(--danger-bg);
   border: 1px solid var(--danger);
@@ -39,7 +39,7 @@
   width: 100%;
   padding: 8px 10px;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -61,7 +61,7 @@
   width: 100%;
   padding: 9px 10px;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   font-weight: 600;
   color: #fff;
   background: var(--accent);
@@ -83,7 +83,7 @@
 
 .switch {
   text-align: center;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 4px;
 }

@@ -74,7 +74,7 @@
 
 .sumValue {
   font-family: var(--mono);
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-font-scale));
   font-weight: 600;
   color: var(--text);
   letter-spacing: -0.03em;
@@ -89,7 +89,7 @@
 }
 
 .sumLabel {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -122,7 +122,7 @@
   border: 1px solid var(--border);
   background: var(--surface2);
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ui-font-scale));
   font-weight: 500;
   font-family: var(--font);
   cursor: pointer;
@@ -157,7 +157,7 @@
   border: 1px solid var(--border);
   background: var(--surface2);
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-family: var(--font);
   cursor: pointer;
   outline: none;
@@ -177,7 +177,7 @@
   background: var(--accent);
   color: #fff;
   border: none;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-weight: 500;
   font-family: var(--font);
   cursor: pointer;
@@ -223,7 +223,7 @@
 }
 
 .empty p {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   margin: 0;
   color: var(--muted);
 }
@@ -260,7 +260,7 @@
   }
 
   .sumCard:first-child .sumValue {
-    font-size: 24px;
+    font-size: calc(24px * var(--ui-font-scale));
   }
 
   .sumCard {
@@ -268,7 +268,7 @@
   }
 
   .sumValue {
-    font-size: 18px;
+    font-size: calc(18px * var(--ui-font-scale));
   }
 
   /* Controls: stack vertically */
@@ -284,7 +284,7 @@
   }
 
   .filterBtn {
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-font-scale));
     padding: 5px 11px;
   }
 
@@ -296,7 +296,7 @@
 
   .select {
     width: 100%;
-    font-size: 13px;
+    font-size: calc(13px * var(--ui-font-scale));
     padding: 8px 10px;
     border-radius: 8px;
   }
@@ -305,7 +305,7 @@
     grid-column: 1 / -1;
     justify-content: center;
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: calc(13px * var(--ui-font-scale));
     border-radius: 10px;
   }
 
@@ -396,13 +396,13 @@
   color: #fff;
 }
 .sumCard:first-child .sumValue {
-  font-size: 30px;
+  font-size: calc(30px * var(--ui-font-scale));
 }
 .sumCard:first-child .sumLabel {
   opacity: 0.72;
 }
 .sumValue {
-  font-size: 22px;
+  font-size: calc(22px * var(--ui-font-scale));
 }
 .sumLabel {
   max-width: 150px;
@@ -472,10 +472,10 @@
     gap: 7px;
   }
   .sumCard:first-child .sumValue {
-    font-size: 28px;
+    font-size: calc(28px * var(--ui-font-scale));
   }
   .sumValue {
-    font-size: 19px;
+    font-size: calc(19px * var(--ui-font-scale));
   }
   .controls {
     border-radius: 22px;
@@ -510,14 +510,14 @@
 .directionEyebrow {
   margin-bottom: 4px;
   color: var(--accent2);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
 .directionTitle {
   color: var(--text);
-  font-size: 16px;
+  font-size: calc(16px * var(--ui-font-scale));
   font-weight: 650;
   letter-spacing: -0.025em;
 }
@@ -563,11 +563,11 @@
   box-shadow: 0 12px 24px rgba(0, 184, 107, 0.2);
 }
 .directionBtnText {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   font-weight: 700;
 }
 .directionBtnMeta {
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--ui-font-scale));
   opacity: 0.72;
 }
 .sumCard_green .sumValue {
@@ -599,9 +599,51 @@
     border-radius: 14px;
   }
   .directionBtnText {
-    font-size: 12px;
+    font-size: calc(12px * var(--ui-font-scale));
   }
   .directionBtnMeta {
-    font-size: 9.5px;
+    font-size: calc(9.5px * var(--ui-font-scale));
+  }
+}
+
+.mobileAddBtn {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .controlsAddBtn {
+    display: none;
+  }
+
+  .mobileAddBtn {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 15px 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent2), #00a160);
+    color: #fff;
+    box-shadow: 0 16px 34px rgba(0, 184, 107, 0.28);
+    font-family: var(--font);
+    font-size: calc(13px * var(--ui-font-scale));
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translateZ(0);
+  }
+
+  .mobileAddBtn span {
+    font-size: calc(20px * var(--ui-font-scale));
+    line-height: 1;
+  }
+
+  .mobileAddBtn:active {
+    transform: scale(0.96);
   }
 }

@@ -46,11 +46,11 @@
   border-bottom: 1px solid var(--border2);
 }
 .title {
-  font-size: 14px;
+  font-size: calc(14px * var(--ui-font-scale));
   font-weight: 600;
 }
 .sub {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 2px;
 }
@@ -61,7 +61,7 @@
   border: none;
   background: var(--surface2);
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -89,11 +89,11 @@
   padding: 9px 12px;
 }
 .infoLabel {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   color: var(--muted);
 }
 .infoVal {
-  font-size: 14px;
+  font-size: calc(14px * var(--ui-font-scale));
   font-weight: 600;
 }
 
@@ -103,7 +103,7 @@
   gap: 4px;
 }
 .label {
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--ui-font-scale));
   font-weight: 500;
   color: var(--muted);
 }
@@ -114,7 +114,7 @@
   border-radius: var(--r);
   background: var(--surface2);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   color: var(--text);
   outline: none;
   transition: border-color 150ms;
@@ -127,7 +127,7 @@
   border-color: var(--danger) !important;
 }
 .err {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--danger);
 }
 
@@ -145,7 +145,7 @@
   border-radius: var(--r);
   background: var(--surface2);
   font-family: var(--font);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-weight: 500;
   color: var(--muted);
   cursor: pointer;
@@ -170,7 +170,7 @@
   background: transparent;
   color: var(--muted);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   cursor: pointer;
   transition: all 150ms;
 }
@@ -185,7 +185,7 @@
   background: var(--accent);
   color: #fff;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   font-weight: 500;
   cursor: pointer;
   transition: opacity 150ms;

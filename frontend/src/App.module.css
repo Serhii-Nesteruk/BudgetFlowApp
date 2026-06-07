@@ -36,14 +36,14 @@
   background: var(--danger-bg);
   border-radius: var(--r);
   border: 1px solid #f5c0bb;
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 
 .loading {
   color: var(--muted);
   padding: 80px;
   text-align: center;
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 
 /* ── Tablet ── */

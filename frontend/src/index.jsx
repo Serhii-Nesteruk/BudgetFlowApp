@@ -10,6 +10,9 @@ import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 import "./styles/globals.css";
+import { applyStoredFontSize } from "./utils/fontSize";
+
+applyStoredFontSize();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

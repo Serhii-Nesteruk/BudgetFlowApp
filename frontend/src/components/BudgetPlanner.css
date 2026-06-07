@@ -17,7 +17,7 @@
 }
 .eyebrow {
   display: block;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   letter-spacing: 0.13em;
   text-transform: uppercase;
   font-weight: 700;
@@ -51,7 +51,7 @@
 }
 .primaryButton.compact {
   padding: 10px 15px;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .softButton {
   padding: 10px 14px;
@@ -59,7 +59,7 @@
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--bp-line);
   color: var(--text);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .softButton:hover {
   transform: translateY(-1px);
@@ -73,7 +73,7 @@
   background: none;
   color: var(--bp-green);
   font-weight: 700;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .textButton:hover {
   transform: translateX(2px);
@@ -84,12 +84,12 @@
   border-radius: 14px;
   background: var(--accent-bg);
   color: var(--bp-green);
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-font-scale));
 }
 .iconButton.small {
   width: 32px;
   height: 32px;
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-font-scale));
 }
 .iconButton:hover {
   transform: scale(1.07);
@@ -112,7 +112,7 @@
   color: rgba(255, 255, 255, 0.7);
 }
 .portfolioHero h1 {
-  font-size: 30px;
+  font-size: calc(30px * var(--ui-font-scale));
   margin-bottom: 7px;
 }
 .portfolioHero p {
@@ -135,11 +135,11 @@
 .portfolioStats span {
   display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   margin-bottom: 7px;
 }
 .portfolioStats strong {
-  font-size: 21px;
+  font-size: calc(21px * var(--ui-font-scale));
 }
 .portfolioSection {
   margin-top: 24px;
@@ -151,7 +151,7 @@
   margin-bottom: 12px;
 }
 .sectionTitleRow h2 {
-  font-size: 19px;
+  font-size: calc(19px * var(--ui-font-scale));
 }
 .budgetGrid {
   display: grid;
@@ -191,7 +191,7 @@
   display: inline-flex;
   padding: 5px 9px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -204,20 +204,20 @@
   color: #2563eb;
 }
 .budgetTileArrow {
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-font-scale));
   color: var(--muted);
 }
 .budgetTileBody {
   margin: 21px 0;
 }
 .budgetTileBody h3 {
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
   margin-bottom: 5px;
 }
 .budgetTileBody p,
 .budgetTileBottom span,
 .participantsMini {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
 }
 .tileProgress {
@@ -252,11 +252,11 @@
   border-radius: 15px;
   background: var(--accent-bg);
   color: var(--bp-green);
-  font-size: 22px;
+  font-size: calc(22px * var(--ui-font-scale));
   margin-bottom: 12px;
 }
 .createTile b {
-  font-size: 15px;
+  font-size: calc(15px * var(--ui-font-scale));
   margin-bottom: 4px;
 }
 .createTile small {
@@ -277,7 +277,7 @@
 .backButton {
   background: none;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-weight: 700;
 }
 .backButton:hover {
@@ -306,23 +306,23 @@
   gap: 9px;
   align-items: center;
   color: rgba(255, 255, 255, 0.68);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
 }
 .dashboardHero .budgetType {
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }
 .dashboardHero h1 {
-  font-size: 25px;
+  font-size: calc(25px * var(--ui-font-scale));
   margin: 13px 0 21px;
 }
 .heroLabel {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: rgba(255, 255, 255, 0.65);
 }
 .heroAmount {
   display: block;
-  font-size: 34px;
+  font-size: calc(34px * var(--ui-font-scale));
   margin: 3px 0 15px;
 }
 .heroProgress {
@@ -338,7 +338,7 @@
   background: linear-gradient(90deg, #00b86b, #52eba8);
 }
 .heroProgressText {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: rgba(255, 255, 255, 0.7);
   margin-top: 8px;
 }
@@ -355,11 +355,11 @@
 .heroSide span {
   display: block;
   color: rgba(255, 255, 255, 0.62);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   margin-bottom: 5px;
 }
 .heroSide strong {
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-font-scale));
 }
 .eventTabs {
   display: flex;
@@ -378,7 +378,7 @@
   background: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .eventTabs button.active {
   background: var(--bp-navy);
@@ -414,10 +414,10 @@
   margin-bottom: 14px;
 }
 .sectionHeader h2 {
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-font-scale));
 }
 .sectionHeader p {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 3px;
 }
@@ -452,7 +452,7 @@
   border-radius: 12px;
 }
 .categoryState {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   font-weight: 700;
   padding: 4px 7px;
   border-radius: 999px;
@@ -470,11 +470,11 @@
   color: #c83439;
 }
 .categoryCard h3 {
-  font-size: 14px;
+  font-size: calc(14px * var(--ui-font-scale));
   margin: 11px 0 4px;
 }
 .categoryCard p {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: var(--muted);
 }
 .categoryCard p strong {
@@ -502,7 +502,7 @@
   border-radius: 999px;
   background: rgba(0, 40, 95, 0.055);
   color: var(--muted);
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-font-scale));
 }
 .simpleList {
   display: flex;
@@ -522,16 +522,16 @@
 }
 .simpleRow b {
   display: block;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .simpleRow small {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   margin-top: 2px;
 }
 .simpleRow strong {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .statusDot {
   width: 9px;
@@ -545,7 +545,7 @@
   background: #f59e0b;
 }
 .incomeEmoji {
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-font-scale));
 }
 .simpleRow.income strong {
   color: #008f54;
@@ -566,19 +566,19 @@
   place-items: center;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.12);
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
   margin-bottom: 17px;
 }
 .assistantCard .eyebrow {
   color: rgba(255, 255, 255, 0.56);
 }
 .assistantCard h2 {
-  font-size: 16px;
+  font-size: calc(16px * var(--ui-font-scale));
   line-height: 1.25;
   margin-bottom: 7px;
 }
 .assistantCard p {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   color: rgba(255, 255, 255, 0.68);
 }
 .telegramCard {
@@ -598,11 +598,11 @@
   font-weight: 700;
 }
 .telegramCard h3 {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 .telegramCard p,
 .participantsCard p {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 3px;
 }
@@ -644,7 +644,7 @@
   border-radius: 50%;
   margin-right: -7px;
   background: linear-gradient(135deg, #d9e9ff, #e7fff4);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   font-weight: 700;
   color: var(--bp-navy);
 }
@@ -664,7 +664,7 @@
 }
 .foldButton small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   margin-top: 3px;
 }
 .foldButton i {
@@ -676,7 +676,7 @@
   font-style: normal;
   background: var(--accent-bg);
   color: var(--bp-green);
-  font-size: 19px;
+  font-size: calc(19px * var(--ui-font-scale));
 }
 .budgetCalendar {
   padding-top: 14px;
@@ -690,7 +690,7 @@
 .calendarDow span {
   text-align: center;
   color: var(--muted);
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-font-scale));
   padding-bottom: 5px;
 }
 .calendarDay {
@@ -699,7 +699,7 @@
   border-radius: 10px;
   background: rgba(244, 248, 255, 0.88);
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .calendarDay.empty {
   background: transparent;
@@ -711,7 +711,7 @@
 .calendarDay small {
   display: block;
   color: #008f54;
-  font-size: 8px;
+  font-size: calc(8px * var(--ui-font-scale));
   margin-top: 5px;
 }
 .plannedSection {
@@ -731,7 +731,7 @@
   align-items: center;
   padding: 10px 0;
   border-top: 1px solid rgba(15, 35, 71, 0.065);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
 }
 .plannedRow:first-child {
   border-top: 0;
@@ -739,7 +739,7 @@
 .plannedRow time,
 .plannedRow small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .plannedRow b,
 .plannedRow small {
@@ -759,6 +759,8 @@
   display: grid;
   place-items: center;
   padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(7, 26, 51, 0.35);
   backdrop-filter: blur(10px);
   animation: budgetFade 220ms ease;
@@ -766,6 +768,10 @@
 .budgetModal,
 .budgetWizard {
   width: min(470px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 19px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.96);
@@ -781,7 +787,7 @@
   margin-bottom: 16px;
 }
 .modalHead h2 {
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-font-scale));
 }
 .modalHead > button,
 .wizardTop > button {
@@ -791,7 +797,7 @@
   border-radius: 50%;
   background: #f0f5fa;
   color: var(--muted);
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-font-scale));
   cursor: pointer;
 }
 .quickGrid {
@@ -824,7 +830,7 @@
 .typeChoice span,
 .presetGrid span {
   display: block;
-  font-size: 21px;
+  font-size: calc(21px * var(--ui-font-scale));
   margin-bottom: 10px;
 }
 .quickGrid b,
@@ -838,7 +844,7 @@
 .quickGrid small,
 .typeChoice small,
 .presetGrid small {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 3px;
 }
@@ -846,7 +852,7 @@
 .budgetWizard label {
   position: relative;
   display: block;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   font-weight: 700;
   color: var(--muted);
   margin-top: 11px;
@@ -866,7 +872,7 @@
   display: block;
   margin-top: 5px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   font-weight: 400;
 }
 .modalActions {
@@ -884,7 +890,7 @@
   border-radius: 999px;
   background: #071a33;
   color: #fff;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
@@ -919,12 +925,12 @@
   padding: 8px 0;
 }
 .budgetWizard h2 {
-  font-size: 25px;
+  font-size: calc(25px * var(--ui-font-scale));
   margin-bottom: 6px;
 }
 .budgetWizard section > p {
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   margin-bottom: 18px;
 }
 .typeChoice {
@@ -953,7 +959,25 @@
   gap: 8px;
 }
 .presetGrid button {
+  width: 100%;
   min-height: 108px;
+}
+
+.presetCard {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.presetLimitField {
+  margin-top: 0 !important;
+  padding: 0 3px 3px;
+}
+
+.presetLimitField input {
+  margin-top: 4px !important;
+  padding: 8px 10px !important;
+  border-radius: 11px !important;
 }
 .telegramChoice {
   width: 100%;
@@ -986,7 +1010,7 @@
   display: block;
 }
 .telegramChoice small {
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   color: var(--muted);
   margin-top: 3px;
 }
@@ -1056,7 +1080,7 @@
     padding: 21px;
   }
   .portfolioHero h1 {
-    font-size: 25px;
+    font-size: calc(25px * var(--ui-font-scale));
   }
   .portfolioHero .primaryButton {
     margin-top: 17px;
@@ -1087,17 +1111,17 @@
     padding: 10px;
   }
   .dashboardActions .softButton::first-letter {
-    font-size: 13px;
+    font-size: calc(13px * var(--ui-font-scale));
   }
   .dashboardHero {
     display: block;
     padding: 20px;
   }
   .dashboardHero h1 {
-    font-size: 22px;
+    font-size: calc(22px * var(--ui-font-scale));
   }
   .heroAmount {
-    font-size: 30px;
+    font-size: calc(30px * var(--ui-font-scale));
   }
   .heroSide {
     grid-template-columns: repeat(3, 1fr);
@@ -1108,10 +1132,10 @@
     padding: 9px;
   }
   .heroSide strong {
-    font-size: 13px;
+    font-size: calc(13px * var(--ui-font-scale));
   }
   .heroSide span {
-    font-size: 8px;
+    font-size: calc(8px * var(--ui-font-scale));
   }
   .categoryGrid {
     grid-template-columns: 1fr;
@@ -1149,7 +1173,7 @@
     min-height: 310px;
   }
   .budgetWizard h2 {
-    font-size: 21px;
+    font-size: calc(21px * var(--ui-font-scale));
   }
   .eventTabs {
     width: 100%;
@@ -1177,7 +1201,7 @@
   border-radius: 999px;
   background: rgba(220, 38, 38, 0.07);
   color: #c62828;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   font-weight: 700;
   cursor: pointer;
   transition:
@@ -1235,7 +1259,7 @@
   border-radius: 13px;
   background: var(--accent-bg);
   color: var(--bp-green);
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
 }
 .copyPreviousChoice b,
 .copyPreviousChoice small {
@@ -1244,7 +1268,7 @@
 .copyPreviousChoice small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   line-height: 1.4;
 }
 .copyPreviousChoice i {
@@ -1264,7 +1288,7 @@
     grid-column: span 2;
   }
   .dashboardActions .softButton {
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-font-scale));
     padding: 9px 10px;
   }
   .dashboardActions .softButton::first-letter {
@@ -1291,12 +1315,12 @@
 .calendarHint {
   margin-bottom: 9px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .emptyCalendar {
   padding: 16px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .calendarDay {
   border: 0;
@@ -1318,7 +1342,7 @@
   display: block;
   margin-top: 3px;
   color: #2563eb;
-  font-size: 8px;
+  font-size: calc(8px * var(--ui-font-scale));
   font-style: normal;
 }
 .budgetModal select,
@@ -1353,7 +1377,7 @@
   background: #fff;
   color: var(--muted);
   cursor: pointer;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   transition:
     background 220ms var(--ease-out),
     border-color 220ms var(--ease-out),
@@ -1379,7 +1403,7 @@
   background: var(--accent-bg);
   color: var(--bp-green);
   cursor: pointer;
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
 }
 .selectedLabels {
   display: flex;
@@ -1395,7 +1419,7 @@
   border-radius: 999px;
   background: rgba(0, 184, 107, 0.09);
   color: #008f54;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .selectedLabels button {
   border: 0;
@@ -1419,16 +1443,20 @@
 }
 .checkboxRow span {
   color: var(--text);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   line-height: 1.4;
 }
 .categoryExpenseModal {
   width: min(590px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .categoryExpenseList {
   display: flex;
   flex-direction: column;
-  max-height: 430px;
+  max-height: min(34vh, 300px);
   overflow: auto;
 }
 .categoryExpenseRow {
@@ -1447,22 +1475,48 @@
   display: block;
 }
 .categoryExpenseRow b {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 .categoryExpenseRow small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .categoryExpenseRow strong {
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
 }
 .emptyList {
   padding: 14px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 @media (max-width: 680px) {
+  .budgetModalOverlay {
+    place-items: start center;
+    padding: max(10px, env(safe-area-inset-top, 0px)) 10px
+      max(10px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .categoryExpenseModal {
+    max-height: calc(
+      100dvh - max(20px, env(safe-area-inset-top, 0px)) -
+        max(20px, env(safe-area-inset-bottom, 0px))
+    );
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .categoryExpenseModal .modalHead {
+    position: sticky;
+    top: -15px;
+    z-index: 2;
+    margin: -15px -15px 12px;
+    padding: 15px 15px 10px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
   .calendarDay i {
     display: none;
   }
@@ -1470,9 +1524,44 @@
     max-height: 118px;
   }
   .categoryExpenseList {
-    max-height: 60vh;
+    max-height: min(34vh, 250px);
+  }
+
+  .categorySettingsGrid {
+    grid-template-columns: minmax(0, 1fr) 74px;
+  }
+
+  .categoryIconPicker {
+    max-height: 126px;
+    overflow-y: auto;
+    padding-right: 2px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .presetGrid {
+    grid-template-columns: 1fr 1fr;
   }
 }
+.categorySettingsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) 86px minmax(120px, 0.8fr) 70px;
+  gap: 8px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid rgba(15, 35, 71, 0.065);
+  margin-bottom: 12px;
+}
+
+.categorySettingsGrid label {
+  margin-top: 0 !important;
+}
+
+.categoryColorInput {
+  min-height: 42px;
+  padding: 5px !important;
+  cursor: pointer;
+}
+
 .categoryLabelsEdit {
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(15, 35, 71, 0.065);
@@ -1483,12 +1572,12 @@
   display: block;
 }
 .categoryLabelsEdit > b {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .categoryLabelsEdit > small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .categoryLabelsEdit > .primaryButton {
   margin-top: 9px;
@@ -1519,7 +1608,7 @@
 }
 .budgetExistsNotice small {
   margin-top: 4px;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   line-height: 1.45;
   color: #9a6a11;
 }
@@ -1530,7 +1619,7 @@
   border-radius: 999px;
   background: #fff;
   color: #8a5a00;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-font-scale));
   font-weight: 800;
   cursor: pointer;
   transition:
@@ -1571,7 +1660,7 @@
 .budgetLifecycle {
   padding: 4px 7px;
   border-radius: 999px;
-  font-size: 9px;
+  font-size: calc(9px * var(--ui-font-scale));
   font-weight: 800;
   letter-spacing: 0.02em;
 }
@@ -1608,7 +1697,7 @@
 .planMonthsIntro {
   margin: -2px 0 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
   line-height: 1.65;
 }
 .planHorizonGrid {
@@ -1640,11 +1729,11 @@
   box-shadow: inset 0 0 0 1px rgba(0, 184, 107, 0.1);
 }
 .planHorizonGrid b {
-  font-size: 23px;
+  font-size: calc(23px * var(--ui-font-scale));
 }
 .planHorizonGrid small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
 }
 .planPreview {
   margin: 15px 0;
@@ -1658,12 +1747,12 @@
   display: block;
 }
 .planPreview > b {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .planPreview > small {
   margin-top: 9px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   line-height: 1.45;
 }
 .planPreview > div {
@@ -1677,7 +1766,7 @@
   border-radius: 999px;
   background: #fff;
   color: #2563eb;
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   font-weight: 700;
 }
 @media (max-width: 480px) {
@@ -1715,18 +1804,57 @@
   border-radius: 12px;
   background: #fff;
   color: #2563eb;
-  font-size: 18px;
+  font-size: calc(18px * var(--ui-font-scale));
 }
 .plannedBudgetNotice b,
 .plannedBudgetNotice small {
   display: block;
 }
 .plannedBudgetNotice b {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-font-scale));
 }
 .plannedBudgetNotice small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(10px * var(--ui-font-scale));
   line-height: 1.5;
+}
+
+.categoryIconField {
+  grid-column: 1 / -1;
+}
+.categoryIconField > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: calc(10px * var(--ui-font-scale));
+  font-weight: 800;
+}
+.categoryIconPicker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 6px;
+}
+.categoryIconPicker button {
+  display: grid;
+  min-height: 38px;
+  place-items: center;
+  border: 1px solid rgba(15, 35, 71, 0.09);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  font-size: calc(18px * var(--ui-font-scale));
+  transition:
+    transform 220ms var(--ease-out),
+    border-color 220ms var(--ease-out),
+    background 220ms var(--ease-out);
+}
+.categoryIconPicker button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0, 184, 107, 0.28);
+}
+.categoryIconPicker button.selected {
+  border-color: rgba(0, 184, 107, 0.45);
+  background: rgba(0, 184, 107, 0.12);
+  box-shadow: 0 6px 16px rgba(0, 184, 107, 0.12);
 }

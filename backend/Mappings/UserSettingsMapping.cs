@@ -7,6 +7,7 @@ public static class UserSettingsMapping
     {
         BaseCurrency = settings.BaseCurrency,
         Language = settings.Language,
+        FontSize = NormalizeFontSize(settings.FontSize),
         MinimumNotificationGapMinutes = settings.MinimumNotificationGapMinutes,
         BudgetLimitNotificationsEnabled = settings.BudgetLimitNotificationsEnabled,
         NewEntryNotificationsEnabled = settings.NewEntryNotificationsEnabled,
@@ -26,6 +27,7 @@ public static class UserSettingsMapping
     {
         settings.BaseCurrency = dto.BaseCurrency;
         settings.Language = dto.Language;
+        settings.FontSize = NormalizeFontSize(dto.FontSize);
         settings.MinimumNotificationGapMinutes = dto.MinimumNotificationGapMinutes;
         settings.BudgetLimitNotificationsEnabled = dto.BudgetLimitNotificationsEnabled;
         settings.NewEntryNotificationsEnabled = dto.NewEntryNotificationsEnabled;
@@ -34,4 +36,7 @@ public static class UserSettingsMapping
         settings.DebtReminderRepeatHours = dto.DebtReminderRepeatHours;
         settings.UpdatedAt = DateTime.UtcNow;
     }
+
+    private static string NormalizeFontSize(string? value) =>
+        value is "compact" or "large" ? value : "normal";
 }

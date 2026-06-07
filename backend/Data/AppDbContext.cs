@@ -121,6 +121,10 @@ public class AppDbContext : DbContext
             .HasForeignKey<Models.UserSettings>(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Models.UserSettings>()
+            .Property(x => x.FontSize)
+            .HasDefaultValue("normal");
+
         modelBuilder.Entity<Models.Budget>()
             .HasOne(x => x.Owner)
             .WithMany(x => x.OwnedBudgets)

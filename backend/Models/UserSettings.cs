@@ -20,6 +20,7 @@ public class UserSettings
     }
     [Required, Column("base_currency", TypeName = "varchar(5)"), MaxLength(5)] public string BaseCurrency { get; set; } = "PLN";
     [Required, Column("language", TypeName = "varchar(5)"), MaxLength(5)] public string Language { get; set; } = "uk";
+    [Required, Column("font_size", TypeName = "varchar(12)"), MaxLength(12)] public string FontSize { get; set; } = "normal";
     [Required, Column("minimum_notification_gap_minutes")] public int MinimumNotificationGapMinutes { get; set; } = 30;
     [Required, Column("budget_limit_notifications_enabled")] public bool BudgetLimitNotificationsEnabled { get; set; } = true;
     [Required, Column("new_entry_notifications_enabled")]

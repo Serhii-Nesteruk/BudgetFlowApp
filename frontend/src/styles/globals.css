@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
 
 :root {
+  --ui-font-scale: 1;
   --bg: #eef4ff;
   --surface: rgba(255, 255, 255, 0.84);
   --surface-solid: #ffffff;
@@ -44,6 +45,7 @@
 }
 
 html {
+  font-size: calc(16px * var(--ui-font-scale));
   /* Prevent text size adjustment on orientation change */
   -webkit-text-size-adjust: 100%;
 }
@@ -55,12 +57,13 @@ body {
     linear-gradient(135deg, #f7fbff 0%, #edf4ff 45%, #f3fff9 100%);
   color: var(--text);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-font-scale));
   line-height: 1.5;
   min-height: 100vh;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  transition: font-size var(--dur-mid) var(--ease-out);
 }
 
 ::-webkit-scrollbar {
@@ -119,5 +122,13 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
   }
 }

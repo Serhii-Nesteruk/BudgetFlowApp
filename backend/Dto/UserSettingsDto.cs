@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 namespace BudgetFlowAPi.DTO;
 public class UserSettingsDto
 {
-    [Required, MaxLength(5)] public string BaseCurrency { get; set; } = "PLN"; [Required, MaxLength(5)] public string Language { get; set; } = "uk"; [Range(1, 1440)] public int MinimumNotificationGapMinutes { get; set; } = 30; public bool BudgetLimitNotificationsEnabled { get; set; } = true; public bool NewEntryNotificationsEnabled
+    [Required, MaxLength(5)] public string BaseCurrency { get; set; } = "PLN"; [Required, MaxLength(5)] public string Language { get; set; } = "uk"; [Required, MaxLength(12)] public string FontSize { get; set; } = "normal"; [Range(1, 1440)] public int MinimumNotificationGapMinutes { get; set; } = 30; public bool BudgetLimitNotificationsEnabled { get; set; } = true; public bool NewEntryNotificationsEnabled
     {
         get; set;
     }

@@ -45,7 +45,7 @@
     color: rgba(255, 255, 255, 0.35);
     cursor: pointer;
     font-family: var(--font);
-    font-size: 10px;
+    font-size: calc(10px * var(--ui-font-scale));
     font-weight: 500;
     transition:
       color var(--dur-mid) var(--ease-out),
@@ -188,12 +188,12 @@
   }
   .sheetHeader strong {
     color: #002d5b;
-    font-size: 17px;
+    font-size: calc(17px * var(--ui-font-scale));
     letter-spacing: -0.02em;
   }
   .sheetHeader span {
     color: rgba(0, 45, 91, 0.56);
-    font-size: 12px;
+    font-size: calc(12px * var(--ui-font-scale));
   }
 
   .closeBtn {
@@ -204,7 +204,7 @@
     background: rgba(0, 45, 91, 0.07);
     color: rgba(0, 45, 91, 0.7);
     cursor: pointer;
-    font-size: 22px;
+    font-size: calc(22px * var(--ui-font-scale));
     line-height: 1;
   }
 
@@ -265,12 +265,12 @@
     gap: 2px;
   }
   .moreItemCopy strong {
-    font-size: 14px;
+    font-size: calc(14px * var(--ui-font-scale));
     letter-spacing: -0.01em;
   }
   .moreItemCopy span {
     color: rgba(0, 45, 91, 0.56);
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-font-scale));
     line-height: 1.35;
   }
   .moreItemArrow {

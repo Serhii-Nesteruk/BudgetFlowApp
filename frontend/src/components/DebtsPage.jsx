@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useDebts } from "../hooks/useDebts";
 import DebtCard from "./DebtCard";
 import DebtsModal from "./DebtsModal";
@@ -247,7 +248,7 @@ export default function DebtsPage({ rates, baseCurrency = "PLN" }) {
               </option>
             ))}
           </select>
-          <button className={styles.addBtn} onClick={handleAdd}>
+          <button className={[styles.addBtn, styles.controlsAddBtn].join(" ")} onClick={handleAdd}>
             {isReceivable ? "+ Записати позику" : "+ Новий борг"}
           </button>
         </div>
@@ -288,6 +289,19 @@ export default function DebtsPage({ rates, baseCurrency = "PLN" }) {
             />
           ))}
         </div>
+      )}
+
+      {createPortal(
+        <button
+          className={styles.mobileAddBtn}
+          type="button"
+          onClick={handleAdd}
+          aria-label={isReceivable ? "Записати позику" : "Додати борг"}
+        >
+          <span>＋</span>
+          {isReceivable ? "Позика" : "Борг"}
+        </button>,
+        document.body
       )}
 
       {/* ── Modals ── */}

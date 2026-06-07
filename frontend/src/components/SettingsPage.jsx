@@ -6,6 +6,7 @@ import {
   getUserSettings,
   updateUserSettings,
 } from "../api/userSettingsApi";
+import { applyFontSize, FONT_SIZE_OPTIONS, getStoredFontSize } from "../utils/fontSize";
 import styles from "./SettingsPage.module.css";
 
 const DEFAULT_NOTIFICATIONS = {
@@ -85,6 +86,7 @@ function dateLabel(value) {
 export default function SettingsPage() {
   const [currency, setCurrency] = useState("PLN");
   const [language, setLanguage] = useState("uk");
+  const [fontSize, setFontSize] = useState(() => getStoredFontSize() || "normal");
   const [accounts, setAccounts] = useState([]);
   const [connectData, setConnectData] = useState(null);
   const [copied, setCopied] = useState("");
@@ -106,6 +108,7 @@ export default function SettingsPage() {
   function applySettings(data) {
     setCurrency(data.baseCurrency || "PLN");
     setLanguage(data.language || "uk");
+    setFontSize(applyFontSize(getStoredFontSize() || data.fontSize || "normal"));
     setMinGap(String(data.minimumNotificationGapMinutes ?? 30));
     setDebtReminderBefore(String(data.debtReminderBeforeDays ?? 3));
     setDebtRepeat(String(data.debtReminderRepeatHours ?? 24));
@@ -143,6 +146,10 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
+    applyFontSize(fontSize);
+  }, [fontSize]);
+
+  useEffect(() => {
     if (!connectData) return undefined;
     const timer = window.setInterval(() => loadSettings({ quiet: true }), 4000);
     return () => window.clearInterval(timer);
@@ -157,6 +164,7 @@ export default function SettingsPage() {
         const data = await updateUserSettings({
           baseCurrency: currency,
           language,
+          fontSize,
           minimumNotificationGapMinutes: Number(minGap || 30),
           budgetLimitNotificationsEnabled: notifications.budgetLimit,
           newEntryNotificationsEnabled: notifications.newEntry,
@@ -165,7 +173,9 @@ export default function SettingsPage() {
           debtReminderRepeatHours: Number(debtRepeat || 24),
         });
         setAccounts(data.telegramAccounts || []);
-        window.dispatchEvent(new CustomEvent("user-settings-updated", { detail: data }));
+        const syncedData = { ...data, fontSize };
+        applyFontSize(fontSize);
+        window.dispatchEvent(new CustomEvent("user-settings-updated", { detail: syncedData }));
       } catch (e) {
         setError(e.message);
       } finally {
@@ -173,7 +183,7 @@ export default function SettingsPage() {
       }
     }, 450);
     return () => window.clearTimeout(timer);
-  }, [currency, language, minGap, debtReminderBefore, debtRepeat, notifications]);
+  }, [currency, language, fontSize, minGap, debtReminderBefore, debtRepeat, notifications]);
 
   async function openConnection() {
     try {
@@ -312,6 +322,15 @@ export default function SettingsPage() {
               <option value="uk">Українська</option>
               <option value="en">English</option>
               <option value="pl">Polski</option>
+            </select>
+          </Field>
+          <Field label="Розмір шрифту">
+            <select value={fontSize} onChange={(event) => setFontSize(event.target.value)}>
+              {FONT_SIZE_OPTIONS.map((option) => (
+                <option value={option.value} key={option.value}>
+                  {option.label} — {option.hint}
+                </option>
+              ))}
             </select>
           </Field>
         </div>
