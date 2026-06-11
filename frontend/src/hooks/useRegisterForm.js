@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerRequest } from "../api/authApi";
+import { detectInterfaceLanguage } from "../i18n/language";
 
 export function useRegisterForm() {
   const [name, setName] = useState("");
@@ -19,7 +20,7 @@ export function useRegisterForm() {
       setLoading(true);
       setError("");
 
-      await registerRequest(name, email, password);
+      await registerRequest(name, email, password, detectInterfaceLanguage());
 
       navigate("/login");
     } catch (err) {

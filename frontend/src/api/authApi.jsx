@@ -19,13 +19,13 @@ export async function loginRequest(email, password) {
   return data.token ?? data.Token;
 }
 
-export async function registerRequest(name, email, password) {
+export async function registerRequest(name, email, password, language) {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, language }),
   });
 
   if (!res.ok) {

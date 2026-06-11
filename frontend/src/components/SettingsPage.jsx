@@ -6,6 +6,7 @@ import {
   getUserSettings,
   updateUserSettings,
 } from "../api/userSettingsApi";
+import { applyLanguage, getInitialLanguage } from "../i18n/language";
 import { applyFontSize, FONT_SIZE_OPTIONS, getStoredFontSize } from "../utils/fontSize";
 import styles from "./SettingsPage.module.css";
 
@@ -85,7 +86,7 @@ function dateLabel(value) {
 
 export default function SettingsPage() {
   const [currency, setCurrency] = useState("PLN");
-  const [language, setLanguage] = useState("uk");
+  const [language, setLanguage] = useState(() => getInitialLanguage());
   const [fontSize, setFontSize] = useState(() => getStoredFontSize() || "normal");
   const [accounts, setAccounts] = useState([]);
   const [connectData, setConnectData] = useState(null);
@@ -148,6 +149,10 @@ export default function SettingsPage() {
   useEffect(() => {
     applyFontSize(fontSize);
   }, [fontSize]);
+
+  useEffect(() => {
+    applyLanguage(language);
+  }, [language]);
 
   useEffect(() => {
     if (!connectData) return undefined;

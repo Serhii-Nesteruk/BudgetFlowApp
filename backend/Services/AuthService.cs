@@ -35,11 +35,22 @@ public class AuthService : IAuthService
         {
             Name = registerRequest.Name,
             Email = registerRequest.Email, // TODO: validate email
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerRequest.Password),
+            Settings = new UserSettings
+            {
+                Language = NormalizeLanguage(registerRequest.Language),
+                CreatedAt = DateTime.UtcNow
+            }
         };
 
         await _userService.AddAsync(user);
         return user;
+    }
+
+    private static string NormalizeLanguage(string? language)
+    {
+        var normalized = (language ?? string.Empty).Trim().ToLowerInvariant().Split('-', '_')[0];
+        return normalized is "uk" or "en" or "pl" ? normalized : "en";
     }
 
     private string GenerateJwtToken(User user)

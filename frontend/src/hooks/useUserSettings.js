@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { getUserSettings } from "../api/userSettingsApi";
+import { applyLanguage, getInitialLanguage } from "../i18n/language";
 import { applyFontSize, getStoredFontSize } from "../utils/fontSize";
 
 const DEFAULT_SETTINGS = {
   baseCurrency: "PLN",
-  language: "uk",
+  language: getInitialLanguage(),
   fontSize: "normal",
 };
 
@@ -26,6 +27,7 @@ export function useUserSettings() {
       setError(null);
       const data = withResolvedFontSize(await getUserSettings());
       applyFontSize(data.fontSize);
+      applyLanguage(data.language);
       setSettings((current) => ({ ...current, ...data }));
     } catch (e) {
       setError(e.message);
@@ -43,6 +45,7 @@ export function useUserSettings() {
       if (!event.detail) return;
       const data = withResolvedFontSize(event.detail);
       applyFontSize(data.fontSize);
+      applyLanguage(data.language);
       setSettings((current) => ({ ...current, ...data }));
     };
     window.addEventListener("user-settings-updated", onUpdated);

@@ -11,8 +11,11 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 
 import "./styles/globals.css";
 import { applyStoredFontSize } from "./utils/fontSize";
+import { applyLanguage, getInitialLanguage, startDomTranslator } from "./i18n/language";
 
 applyStoredFontSize();
+applyLanguage(getInitialLanguage());
+startDomTranslator();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

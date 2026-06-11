@@ -16,4 +16,7 @@ public class RegisterRequestDto
     [Required]
     [StringLength(255, MinimumLength = 6)]
     public string Password { get; set; } = string.Empty;
+
+    [StringLength(5)]
+    public string? Language { get; set; }
 }
