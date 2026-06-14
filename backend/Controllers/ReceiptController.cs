@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetFlowAPi.Services;
+using BudgetFlowAPi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BudgetFlowAPi.Controllers;
 
@@ -13,15 +15,24 @@ public class ReceiptController : ControllerBase
         _transactionService = transactionService;
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> AddTransactionFromImage([FromForm] IFormFile receiptImage, CancellationToken cancellationToken)
+    [HttpPost("/scan-receipt")]
+    public async Task<IActionResult> AddTransactionFromImage(CancellationToken cancellationToken)
     {
+        var form = await Request.ReadFormAsync(cancellationToken);
+        var receiptImage =
+            form.Files["receiptImage"] ??
+            form.Files["receipt"] ??
+            form.Files.FirstOrDefault();
+
         if (receiptImage == null || receiptImage.Length == 0)
         {
             return BadRequest("No image file provided.");
         }
 
-        var transaction = await _transactionService.AddTransactionFromReceiptImage(receiptImage, 1, cancellationToken);
+        var userId = User.GetUserId();
+        var transaction = await _transactionService.AddTransactionFromReceiptImage(receiptImage, userId, cancellationToken);
         return Ok(transaction);
     }
 }

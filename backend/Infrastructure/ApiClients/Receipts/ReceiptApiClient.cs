@@ -20,7 +20,7 @@ public class ReceiptApiClient : BaseApiClient<ReceiptDto>, IReceiptApiClient<Rec
 
         content.Add(imageContent, "file", "receipt.jpg");
 
-        var response = await HttpClient.PostAsync("receipts/extract", content, cancellationToken);
+        var response = await HttpClient.PostAsync("api/receipts/scan", content, cancellationToken);
 
         response.EnsureSuccessStatusCode();
 

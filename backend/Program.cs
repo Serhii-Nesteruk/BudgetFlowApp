@@ -42,6 +42,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidAudience = builder.Configuration.GetValue<string>("Jwt:Audience"),
                 IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(keyString))
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnChallenge = context =>
+                {
+                    context.HandleResponse();
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+
+                    return context.Response.WriteAsJsonAsync(new
+                    {
+                        message = "Сесія закінчилась. Увійдіть ще раз."
+                    });
+                }
+            };
         }
     );
 builder.Services.AddAuthorization();
@@ -66,7 +81,10 @@ builder.Services.AddScoped<IRepository<SavingsGoal>, SavingsGoalRepository>();
 builder.Services.AddScoped<ISavingsGoalRepository, SavingsGoalRepository>();
 builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8000/");
+    var receiptScannerBaseUrl = builder.Configuration.GetValue<string>("ReceiptScanner:BaseUrl")
+        ?? "http://localhost:8081/";
+
+    client.BaseAddress = new Uri(receiptScannerBaseUrl);
 });
 builder.Services.AddScoped<IReceiptService, ReceiptService>();
 

@@ -57,22 +57,21 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
         await _transactionRepository.UpdateAsync(transaction);
     }
 
-    public Task<Transaction> AddTransactionFromReceiptImage(IFormFile receiptImage, int userId, CancellationToken cancellationToken = default)
+    public async Task<Transaction> AddTransactionFromReceiptImage(IFormFile receiptImage, int userId, CancellationToken cancellationToken = default)
     {
-        return _receiptService.ExtractReceiptFieldsAsync(receiptImage, cancellationToken)
-            .ContinueWith(task =>
-            {
-                var fields = task.Result;
-                if (fields == null)
-                {
-                    throw new Exception("Failed to extract fields from receipt image.");
-                }
-                return CreateTransactionFromReceiptFields(fields).Result;
-            }, cancellationToken);
+        var fields = await _receiptService.ExtractReceiptFieldsAsync(receiptImage, cancellationToken);
+        if (fields == null)
+        {
+            throw new Exception("Failed to extract fields from receipt image.");
+        }
+
+        return await CreateTransactionFromReceiptFields(fields, userId);
     }
-    public Task<Transaction> CreateTransactionFromReceiptFields(ReceiptDto fields)
+
+    public Task<Transaction> CreateTransactionFromReceiptFields(ReceiptDto fields, int userId)
     {
         var transaction = TransactionMapping.FromReceiptFieldsToTransaction(fields);
+        transaction.UserId = userId;
         transaction.CreatedAt = DateTime.UtcNow;
         return _transactionRepository.AddAsync(transaction);
     }

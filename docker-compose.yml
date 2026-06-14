@@ -23,6 +23,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       Jwt__Key: ${JWT_KEY}
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ReceiptScanner__BaseUrl: http://receipt_scanner:8080/
       Cors__AllowedOrigins__0: http://localhost
       Cors__AllowedOrigins__1: http://127.0.0.1
       # Cors__AllowedOrigins__0: http://SERVER_IP
@@ -30,6 +31,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      receipt_scanner:
+        condition: service_started
+    restart: unless-stopped
+
+  receipt_scanner:
+    build:
+      context: ./receipt_scanner
+      dockerfile: Dockerfile
+    container_name: receipt_scanner
+    ports:
+      - "8081:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      RECEIPT_SCANNER_MODEL_PATH: /app/models/frozen_east_text_detection.pb
+      RECEIPT_SCANNER_DEBUG_ARTIFACTS: "false"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_RECEIPT_MODEL: ${OPENAI_RECEIPT_MODEL:-gpt-4.1-mini}
     restart: unless-stopped
 
   db:

@@ -85,10 +85,23 @@ public static class TransactionMapping
             Description = BuildDescription(receipt),
             Details = BuildDetails(receipt),
             Amount = receipt?.TotalAmount ?? 0m,
-            Currency = "USD",
-            Date = receipt?.TransactionDate ?? now,
+            Currency = receipt?.Currency ?? "USD",
+            Date = ToUtc(receipt?.TransactionDate, now),
             Type = TransactionType.Expense,
             CreatedAt = now
+        };
+    }
+
+    private static DateTime ToUtc(DateTime? value, DateTime fallback)
+    {
+        if (value is null)
+            return fallback;
+
+        return value.Value.Kind switch
+        {
+            DateTimeKind.Utc => value.Value,
+            DateTimeKind.Local => value.Value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
         };
     }
 

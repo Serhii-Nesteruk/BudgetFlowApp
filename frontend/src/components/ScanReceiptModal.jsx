@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Btn } from "./UI";
 import styles from "./ScanReceiptModal.module.css";
+import { apiFetch } from "../api/apiClient";
 
 const IconCamera = () => (
   <svg
@@ -82,14 +83,10 @@ export default function ScanReceiptModal({ onClose, onSuccess }) {
       const formData = new FormData();
       formData.append("receipt", file);
 
-      const res = await fetch("/api/scan-receipt", {
+      const data = await apiFetch("/scan-receipt", {
         method: "POST",
         body: formData,
       });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Помилка сервера");
 
       setStatus("success");
       setMessage(data.message || "Чек успішно розпізнано!");

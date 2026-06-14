@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BudgetFlowAPi.Infrastructure.ApiClients.Receipts.Dtos;
 
 public class ReceiptDto
@@ -10,11 +12,19 @@ public class ReceiptDto
     {
         get; set;
     }
+
+    [JsonPropertyName("Date")]
     public DateTime? TransactionDate
     {
         get; set;
     }
+
     public decimal? TotalAmount
+    {
+        get; set;
+    }
+
+    public string? Currency
     {
         get; set;
     }

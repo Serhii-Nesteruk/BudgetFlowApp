@@ -2,11 +2,12 @@ const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 export async function apiFetch(path, options = {}) {
   const token = localStorage.getItem("token");
+  const isFormData = options.body instanceof FormData;
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json; charset=utf-8",
+      ...(isFormData ? {} : { "Content-Type": "application/json; charset=utf-8" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },

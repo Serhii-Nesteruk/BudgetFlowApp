@@ -53,6 +53,7 @@ export default function App() {
     addEntry,
     updateEntry,
     deleteEntry,
+    reload,
   } = useExpenses();
 
   const tableSummary = useMemo(() => buildExpenseSummaryPLN(data, rates), [data, rates]);
@@ -187,7 +188,7 @@ export default function App() {
       {scanOpen && (
         <ScanReceiptModal
           onClose={() => setScanOpen(false)}
-          onSuccess={(data) => console.log("Розпізнано:", data)}
+          onSuccess={reload}
         />
       )}
     </div>
