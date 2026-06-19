@@ -72,7 +72,7 @@
   transition-duration: var(--dur-mid);
 }
 .tabActive {
-  background: linear-gradient(135deg, var(--accent), #0b3978);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
   color: #fff;
   box-shadow: 0 10px 24px rgba(0, 40, 95, 0.16);
 }

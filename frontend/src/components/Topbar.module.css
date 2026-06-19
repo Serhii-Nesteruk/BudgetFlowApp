@@ -9,7 +9,7 @@
   top: 0;
   z-index: 10;
   backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--glass-strong);
 }
 
 .title {
@@ -59,7 +59,7 @@
 .searchInput:focus {
   border-color: rgba(0, 184, 107, 0.55);
   background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .actions {
@@ -164,8 +164,8 @@
 
 /* Landing-inspired visual skin */
 .topbar {
-  background: rgba(247, 251, 255, 0.74);
-  border-bottom: 1px solid rgba(15, 35, 71, 0.08);
+  background: var(--glass-soft);
+  border-bottom: 1px solid var(--border2);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   box-shadow: 0 12px 32px rgba(7, 26, 51, 0.05);
@@ -175,10 +175,10 @@
   letter-spacing: -0.035em;
 }
 .searchInput {
-  background: rgba(255, 255, 255, 0.76);
-  border-color: rgba(15, 35, 71, 0.08);
+  background: var(--input-surface);
+  border-color: var(--border2);
   border-radius: 999px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 .searchInput:focus {
   border-color: rgba(0, 184, 107, 0.42);
@@ -189,7 +189,7 @@
   border-radius: 999px;
 }
 .btnPrimary {
-  background: linear-gradient(135deg, var(--accent2), #00a160);
+  background: var(--primary-gradient);
   box-shadow: 0 12px 28px rgba(0, 184, 107, 0.24);
 }
 .btnPrimary:hover {
@@ -197,5 +197,13 @@
   transform: translateY(-1px);
 }
 .btnGhost:hover {
-  background: rgba(0, 40, 95, 0.06);
+  background: var(--surface2);
+}
+
+:global(html[data-theme="dark"]) .topbar {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
+}
+
+:global(html[data-theme="dark"]) .searchInput {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }

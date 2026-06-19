@@ -11,9 +11,12 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 
 import "./styles/globals.css";
 import { applyStoredFontSize } from "./utils/fontSize";
+import { applyStoredTheme, watchSystemTheme } from "./utils/theme";
 import { applyLanguage, getInitialLanguage, startDomTranslator } from "./i18n/language";
 
 applyStoredFontSize();
+applyStoredTheme();
+watchSystemTheme();
 applyLanguage(getInitialLanguage());
 startDomTranslator();
 

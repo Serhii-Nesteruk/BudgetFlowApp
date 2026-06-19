@@ -181,7 +181,7 @@
 .emptyIcon {
   width: 38px;
   height: 38px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
 }
 .emptyState strong,
@@ -267,7 +267,65 @@
 .inlineOptions select:focus,
 .compactControl input:focus {
   border-color: rgba(0, 184, 107, 0.55);
-  background: #fff;
+  background: var(--surface);
+}
+
+.themeSelector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface2);
+}
+
+.themeOption {
+  min-width: 0;
+  min-height: 66px;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition:
+    transform var(--dur-mid) var(--ease-spring),
+    background var(--dur-mid) var(--ease-out),
+    color var(--dur-mid) var(--ease-out),
+    box-shadow var(--dur-mid) var(--ease-out);
+}
+
+.themeOption strong,
+.themeOption span {
+  display: block;
+}
+
+.themeOption strong {
+  color: inherit;
+  font-size: calc(12px * var(--ui-font-scale));
+}
+
+.themeOption span {
+  min-height: auto;
+  margin-top: 3px;
+  color: currentColor;
+  opacity: 0.74;
+  font-size: calc(10px * var(--ui-font-scale));
+  line-height: 1.25;
+}
+
+.themeOption:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+}
+
+.themeOptionActive {
+  background: var(--primary-gradient);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0, 184, 107, 0.2);
 }
 
 .sectionDisabled .notifications {
@@ -333,7 +391,7 @@
   position: absolute;
   inset: 0;
   border-radius: 30px;
-  background: #d1d5db;
+  background: var(--border);
   cursor: pointer;
   transition: background var(--dur-mid) var(--ease-out);
 }
@@ -345,7 +403,7 @@
   left: 3px;
   top: 3px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface-solid);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
   transition: transform var(--dur-mid) var(--ease-spring);
 }
@@ -434,7 +492,7 @@
   flex: 0 0 auto;
   padding: 6px 8px;
   color: var(--muted);
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   font-size: calc(11px * var(--ui-font-scale));
 }
@@ -442,9 +500,9 @@
   margin-top: 13px;
   padding: 9px 10px;
   border-radius: var(--r-sm);
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: var(--warning);
   font-size: calc(11px * var(--ui-font-scale));
 }
 .modalActions {
@@ -479,6 +537,12 @@
   }
   .field span {
     min-height: auto;
+  }
+  .themeSelector {
+    grid-template-columns: 1fr;
+  }
+  .themeOption {
+    min-height: 54px;
   }
   .accountRow {
     flex-wrap: wrap;
@@ -519,8 +583,8 @@
 .accountRow,
 .modal,
 .connectBlock {
-  background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(15, 35, 71, 0.085);
+  background: var(--glass-surface);
+  border-color: var(--border);
   border-radius: 26px;
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(var(--glass-blur));
@@ -528,7 +592,7 @@
 }
 .sectionHeader,
 .sectionHeaderSimple {
-  border-bottom-color: rgba(15, 35, 71, 0.075);
+  border-bottom-color: var(--border2);
 }
 .sectionIcon,
 .emptyIcon,
@@ -542,6 +606,8 @@
 .copyBtn,
 .iconBtn,
 .field select,
+.themeSelector,
+.themeOption,
 .inlineOptions select,
 .compactControl input {
   border-radius: 999px;
@@ -549,7 +615,7 @@
 }
 .primaryBtn,
 .switch input:checked + span {
-  background: linear-gradient(135deg, var(--accent2), #00a160);
+  background: var(--primary-gradient);
 }
 .primaryBtn {
   box-shadow: 0 12px 26px rgba(0, 184, 107, 0.2);
@@ -567,6 +633,22 @@
 }
 .connectedBadge {
   background: rgba(0, 184, 107, 0.1);
-  color: #00794a;
+  color: var(--success);
   border-color: rgba(0, 184, 107, 0.22);
+}
+
+:global(html[data-theme="dark"]) .mockBadge {
+  background: rgba(20, 184, 166, 0.14);
+  color: #8deee3;
+  border-color: rgba(20, 184, 166, 0.28);
+}
+
+:global(html[data-theme="dark"]) .warningBadge {
+  background: rgba(245, 158, 11, 0.13);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+:global(html[data-theme="dark"]) .themeOptionActive {
+  color: #fff;
 }

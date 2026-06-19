@@ -35,7 +35,7 @@
   padding: 10px 16px;
   background: var(--danger-bg);
   border-radius: var(--r);
-  border: 1px solid #f5c0bb;
+  border: 1px solid var(--danger-border);
   font-size: calc(13px * var(--ui-font-scale));
 }
 
@@ -63,9 +63,7 @@
 
 /* Landing-inspired visual skin */
 .layout {
-  background:
-    radial-gradient(circle at 5% 5%, rgba(0, 184, 107, 0.12), transparent 28%),
-    radial-gradient(circle at 95% 10%, rgba(0, 40, 95, 0.14), transparent 32%);
+  background: var(--layout-bg);
 }
 
 .content {
@@ -75,7 +73,7 @@
 
 .error,
 .loading {
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
   box-shadow: var(--shadow-card);

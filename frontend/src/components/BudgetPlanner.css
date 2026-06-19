@@ -6,6 +6,14 @@
   --bp-line: rgba(15, 35, 71, 0.09);
   color: var(--text);
 }
+
+html[data-theme="dark"] .budgetPlanner {
+  --bp-navy: #14b8a6;
+  --bp-navy-deep: #0b1218;
+  --bp-green: #22c55e;
+  --bp-teal: #14b8a6;
+  --bp-line: rgba(214, 224, 236, 0.13);
+}
 .budgetPlanner button,
 .budgetPlanner input {
   font: inherit;
@@ -40,7 +48,7 @@
 .primaryButton {
   padding: 12px 18px;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--bp-green, #00b86b), #00a160);
+  background: var(--primary-gradient);
   color: #fff;
   font-weight: 700;
   box-shadow: 0 12px 25px rgba(0, 184, 107, 0.22);
@@ -103,7 +111,7 @@
   border-radius: 28px;
   background:
     radial-gradient(circle at 80% 12%, rgba(0, 184, 107, 0.32), transparent 38%),
-    linear-gradient(135deg, #00285f, #071a33);
+    linear-gradient(135deg, var(--bp-navy), var(--bp-navy-deep));
   color: #fff;
   box-shadow: 0 22px 58px rgba(0, 40, 95, 0.18);
 }
@@ -231,7 +239,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--bp-green), #00d17a);
+  background: var(--progress-gradient);
 }
 .participantsMini {
   margin-top: 12px;
@@ -293,13 +301,13 @@
   color: #fff;
   background:
     radial-gradient(circle at 84% 14%, rgba(0, 184, 107, 0.3), transparent 38%),
-    linear-gradient(135deg, #00285f, #071a33);
+    linear-gradient(135deg, var(--bp-navy), var(--bp-navy-deep));
   box-shadow: 0 22px 58px rgba(0, 40, 95, 0.18);
 }
 .dashboardHero.event {
   background:
     radial-gradient(circle at 84% 14%, rgba(37, 99, 235, 0.35), transparent 38%),
-    linear-gradient(135deg, #062e68, #071a33);
+    linear-gradient(135deg, var(--bp-navy), var(--bp-navy-deep));
 }
 .heroMeta {
   display: flex;
@@ -556,7 +564,7 @@
   color: #fff;
   background:
     radial-gradient(circle at 94% 10%, rgba(82, 235, 168, 0.26), transparent 32%),
-    linear-gradient(135deg, #00285f, #071a33);
+    linear-gradient(135deg, var(--bp-navy), var(--bp-navy-deep));
   box-shadow: 0 16px 38px rgba(0, 40, 95, 0.17);
 }
 .assistantIcon {
@@ -888,7 +896,7 @@
   z-index: 10000;
   padding: 10px 14px;
   border-radius: 999px;
-  background: #071a33;
+  background: var(--bp-navy-deep);
   color: #fff;
   font-size: calc(12px * var(--ui-font-scale));
   opacity: 0;
@@ -917,7 +925,7 @@
   height: 100%;
   display: block;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--bp-green), #00d17a);
+  background: var(--progress-gradient);
   transition: width 420ms var(--ease-out);
 }
 .budgetWizard section {
@@ -1936,6 +1944,52 @@
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(
+  .softButton,
+  .portfolioStats > div,
+  .budgetCard,
+  .budgetCardMini,
+  .plannerPanel,
+  .categoryCard,
+  .mandatoryCard,
+  .incomeCard,
+  .calendarPanel,
+  .budgetModal,
+  .simpleRow,
+  .plannedRow,
+  .categoryIconPicker button,
+  .rowActions button,
+  .categoryModalActions
+) {
+  background: var(--glass-surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(input, select, textarea) {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(input, select, textarea):focus {
+  background: var(--surface);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.softButton:hover, .rowActions button:hover) {
+  background: var(--surface2);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.portfolioHero, .heroCard, .budgetHero) {
+  background:
+    radial-gradient(circle at 80% 12%, rgba(34, 197, 94, 0.22), transparent 38%),
+    linear-gradient(135deg, #0f766e, #0b1218);
+}
+
+html[data-theme="dark"] .categoryModalActions {
+  background: var(--glass-strong);
 }
 
 @media (max-width: 640px) {

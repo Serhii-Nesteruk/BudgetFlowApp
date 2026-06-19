@@ -308,3 +308,22 @@
   background: var(--danger-bg);
   border-color: rgba(229, 72, 77, 0.22);
 }
+
+:global(html[data-theme="dark"]) .modal {
+  background: var(--glass-surface);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .header,
+:global(html[data-theme="dark"]) .footer {
+  border-color: var(--border2);
+}
+
+:global(html[data-theme="dark"]) .dropzone {
+  background: linear-gradient(135deg, rgba(40, 217, 135, 0.12), rgba(89, 158, 255, 0.08));
+  border-color: rgba(40, 217, 135, 0.28);
+}
+
+:global(html[data-theme="dark"]) .success {
+  color: var(--success);
+}

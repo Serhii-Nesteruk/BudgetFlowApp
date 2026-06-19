@@ -7,7 +7,7 @@ import styles from "./StatsTab.module.css";
 
 const COLORS = [
   "#00b86b",
-  "#00285f",
+  "#0d9488",
   "#2dd4bf",
   "#3b82f6",
   "#84cc16",
@@ -23,6 +23,11 @@ const TABS = [
   { id: "places", label: "Місця" },
   { id: "top", label: "Топ витрат" },
 ];
+
+function cssVar(name, fallback) {
+  if (typeof window === "undefined") return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
 
 function daysAgo(n) {
   const d = new Date();
@@ -177,8 +182,7 @@ export default function StatsTab({ data, rates, ratesError }) {
     };
   }, [range]);
 
-  // ── Donut ────────────────────────────────────────────────────────────
-  useEffect(() => {
+  const drawDonut = useCallback(() => {
     const dc = donutRef.current;
     if (!dc || !sp.length) return;
     const dctx = dc.getContext("2d");
@@ -201,9 +205,14 @@ export default function StatsTab({ data, rates, ratesError }) {
     });
     dctx.beginPath();
     dctx.arc(cx, cy, inn, 0, Math.PI * 2);
-    dctx.fillStyle = "#fff";
+    dctx.fillStyle = cssVar("--surface-solid", "#fff");
     dctx.fill();
-  }, [sp, activeSection]);
+  }, [sp]);
+
+  // ── Donut ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    drawDonut();
+  }, [drawDonut, activeSection]);
 
   // ── Timeline canvas ──────────────────────────────────────────────────
   const drawTimeline = useCallback(() => {
@@ -229,15 +238,19 @@ export default function StatsTab({ data, rates, ratesError }) {
       H2 = H - pad.t - pad.b;
     ctx.clearRect(0, 0, W, H);
     ctx.font = "10px DM Mono, monospace";
+    const borderColor = cssVar("--border", "#e4e6ea");
+    const mutedColor = cssVar("--muted", "#9ca3af");
+    const accentColor = cssVar("--accent2", "#00b86b");
+    const pointFill = cssVar("--surface-solid", "#fff");
     [0, 0.25, 0.5, 0.75, 1].forEach((t) => {
       const y = pad.t + H2 * (1 - t);
-      ctx.strokeStyle = "#e4e6ea";
+      ctx.strokeStyle = borderColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(pad.l, y);
       ctx.lineTo(W - pad.r, y);
       ctx.stroke();
-      ctx.fillStyle = "#9ca3af";
+      ctx.fillStyle = mutedColor;
       ctx.textAlign = "right";
       ctx.fillText(Math.round(maxV * t) + "zł", pad.l - 4, y + 4);
     });
@@ -264,21 +277,21 @@ export default function StatsTab({ data, rates, ratesError }) {
     ctx.fillStyle = grad;
     ctx.fill();
     ctx.beginPath();
-    ctx.strokeStyle = "#00b86b";
+    ctx.strokeStyle = accentColor;
     ctx.lineWidth = 2.25;
     pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.stroke();
     pts.forEach((p) => {
       ctx.beginPath();
       ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = pointFill;
       ctx.fill();
-      ctx.strokeStyle = "#00b86b";
+      ctx.strokeStyle = accentColor;
       ctx.lineWidth = 1.75;
       ctx.stroke();
     });
     const step = Math.ceil(dates.length / 9);
-    ctx.fillStyle = "#9ca3af";
+    ctx.fillStyle = mutedColor;
     ctx.font = "9px DM Mono, monospace";
     ctx.textAlign = "center";
     pts.forEach((p, i) => {
@@ -307,6 +320,16 @@ export default function StatsTab({ data, rates, ratesError }) {
       ro.disconnect();
     };
   }, [drawTimeline, activeSection]);
+
+  useEffect(() => {
+    const redraw = () => {
+      drawDonut();
+      drawTimeline();
+    };
+
+    window.addEventListener("theme-changed", redraw);
+    return () => window.removeEventListener("theme-changed", redraw);
+  }, [drawDonut, drawTimeline]);
 
   function handleTimelineMove(e) {
     const canvas = timelineRef.current;

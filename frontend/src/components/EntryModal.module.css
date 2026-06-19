@@ -498,7 +498,7 @@
   transition-duration: var(--dur-mid);
 }
 .footerBtnPrimary {
-  background: linear-gradient(135deg, var(--accent2), #00a160);
+  background: var(--primary-gradient);
   box-shadow: 0 14px 28px rgba(0, 184, 107, 0.24);
 }
 .comboDropdown {
@@ -509,6 +509,35 @@
 .totalRow {
   border-radius: 22px;
   background: linear-gradient(135deg, rgba(0, 184, 107, 0.12), rgba(0, 40, 95, 0.06));
+}
+
+:global(html[data-theme="dark"]) .modal,
+:global(html[data-theme="dark"]) .input,
+:global(html[data-theme="dark"]) .comboInputRow,
+:global(html[data-theme="dark"]) .placeCard,
+:global(html[data-theme="dark"]) .comboDropdown {
+  background: var(--glass-surface);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .header,
+:global(html[data-theme="dark"]) .footer,
+:global(html[data-theme="dark"]) .placesHeader {
+  border-color: var(--border2);
+}
+
+:global(html[data-theme="dark"]) .input:focus,
+:global(html[data-theme="dark"]) .comboInputRow:focus-within {
+  background: var(--surface);
+}
+
+:global(html[data-theme="dark"]) .tagInputRow > button {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+:global(html[data-theme="dark"]) .tagsList span {
+  color: var(--success);
 }
 
 /* Mobile form rhythm fix: currency and add-place action no longer collide visually */

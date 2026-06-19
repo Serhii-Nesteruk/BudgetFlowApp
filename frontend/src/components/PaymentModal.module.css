@@ -226,10 +226,22 @@
   transition-duration: var(--dur-mid);
 }
 .btnSave {
-  background: linear-gradient(135deg, var(--accent2), #00a160);
+  background: var(--primary-gradient);
   box-shadow: 0 14px 28px rgba(0, 184, 107, 0.22);
 }
 .infoRow {
   background: rgba(0, 40, 95, 0.05);
   border-radius: 18px;
+}
+
+:global(html[data-theme="dark"]) .modal,
+:global(html[data-theme="dark"]) .input,
+:global(html[data-theme="dark"]) .fillBtn,
+:global(html[data-theme="dark"]) .infoRow {
+  background: var(--glass-surface);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .input:focus {
+  background: var(--surface);
 }

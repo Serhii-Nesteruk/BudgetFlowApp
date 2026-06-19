@@ -2,6 +2,15 @@ const STORAGE_KEY = "budgetflow.language";
 const SUPPORTED_LANGUAGES = ["uk", "en", "pl"];
 
 const EN = {
+  Тема: "Theme",
+  "Як у системі": "System default",
+  Світла: "Light",
+  Темна: "Dark",
+  "Автоматично підлаштовується під пристрій": "Automatically adapts to your device",
+  "Поточна світла палітра": "Current light palette",
+  "М'який темний інтерфейс": "Soft dark interface",
+  "Вибір тему застосунку": "Choose the app theme",
+
   Вхід: "Login",
   "Вхід...": "Signing in...",
   Увійти: "Sign in",
@@ -304,6 +313,14 @@ const EN = {
 };
 
 const PL = {
+  Тема: "Motyw",
+  "Як у системі": "Jak w systemie",
+  Світла: "Jasna",
+  Темна: "Ciemna",
+  "Автоматично підлаштовується під пристрій": "Automatycznie dostosowuje się do urządzenia",
+  "Поточна світла палітра": "Aktualna jasna paleta",
+  "М'який темний інтерфейс": "Łagodny ciemny interfejs",
+  "Вибір тему застосунку": "Wybór motywu aplikacji",
   Вхід: "Logowanie",
   "Вхід...": "Logowanie...",
   Увійти: "Zaloguj się",

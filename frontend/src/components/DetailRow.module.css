@@ -11,7 +11,7 @@
 
 .inner {
   padding: 16px 18px 18px 52px;
-  border-top: 1px solid rgba(15, 35, 71, 0.075);
+  border-top: 1px solid var(--border2);
   background: rgba(0, 184, 107, 0.035);
 }
 
@@ -64,7 +64,7 @@
   padding: 7px 10px;
   border: 1px solid rgba(0, 184, 107, 0.16);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--glass-surface);
   color: var(--text);
   box-shadow: 0 8px 22px rgba(7, 26, 51, 0.045);
 }
@@ -78,7 +78,7 @@
 }
 
 .totalBadge strong {
-  color: #e5484d;
+  color: var(--danger);
   font-family: var(--mono);
   font-size: calc(12px * var(--ui-font-scale));
   font-weight: 500;
@@ -94,9 +94,9 @@
 .placeCard {
   min-width: 0;
   padding: 11px 12px;
-  border: 1px solid rgba(15, 35, 71, 0.075);
+  border: 1px solid var(--border2);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-surface);
   box-shadow: 0 8px 24px rgba(7, 26, 51, 0.035);
   transition:
     transform var(--dur-mid) var(--ease-out),
@@ -108,7 +108,7 @@
 .placeCard:hover {
   transform: translateY(-2px);
   border-color: rgba(0, 184, 107, 0.22);
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--glass-strong);
   box-shadow: 0 14px 28px rgba(7, 26, 51, 0.07);
 }
 
@@ -129,7 +129,7 @@
 
 .placeAmount {
   flex-shrink: 0;
-  color: #f04438;
+  color: var(--danger);
   font-family: var(--mono);
   font-size: calc(12px * var(--ui-font-scale));
   font-weight: 500;
@@ -195,7 +195,7 @@
   padding: 3px 7px;
   border-radius: 999px;
   background: rgba(0, 184, 107, 0.1);
-  color: #008c59;
+  color: var(--success);
   font-size: calc(10px * var(--ui-font-scale));
   font-weight: 700;
 }

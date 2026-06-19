@@ -93,7 +93,7 @@
     justify-content: center;
     border: none;
     border-radius: 20px;
-    background: linear-gradient(135deg, var(--accent2), #00a160);
+    background: var(--primary-gradient);
     color: #fff;
     cursor: pointer;
     box-shadow: 0 16px 34px rgba(0, 184, 107, 0.34);
@@ -267,6 +267,43 @@
   .moreItemCopy strong {
     font-size: calc(14px * var(--ui-font-scale));
     letter-spacing: -0.01em;
+  }
+
+  :global(html[data-theme="dark"]) .nav {
+    background: rgba(10, 15, 20, 0.92);
+    border-top-color: var(--border2);
+    box-shadow: 0 -20px 44px rgba(0, 0, 0, 0.28);
+  }
+
+  :global(html[data-theme="dark"]) .moreSheet,
+  :global(html[data-theme="dark"]) .moreItem {
+    background: var(--glass-strong);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  :global(html[data-theme="dark"]) .sheetHeader strong {
+    color: var(--text);
+  }
+
+  :global(html[data-theme="dark"]) .sheetHeader span,
+  :global(html[data-theme="dark"]) .closeBtn {
+    color: var(--muted);
+  }
+
+  :global(html[data-theme="dark"]) .closeBtn,
+  :global(html[data-theme="dark"]) .moreItemIcon,
+  :global(html[data-theme="dark"]) .sheetHandle {
+    background: var(--surface2);
+  }
+
+  :global(html[data-theme="dark"]) .moreItemIcon {
+    color: var(--accent);
+  }
+
+  :global(html[data-theme="dark"]) .moreItemActive {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.24);
   }
   .moreItemCopy span {
     color: rgba(0, 45, 91, 0.56);

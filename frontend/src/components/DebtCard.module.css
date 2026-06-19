@@ -494,7 +494,7 @@
   overflow: hidden;
 }
 .progressFill {
-  background: linear-gradient(90deg, var(--accent2), #00d17a);
+  background: var(--progress-gradient);
   border-radius: 999px;
 }
 .section,
@@ -505,7 +505,7 @@
   border-radius: 20px;
 }
 .actBtnPaid {
-  background: linear-gradient(135deg, var(--accent2), #00a160);
+  background: var(--primary-gradient);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 12px 26px rgba(0, 184, 107, 0.2);
@@ -703,14 +703,59 @@
   color: #008c54;
 }
 .direction_receivable::before {
-  background: linear-gradient(90deg, #00b86b, #00d17a);
+  background: var(--progress-gradient);
 }
 .direction_receivable .progressFill {
-  background: linear-gradient(90deg, #00b86b, #00d17a);
+  background: var(--progress-gradient);
 }
 .direction_receivable .histAmt {
   color: #008c54;
 }
 .direction_receivable:hover {
   border-color: rgba(0, 184, 107, 0.22);
+}
+
+:global(html[data-theme="dark"]) .card,
+:global(html[data-theme="dark"]) .section,
+:global(html[data-theme="dark"]) .scheduleItem,
+:global(html[data-theme="dark"]) .histItem,
+:global(html[data-theme="dark"]) .progressWrap,
+:global(html[data-theme="dark"]) .dueRow,
+:global(html[data-theme="dark"]) .actBtn,
+:global(html[data-theme="dark"]) .actIconBtn {
+  background: var(--glass-surface);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .typeIcon {
+  background: var(--surface2);
+  border-color: var(--border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+:global(html[data-theme="dark"]) .status_overdue {
+  background: linear-gradient(145deg, rgba(55, 23, 33, 0.82), rgba(24, 35, 56, 0.74));
+}
+
+:global(html[data-theme="dark"]) .badge_overdue {
+  background: rgba(255, 123, 127, 0.12);
+  color: var(--danger);
+  border-color: var(--danger-border);
+}
+
+:global(html[data-theme="dark"]) .badge_partial {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+:global(html[data-theme="dark"]) .badge_paid,
+:global(html[data-theme="dark"]) .directionBadgeReceivable {
+  color: var(--success);
+}
+
+:global(html[data-theme="dark"]) .directionBadge {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--muted);
 }

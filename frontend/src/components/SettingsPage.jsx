@@ -8,6 +8,7 @@ import {
 } from "../api/userSettingsApi";
 import { applyLanguage, getInitialLanguage } from "../i18n/language";
 import { applyFontSize, FONT_SIZE_OPTIONS, getStoredFontSize } from "../utils/fontSize";
+import { applyTheme, getStoredTheme, THEME_OPTIONS } from "../utils/theme";
 import styles from "./SettingsPage.module.css";
 
 const DEFAULT_NOTIFICATIONS = {
@@ -88,6 +89,7 @@ export default function SettingsPage() {
   const [currency, setCurrency] = useState("PLN");
   const [language, setLanguage] = useState(() => getInitialLanguage());
   const [fontSize, setFontSize] = useState(() => getStoredFontSize() || "normal");
+  const [theme, setTheme] = useState(() => getStoredTheme());
   const [accounts, setAccounts] = useState([]);
   const [connectData, setConnectData] = useState(null);
   const [copied, setCopied] = useState("");
@@ -153,6 +155,10 @@ export default function SettingsPage() {
   useEffect(() => {
     applyLanguage(language);
   }, [language]);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!connectData) return undefined;
@@ -340,6 +346,25 @@ export default function SettingsPage() {
                 </option>
               ))}
             </select>
+          </Field>
+          <Field label="Тема" hint="Вибір теми застосунку.">
+            <div className={styles.themeSelector} role="group" aria-label="Тема застосунку">
+              {THEME_OPTIONS.map((option) => (
+                <button
+                  className={[
+                    styles.themeOption,
+                    theme === option.value ? styles.themeOptionActive : "",
+                  ].join(" ")}
+                  type="button"
+                  aria-pressed={theme === option.value}
+                  key={option.value}
+                  onClick={() => setTheme(option.value)}
+                >
+                  <strong>{option.label}</strong>
+                  <span>{option.hint}</span>
+                </button>
+              ))}
+            </div>
           </Field>
         </div>
       </section>

@@ -40,17 +40,17 @@
   border-color: var(--accent);
 }
 .primary:hover {
-  background: #0b3978;
-  border-color: #0b3978;
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
 }
 
 .danger {
   color: var(--danger);
-  border-color: #ecc;
+  border-color: var(--danger-border);
 }
 .danger:hover {
   background: var(--danger-bg);
-  border-color: #e8b4b0;
+  border-color: var(--danger-border);
 }
 
 .ghost {
@@ -122,15 +122,20 @@
 }
 .primary,
 .chipActive {
-  background: linear-gradient(135deg, var(--accent), #0b3978) !important;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep)) !important;
   border-color: transparent !important;
   color: #fff !important;
 }
 .primary:hover {
-  background: linear-gradient(135deg, #0b3978, var(--accent)) !important;
+  background: linear-gradient(135deg, var(--accent-deep), var(--accent)) !important;
 }
 .tag {
   background: rgba(0, 184, 107, 0.08);
   border-color: rgba(0, 184, 107, 0.18);
-  color: #00794a;
+  color: var(--success);
+}
+
+:global(html[data-theme="dark"]) .primary,
+:global(html[data-theme="dark"]) .chipActive {
+  color: #fff !important;
 }

@@ -329,7 +329,7 @@
 .sumCard_blue {
   background:
     radial-gradient(circle at 90% 10%, rgba(0, 184, 107, 0.2), transparent 38%),
-    linear-gradient(135deg, var(--accent), #061a3d);
+    linear-gradient(135deg, var(--accent), var(--accent-deep));
   color: #fff;
 }
 .addBtn,
@@ -340,7 +340,7 @@
 }
 .addBtn,
 .filterBtnActive {
-  background: linear-gradient(135deg, var(--accent2), #00a160) !important;
+  background: var(--primary-gradient) !important;
   color: #fff !important;
   border-color: transparent !important;
   box-shadow: 0 12px 26px rgba(0, 184, 107, 0.2);
@@ -379,7 +379,7 @@
 .sumCard:first-child {
   background:
     radial-gradient(circle at 88% 12%, rgba(0, 209, 122, 0.34), transparent 34%),
-    linear-gradient(135deg, #00285f 0%, #061a3d 100%);
+    linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
   border-color: rgba(0, 184, 107, 0.22);
   box-shadow: 0 20px 52px rgba(0, 40, 95, 0.2);
 }
@@ -554,12 +554,12 @@
   color: var(--text);
 }
 .directionBtnActive {
-  background: linear-gradient(135deg, #00285f, #061a3d);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
   color: #fff;
   box-shadow: 0 12px 24px rgba(0, 40, 95, 0.18);
 }
 .directionBtnActive.directionBtnReceivable {
-  background: linear-gradient(135deg, #00b86b, #008c54);
+  background: var(--primary-gradient);
   box-shadow: 0 12px 24px rgba(0, 184, 107, 0.2);
 }
 .directionBtnText {
@@ -576,9 +576,36 @@
 .summaryRowReceivable .sumCard:first-child {
   background:
     radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.24), transparent 34%),
-    linear-gradient(135deg, #00b86b 0%, #008c54 100%);
+    var(--primary-gradient);
   border-color: rgba(0, 184, 107, 0.28);
   box-shadow: 0 20px 52px rgba(0, 184, 107, 0.2);
+}
+
+:global(html[data-theme="dark"]) .sumCard,
+:global(html[data-theme="dark"]) .controls,
+:global(html[data-theme="dark"]) .empty,
+:global(html[data-theme="dark"]) .directionPanel {
+  background: var(--glass-surface);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .filterBtn,
+:global(html[data-theme="dark"]) .select,
+:global(html[data-theme="dark"]) .directionSwitch {
+  background: var(--surface2);
+  border-color: var(--border);
+}
+
+:global(html[data-theme="dark"]) .filterBtnActive,
+:global(html[data-theme="dark"]) .directionBtnActive {
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep)) !important;
+  color: #fff !important;
+}
+
+:global(html[data-theme="dark"]) .directionBtnActive.directionBtnReceivable,
+:global(html[data-theme="dark"]) .summaryRowReceivable .sumCard:first-child {
+  background: linear-gradient(135deg, var(--accent2), #04784e) !important;
+  color: #fff;
 }
 
 @media (max-width: 760px) {
@@ -627,7 +654,7 @@
     padding: 0 15px 0 12px;
     border: 0;
     border-radius: 999px;
-    background: linear-gradient(135deg, var(--accent2), #00a160);
+    background: var(--primary-gradient);
     color: #fff;
     box-shadow: 0 16px 34px rgba(0, 184, 107, 0.28);
     font-family: var(--font);

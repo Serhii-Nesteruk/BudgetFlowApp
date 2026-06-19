@@ -247,7 +247,7 @@
 }
 
 .primaryButton {
-  background: linear-gradient(135deg, #00b86b, #00a160);
+  background: var(--primary-gradient);
   box-shadow: 0 14px 28px rgba(0, 184, 107, 0.22);
   color: #fff;
 }
@@ -612,6 +612,73 @@
   padding: 22px;
   color: var(--muted);
   text-align: center;
+}
+
+:global(html[data-theme="dark"]) .hero,
+:global(html[data-theme="dark"]) .summaryRow article,
+:global(html[data-theme="dark"]) .goalCard,
+:global(html[data-theme="dark"]) .error,
+:global(html[data-theme="dark"]) .empty,
+:global(html[data-theme="dark"]) .modal,
+:global(html[data-theme="dark"]) .modalHeader,
+:global(html[data-theme="dark"]) .modalFooter,
+:global(html[data-theme="dark"]) .historyItem {
+  background: var(--glass-surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+:global(html[data-theme="dark"]) .hero h1,
+:global(html[data-theme="dark"]) .summaryRow strong,
+:global(html[data-theme="dark"]) .goalCard h2,
+:global(html[data-theme="dark"]) .goalAmount,
+:global(html[data-theme="dark"]) .empty h2,
+:global(html[data-theme="dark"]) .modalHeader h2,
+:global(html[data-theme="dark"]) .historyHeader h3,
+:global(html[data-theme="dark"]) .historyCopy strong,
+:global(html[data-theme="dark"]) .historyItem > b {
+  color: var(--text);
+}
+
+:global(html[data-theme="dark"]) .secondaryButton,
+:global(html[data-theme="dark"]) .modalHeader > button,
+:global(html[data-theme="dark"]) .deleteEntry,
+:global(html[data-theme="dark"]) .customTagRow button,
+:global(html[data-theme="dark"]) .historyHeader > span,
+:global(html[data-theme="dark"]) .sourceManual {
+  background: var(--surface2);
+  color: var(--muted);
+}
+
+:global(html[data-theme="dark"]) .modalBody input,
+:global(html[data-theme="dark"]) .modalBody textarea,
+:global(html[data-theme="dark"]) .modalBody select,
+:global(html[data-theme="dark"]) .entryForm input,
+:global(html[data-theme="dark"]) .iconPicker button,
+:global(html[data-theme="dark"]) .suggestionTags button {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+:global(html[data-theme="dark"]) .modalBody input:focus,
+:global(html[data-theme="dark"]) .modalBody textarea:focus,
+:global(html[data-theme="dark"]) .modalBody select:focus,
+:global(html[data-theme="dark"]) .entryForm input:focus {
+  background: var(--surface);
+}
+
+:global(html[data-theme="dark"]) .cardTags span,
+:global(html[data-theme="dark"]) .selectedTags span,
+:global(html[data-theme="dark"]) .suggestionTags .tagSelected,
+:global(html[data-theme="dark"]) .sourceAuto {
+  color: var(--success);
+}
+
+:global(html[data-theme="dark"]) .progress,
+:global(html[data-theme="dark"]) .goalIcon,
+:global(html[data-theme="dark"]) .detailsIcon {
+  background: var(--surface2);
 }
 
 @keyframes fadeIn {

@@ -52,6 +52,8 @@ POSTGRES_DB=budgetflow
 POSTGRES_USER=budgetflow_user
 POSTGRES_PASSWORD=change_this_password
 JWT_KEY=change_this_to_a_long_secure_secret_key
+OPENAI_RECEIPT_MODEL="gpt-4.1-mini"
+OPENAI_API_KEY=...
 ```
 
 Use strong production values for `POSTGRES_PASSWORD` and `JWT_KEY`.
