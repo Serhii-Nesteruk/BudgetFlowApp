@@ -237,6 +237,15 @@ export default function BottomNav({ activeTab, onTabChange, onScanReceipt, onAdd
               active={activeTab === "settings"}
               onClick={() => selectTab("settings")}
             />
+            <MoreItem
+              icon={<IconCamera />}
+              title="Сканувати чек"
+              description="Додати витрату з фото чека"
+              onClick={() => {
+                setMoreOpen(false);
+                onScanReceipt();
+              }}
+            />
           </div>
         </section>
       </div>

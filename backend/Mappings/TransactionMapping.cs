@@ -1,6 +1,5 @@
 using BudgetFlowAPi.Models;
 using BudgetFlowAPi.DTO;
-using BudgetFlowAPi.Infrastructure.ApiClients.Receipts.Dtos;
 
 namespace BudgetFlowAPi.Mappings;
 
@@ -74,61 +73,6 @@ public static class TransactionMapping
             .ToList();
     }
 
-    public static Transaction FromReceiptFieldsToTransaction(ReceiptDto? receipt)
-    {
-        var now = DateTime.UtcNow;
-
-        return new Transaction
-        {
-            Counterparty = receipt?.Counterparty ?? string.Empty,
-            Title = receipt?.Counterparty ?? "Receipt",
-            Description = BuildDescription(receipt),
-            Details = BuildDetails(receipt),
-            Amount = receipt?.TotalAmount ?? 0m,
-            Currency = receipt?.Currency ?? "USD",
-            Date = ToUtc(receipt?.TransactionDate, now),
-            Type = TransactionType.Expense,
-            CreatedAt = now
-        };
-    }
-
-    private static DateTime ToUtc(DateTime? value, DateTime fallback)
-    {
-        if (value is null)
-            return fallback;
-
-        return value.Value.Kind switch
-        {
-            DateTimeKind.Utc => value.Value,
-            DateTimeKind.Local => value.Value.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
-        };
-    }
-
-    private static string BuildDescription(ReceiptDto? receipt)
-    {
-        if (string.IsNullOrWhiteSpace(receipt?.Counterparty))
-            return "Receipt transaction";
-
-        return $"Purchase at {receipt.Counterparty}";
-    }
-
-    private static string BuildDetails(ReceiptDto? receipt)
-    {
-        if (receipt?.Items is null || !receipt.Items.Any())
-            return string.Empty;
-
-        return string.Join(
-            Environment.NewLine,
-            receipt.Items.Select(item =>
-            {
-                var name = item.Name ?? "Unknown item";
-                var quantity = item.Quantity ?? 1;
-                var price = item.Price ?? 0m;
-
-                return $"{name} x{quantity} - {price}";
-            }));
-    }
     public static IEnumerable<string> NormalizeTags(IEnumerable<string>? tags) =>
         (tags ?? [])
             .Where(x => !string.IsNullOrWhiteSpace(x))

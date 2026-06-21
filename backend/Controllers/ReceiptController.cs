@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetFlowAPi.Services;
-using BudgetFlowAPi.Extensions;
+using BudgetFlowAPi.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BudgetFlowAPi.Controllers;
@@ -9,16 +9,17 @@ namespace BudgetFlowAPi.Controllers;
 [Route("receipts")]
 public class ReceiptController : ControllerBase
 {
-    private readonly ITransactionService _transactionService;
-    public ReceiptController(ITransactionService transactionService)
+    private readonly IReceiptService _receiptService;
+
+    public ReceiptController(IReceiptService receiptService)
     {
-        _transactionService = transactionService;
+        _receiptService = receiptService;
     }
 
     [Authorize]
     [HttpPost]
     [HttpPost("/scan-receipt")]
-    public async Task<IActionResult> AddTransactionFromImage(CancellationToken cancellationToken)
+    public async Task<IActionResult> ScanReceipt(CancellationToken cancellationToken)
     {
         var form = await Request.ReadFormAsync(cancellationToken);
         var receiptImage =
@@ -31,8 +32,12 @@ public class ReceiptController : ControllerBase
             return BadRequest("No image file provided.");
         }
 
-        var userId = User.GetUserId();
-        var transaction = await _transactionService.AddTransactionFromReceiptImage(receiptImage, userId, cancellationToken);
-        return Ok(transaction);
+        var receipt = await _receiptService.ExtractReceiptFieldsAsync(receiptImage, cancellationToken);
+        if (receipt is null)
+        {
+            return Problem("Failed to extract fields from receipt image.");
+        }
+
+        return Ok(ReceiptScanDto.FromReceipt(receipt));
     }
 }

@@ -150,7 +150,7 @@ function PlaceTags({ tags = [], onChange }) {
   );
 }
 
-export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [] }) {
+export default function EntryModal({ open, entry, prefill, onSave, onClose, allPlaces = [] }) {
   const [date, setDate] = useState(today());
   const [places, setPlaces] = useState([emptyPlace()]);
   const [currency, setCurrency] = useState("PLN");
@@ -165,13 +165,23 @@ export default function EntryModal({ open, entry, onSave, onClose, allPlaces = [
         // currency lives on each place (transaction), take it from the first one
         const entryCurrency = entry.currency || entry.places?.[0]?.currency || "PLN";
         setCurrency(entryCurrency);
+      } else if (prefill) {
+        setDate(prefill.date || today());
+        setPlaces(
+          (prefill.places || [emptyPlace()]).map((p) => ({
+            ...p,
+            amount: String(p.amount ?? ""),
+            tags: p.tags || [],
+          }))
+        );
+        setCurrency(prefill.currency || "PLN");
       } else {
         setDate(today());
         setPlaces([emptyPlace()]);
         setCurrency("PLN");
       }
     }
-  }, [open, entry]);
+  }, [open, entry, prefill]);
 
   const addPlace = useCallback(() => {
     setPlaces((prev) => [...prev, emptyPlace()]);

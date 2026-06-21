@@ -9,14 +9,24 @@ public class ReceiptItem
         get; set;
     }
 
-    [Range(0.01, double.MaxValue, ErrorMessage = "Price must be a non-negative value.")]
+    [Range(0, double.MaxValue, ErrorMessage = "Price must be a non-negative value.")]
     public decimal? Price
     {
         get; set;
     }
 
-    [Range(0, int.MaxValue, ErrorMessage = "Quantity must be a non-negative value.")]
-    public int? Quantity
+    [Range(0, double.MaxValue, ErrorMessage = "Quantity must be a non-negative value.")]
+    public decimal? Quantity
+    {
+        get; set;
+    }
+
+    public decimal? UnitPrice
+    {
+        get; set;
+    }
+
+    public decimal? TotalPrice
     {
         get; set;
     }

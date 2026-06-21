@@ -2,18 +2,15 @@ using BudgetFlowAPi.Models;
 using BudgetFlowAPi.Repositories;
 using BudgetFlowAPi.DTO;
 using BudgetFlowAPi.Mappings;
-using BudgetFlowAPi.Infrastructure.ApiClients.Receipts.Dtos;
 
 namespace BudgetFlowAPi.Services;
 
 public class TransactionService : CrudService<Transaction>, ITransactionService
 {
     private readonly ITransactionRepository _transactionRepository;
-    private readonly IReceiptService _receiptService;
-    public TransactionService(ITransactionRepository transactionRepository, IReceiptService receiptService) : base(transactionRepository)
+    public TransactionService(ITransactionRepository transactionRepository) : base(transactionRepository)
     {
         _transactionRepository = transactionRepository;
-        _receiptService = receiptService;
     }
 
     public async Task<IEnumerable<Transaction>> GetByCounterpartyAsync(string counterparty)
@@ -55,25 +52,6 @@ public class TransactionService : CrudService<Transaction>, ITransactionService
         transaction.UpdatedAt = DateTime.UtcNow;
 
         await _transactionRepository.UpdateAsync(transaction);
-    }
-
-    public async Task<Transaction> AddTransactionFromReceiptImage(IFormFile receiptImage, int userId, CancellationToken cancellationToken = default)
-    {
-        var fields = await _receiptService.ExtractReceiptFieldsAsync(receiptImage, cancellationToken);
-        if (fields == null)
-        {
-            throw new Exception("Failed to extract fields from receipt image.");
-        }
-
-        return await CreateTransactionFromReceiptFields(fields, userId);
-    }
-
-    public Task<Transaction> CreateTransactionFromReceiptFields(ReceiptDto fields, int userId)
-    {
-        var transaction = TransactionMapping.FromReceiptFieldsToTransaction(fields);
-        transaction.UserId = userId;
-        transaction.CreatedAt = DateTime.UtcNow;
-        return _transactionRepository.AddAsync(transaction);
     }
 
     public async Task<Transaction> AddAsync(TransactionDto dto, int userId)

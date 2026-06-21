@@ -23,3 +23,13 @@ export function deleteTransaction(id) {
     method: "DELETE",
   });
 }
+
+export function scanReceipt(file) {
+  const formData = new FormData();
+  formData.append("receipt", file);
+
+  return apiFetch("/scan-receipt", {
+    method: "POST",
+    body: formData,
+  });
+}

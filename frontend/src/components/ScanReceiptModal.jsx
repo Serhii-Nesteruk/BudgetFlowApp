@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Btn } from "./UI";
 import styles from "./ScanReceiptModal.module.css";
-import { apiFetch } from "../api/apiClient";
+import { scanReceipt } from "../api/transactionsApi";
 
 const IconCamera = () => (
   <svg
@@ -80,20 +80,11 @@ export default function ScanReceiptModal({ onClose, onSuccess }) {
     setMessage("");
 
     try {
-      const formData = new FormData();
-      formData.append("receipt", file);
-
-      const data = await apiFetch("/scan-receipt", {
-        method: "POST",
-        body: formData,
-      });
+      const data = await scanReceipt(file);
 
       setStatus("success");
-      setMessage(data.message || "Чек успішно розпізнано!");
-      setTimeout(() => {
-        onSuccess?.(data);
-        onClose();
-      }, 1500);
+      onSuccess?.(data);
+      onClose();
     } catch (err) {
       setStatus("error");
       setMessage(err.message);
@@ -117,7 +108,7 @@ export default function ScanReceiptModal({ onClose, onSuccess }) {
             <div>
               <div className={styles.title}>Сканувати чек</div>
               <div className={styles.subtitle}>
-                Завантажте фото чека — запис додається автоматично
+                Завантажте фото чека — перевірите дані перед збереженням
               </div>
             </div>
           </div>

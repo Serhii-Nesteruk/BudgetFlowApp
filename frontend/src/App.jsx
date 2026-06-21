@@ -16,12 +16,14 @@ import BudgetPage from "./components/BudgetPage";
 import DebtsPage from "./components/DebtsPage";
 import SettingsPage from "./components/SettingsPage";
 import SavingsPage from "./components/SavingsPage";
+import { receiptScanToEntry } from "./mappers/transactionMapper";
 import styles from "./App.module.css";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("table");
   const [modalOpen, setModalOpen] = useState(false);
   const [editEntry, setEditEntry] = useState(null);
+  const [entryPrefill, setEntryPrefill] = useState(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [statsMounted, setStatsMounted] = useState(false);
   const { rates, error: ratesError } = useCurrencyRates();
@@ -65,10 +67,12 @@ export default function App() {
 
   function openAdd() {
     setEditEntry(null);
+    setEntryPrefill(null);
     setModalOpen(true);
   }
   function openEdit(id) {
     setEditEntry(data.find((e) => e.id === id));
+    setEntryPrefill(null);
     setModalOpen(true);
   }
 
@@ -76,6 +80,13 @@ export default function App() {
     if (editEntry) updateEntry(editEntry.id, formData);
     else addEntry(formData);
     setModalOpen(false);
+    setEntryPrefill(null);
+  }
+
+  function handleReceiptScanned(scan) {
+    setEditEntry(null);
+    setEntryPrefill(receiptScanToEntry(scan));
+    setModalOpen(true);
   }
 
   function handleDelete(id) {
@@ -180,16 +191,17 @@ export default function App() {
       <EntryModal
         open={modalOpen}
         entry={editEntry}
+        prefill={entryPrefill}
         onSave={handleSave}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setEntryPrefill(null);
+        }}
         allPlaces={allPlaces}
       />
 
       {scanOpen && (
-        <ScanReceiptModal
-          onClose={() => setScanOpen(false)}
-          onSuccess={reload}
-        />
+        <ScanReceiptModal onClose={() => setScanOpen(false)} onSuccess={handleReceiptScanned} />
       )}
     </div>
   );

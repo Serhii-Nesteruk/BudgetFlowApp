@@ -72,9 +72,11 @@ Budget item operations always return the complete updated `Budget`; the nested i
 
 ## Receipt scan
 
+`ReceiptScan`: `{ counterparty, items: [{ name, quantity, unitPrice, totalPrice }], date, totalAmount, currency }`. It is a non-persistent draft: it does not create a transaction or save the uploaded image. The frontend must let the user review or edit it, then submit the confirmed entry to `POST /transactions`.
+
 | Method and path | Body / parameters | Successful response | Errors |
 |---|---|---|---|
-| 🔒 `POST /receipts` | `multipart/form-data`: a file in `receiptImage` or `receipt` (or the first form file) | `200` — created scanned transaction (`id`, transaction fields, `userId`, `createdAt`, …) | `400 "No image file provided."`; `401`; a recognition failure may return `5xx` |
+| 🔒 `POST /receipts` | `multipart/form-data`: a file in `receiptImage` or `receipt` (or the first form file) | `200 ReceiptScan` | `400 "No image file provided."`; `401`; a recognition failure may return `5xx` |
 | 🔒 `POST /scan-receipt` | Same; an alternative absolute route | Same | Same |
 
 ## Debts
