@@ -82,7 +82,7 @@ builder.Services.AddScoped<ISavingsGoalRepository, SavingsGoalRepository>();
 builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(client =>
 {
     var receiptScannerBaseUrl = builder.Configuration.GetValue<string>("ReceiptScanner:BaseUrl")
-        ?? "http://localhost:8081/";
+        ?? "http://receipt_scanner:8080/";
 
     client.BaseAddress = new Uri(receiptScannerBaseUrl);
 });
