@@ -24,7 +24,7 @@ export function entryToTransactionPayloads(entry) {
 }
 
 function scanDateToInputValue(value) {
-  const fallback = new Date().toISOString().slice(0, 10);
+  const fallback = localDateInputValue();
   if (!value) return fallback;
 
   const raw = String(value).trim();
@@ -34,6 +34,13 @@ function scanDateToInputValue(value) {
   const date = new Date(raw);
   if (Number.isNaN(date.getTime())) return fallback;
 
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function localDateInputValue(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");

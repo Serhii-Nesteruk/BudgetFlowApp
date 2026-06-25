@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { loginRequest } from "../api/authApi";
+import { loginRequest, logoutRequest } from "../api/authApi";
 
 export const AuthContext = createContext(null);
 
@@ -7,15 +7,25 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
 
   async function login(email, password) {
-    const jwt = await loginRequest(email, password);
+    const tokens = await loginRequest(email, password);
 
-    localStorage.setItem("token", jwt);
-    setToken(jwt);
+    localStorage.setItem("token", tokens.token);
+    localStorage.setItem("refreshToken", tokens.refreshToken);
+    setToken(tokens.token);
   }
 
-  function logout() {
+  async function logout() {
+    const refreshToken = localStorage.getItem("refreshToken");
+
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     setToken(null);
+
+    try {
+      await logoutRequest(refreshToken);
+    } catch {
+      // Local logout should still succeed if the server is unavailable.
+    }
   }
 
   return (

@@ -2,7 +2,6 @@ using BudgetFlowAPi.DTO;
 using BudgetFlowAPi.Models;
 using BudgetFlowAPi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BudgetFlowAPi.Controllers;
 
@@ -21,15 +20,41 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
     {
-        var token = await _authService.AuthenticateAsync(loginRequest);
-        if (token.IsNullOrEmpty())
+        var tokens = await _authService.AuthenticateAsync(loginRequest);
+        if (tokens == null)
         {
             return Unauthorized("Invalid email or password");
         }
-        return Ok(new
+
+        return Ok(tokens);
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto refreshRequest)
+    {
+        if (string.IsNullOrWhiteSpace(refreshRequest.RefreshToken))
         {
-            Token = token
-        });
+            return BadRequest("Refresh token is required");
+        }
+
+        var tokens = await _authService.RefreshAsync(refreshRequest.RefreshToken);
+        if (tokens == null)
+        {
+            return Unauthorized("Invalid refresh token");
+        }
+
+        return Ok(tokens);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutRequestDto logoutRequest)
+    {
+        if (!string.IsNullOrWhiteSpace(logoutRequest.RefreshToken))
+        {
+            await _authService.LogoutAsync(logoutRequest.RefreshToken);
+        }
+
+        return NoContent();
     }
 
     [HttpPost("register")]

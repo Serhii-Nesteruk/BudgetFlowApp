@@ -5,6 +5,8 @@ namespace BudgetFlowAPi.Services;
 
 public interface IAuthService
 {
-    Task<string> AuthenticateAsync(LoginRequestDto loginRequest);
+    Task<AuthResponseDto?> AuthenticateAsync(LoginRequestDto loginRequest);
     Task<User> RegisterAsync(RegisterRequestDto registerRequest);
+    Task<AuthResponseDto?> RefreshAsync(string refreshToken);
+    Task LogoutAsync(string refreshToken);
 }

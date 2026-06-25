@@ -85,6 +85,10 @@ public class AppDbContext : DbContext
     {
         get; set;
     }
+    public DbSet<Models.RefreshToken> RefreshTokens
+    {
+        get; set;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -124,6 +128,12 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Models.UserSettings>()
             .Property(x => x.FontSize)
             .HasDefaultValue("normal");
+
+        modelBuilder.Entity<Models.RefreshToken>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.RefreshTokens)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Models.Budget>()
             .HasOne(x => x.Owner)

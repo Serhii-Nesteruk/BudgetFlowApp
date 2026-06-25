@@ -1,4 +1,5 @@
 import styles from "./Sidebar.module.css";
+import { useAuth } from "../auth/useAuth";
 
 const IconTable = () => (
   <svg
@@ -107,8 +108,26 @@ const IconCamera = () => (
     <circle cx="12" cy="13" r="4" />
   </svg>
 );
+const IconLogout = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.9"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="M16 17l5-5-5-5" />
+    <path d="M21 12H9" />
+  </svg>
+);
 
 export default function Sidebar({ activeTab, onTabChange, onScanReceipt }) {
+  const { logout } = useAuth();
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logo}>
@@ -165,6 +184,10 @@ export default function Sidebar({ activeTab, onTabChange, onScanReceipt }) {
         <button className={styles.scanBtn} onClick={onScanReceipt}>
           <IconCamera />
           <span className={styles.scanBtnLabel}>Сканувати чек</span>
+        </button>
+        <button className={styles.logoutBtn} onClick={logout}>
+          <IconLogout />
+          <span className={styles.scanBtnLabel}>Вийти</span>
         </button>
       </div>
     </aside>

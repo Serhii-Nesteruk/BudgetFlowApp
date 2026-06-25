@@ -1,6 +1,12 @@
+import { refreshTokenRequest } from "./authApi";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 export async function apiFetch(path, options = {}) {
+  return sendApiRequest(path, options, true);
+}
+
+async function sendApiRequest(path, options = {}, canRefresh) {
   const token = localStorage.getItem("token");
   const isFormData = options.body instanceof FormData;
 
@@ -14,8 +20,11 @@ export async function apiFetch(path, options = {}) {
   });
 
   if (res.status === 401) {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+    if (canRefresh && (await refreshAuthToken())) {
+      return sendApiRequest(path, options, false);
+    }
+
+    clearAuthAndRedirect();
     throw new Error("Сесія закінчилась");
   }
 
@@ -29,4 +38,26 @@ export async function apiFetch(path, options = {}) {
   }
 
   return await res.json();
+}
+
+async function refreshAuthToken() {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const tokens = await refreshTokenRequest(refreshToken);
+    localStorage.setItem("token", tokens.token);
+    localStorage.setItem("refreshToken", tokens.refreshToken);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clearAuthAndRedirect() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/login";
 }

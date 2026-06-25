@@ -16,7 +16,36 @@ export async function loginRequest(email, password) {
 
   const data = await res.json();
 
-  return data.token ?? data.Token;
+  return normalizeAuthResponse(data);
+}
+
+export async function refreshTokenRequest(refreshToken) {
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message || "Сесія закінчилась");
+  }
+
+  return normalizeAuthResponse(await res.json());
+}
+
+export async function logoutRequest(refreshToken) {
+  if (!refreshToken) return;
+
+  await fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refreshToken }),
+  });
 }
 
 export async function registerRequest(name, email, password, language) {
@@ -34,4 +63,11 @@ export async function registerRequest(name, email, password, language) {
   }
 
   return await res.json();
+}
+
+function normalizeAuthResponse(data) {
+  return {
+    token: data.token ?? data.Token,
+    refreshToken: data.refreshToken ?? data.RefreshToken,
+  };
 }

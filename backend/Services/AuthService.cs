@@ -1,9 +1,12 @@
 using BudgetFlowAPi.DTO;
+using BudgetFlowAPi.Data;
 using BudgetFlowAPi.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BudgetFlowAPi.Services;
@@ -11,22 +14,25 @@ namespace BudgetFlowAPi.Services;
 public class AuthService : IAuthService
 {
     private readonly IUserService _userService;
+    private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IUserService userService, IConfiguration configuration)
+    public AuthService(IUserService userService, AppDbContext context, IConfiguration configuration)
     {
         _userService = userService;
+        _context = context;
         _configuration = configuration;
     }
 
-    public async Task<string> AuthenticateAsync(LoginRequestDto loginRequest)
+    public async Task<AuthResponseDto?> AuthenticateAsync(LoginRequestDto loginRequest)
     {
         var user = await _userService.GetByEmailAsync(loginRequest.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
         {
-            return string.Empty;
+            return null;
         }
-        return GenerateJwtToken(user);
+
+        return await CreateAuthResponseAsync(user);
     }
 
     public async Task<User> RegisterAsync(RegisterRequestDto registerRequest)
@@ -45,6 +51,36 @@ public class AuthService : IAuthService
 
         await _userService.AddAsync(user);
         return user;
+    }
+
+    public async Task<AuthResponseDto?> RefreshAsync(string refreshToken)
+    {
+        var storedToken = await _context.RefreshTokens
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => x.Token == refreshToken);
+
+        if (storedToken?.User == null || !storedToken.IsActive)
+        {
+            return null;
+        }
+
+        storedToken.RevokedAt = DateTime.UtcNow;
+        var response = await CreateAuthResponseAsync(storedToken.User);
+        await _context.SaveChangesAsync();
+
+        return response;
+    }
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == refreshToken);
+        if (storedToken == null || storedToken.RevokedAt != null)
+        {
+            return;
+        }
+
+        storedToken.RevokedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
     }
 
     private static string NormalizeLanguage(string? language)
@@ -70,10 +106,34 @@ public class AuthService : IAuthService
             issuer: _configuration.GetValue<string>("Jwt:Issuer"),
             audience: _configuration.GetValue<string>("Jwt:Audience"),
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: credentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private async Task<AuthResponseDto> CreateAuthResponseAsync(User user)
+    {
+        var refreshToken = new RefreshToken
+        {
+            Token = GenerateRefreshToken(),
+            UserId = user.Id,
+            ExpiresAt = DateTime.UtcNow.AddDays(30)
+        };
+
+        _context.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync();
+
+        return new AuthResponseDto
+        {
+            Token = GenerateJwtToken(user),
+            RefreshToken = refreshToken.Token
+        };
+    }
+
+    private static string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 }

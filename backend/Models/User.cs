@@ -49,4 +49,5 @@ public class User
     public ICollection<Budget> OwnedBudgets { get; set; } = new List<Budget>();
     public ICollection<BudgetSharedUser> SharedBudgets { get; set; } = new List<BudgetSharedUser>();
     public ICollection<SavingsGoal> SavingsGoals { get; set; } = new List<SavingsGoal>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

@@ -14,7 +14,7 @@ public class ReceiptDto
     }
 
     [JsonPropertyName("Date")]
-    public DateTime? TransactionDate
+    public string? TransactionDate
     {
         get; set;
     }
