@@ -29,6 +29,18 @@ public class AuthController : ControllerBase
         return Ok(tokens);
     }
 
+    [HttpPost("telegram-webapp")]
+    public async Task<IActionResult> TelegramWebAppLogin([FromBody] TelegramWebAppAuthRequestDto request)
+    {
+        var tokens = await _authService.AuthenticateTelegramWebAppAsync(request.InitData);
+        if (tokens == null)
+        {
+            return Unauthorized("Telegram account is not connected or init data is invalid");
+        }
+
+        return Ok(tokens);
+    }
+
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto refreshRequest)
     {

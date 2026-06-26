@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -33,6 +34,21 @@ public class AuthService : IAuthService
         }
 
         return await CreateAuthResponseAsync(user);
+    }
+
+    public async Task<AuthResponseDto?> AuthenticateTelegramWebAppAsync(string initData)
+    {
+        var telegramUserId = ValidateTelegramWebAppInitData(initData);
+        if (telegramUserId == null)
+        {
+            return null;
+        }
+
+        var account = await _context.TelegramAccounts
+            .Include(x => x.User)
+            .FirstOrDefaultAsync(x => x.TelegramUserId == telegramUserId.Value);
+
+        return account?.User == null ? null : await CreateAuthResponseAsync(account.User);
     }
 
     public async Task<User> RegisterAsync(RegisterRequestDto registerRequest)
@@ -135,5 +151,88 @@ public class AuthService : IAuthService
     private static string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
+    private long? ValidateTelegramWebAppInitData(string initData)
+    {
+        var botToken = _configuration.GetValue<string>("Telegram:BotToken");
+        if (string.IsNullOrWhiteSpace(botToken) || string.IsNullOrWhiteSpace(initData))
+        {
+            return null;
+        }
+
+        var values = ParseQueryString(initData);
+        if (!values.TryGetValue("hash", out var receivedHash) || string.IsNullOrWhiteSpace(receivedHash))
+        {
+            return null;
+        }
+
+        if (!values.TryGetValue("auth_date", out var authDateValue) ||
+            !long.TryParse(authDateValue, out var authDateUnix))
+        {
+            return null;
+        }
+
+        var maxAgeMinutes = _configuration.GetValue<int?>("Telegram:WebAppAuthMaxAgeMinutes") ?? 1440;
+        var authDate = DateTimeOffset.FromUnixTimeSeconds(authDateUnix);
+        if (authDate < DateTimeOffset.UtcNow.AddMinutes(-maxAgeMinutes) ||
+            authDate > DateTimeOffset.UtcNow.AddMinutes(5))
+        {
+            return null;
+        }
+
+        var dataCheckString = string.Join("\n", values
+            .Where(x => x.Key != "hash")
+            .OrderBy(x => x.Key, StringComparer.Ordinal)
+            .Select(x => $"{x.Key}={x.Value}"));
+
+        var secretKey = HMACSHA256.HashData(
+            Encoding.UTF8.GetBytes("WebAppData"),
+            Encoding.UTF8.GetBytes(botToken));
+        var computedHash = Convert.ToHexString(HMACSHA256.HashData(
+            secretKey,
+            Encoding.UTF8.GetBytes(dataCheckString))).ToLowerInvariant();
+
+        if (!CryptographicOperations.FixedTimeEquals(
+                Encoding.ASCII.GetBytes(computedHash),
+                Encoding.ASCII.GetBytes(receivedHash.ToLowerInvariant())))
+        {
+            return null;
+        }
+
+        if (!values.TryGetValue("user", out var userJson) || string.IsNullOrWhiteSpace(userJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(userJson);
+            return document.RootElement.TryGetProperty("id", out var idElement)
+                ? idElement.GetInt64()
+                : null;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static Dictionary<string, string> ParseQueryString(string queryString)
+    {
+        return queryString
+            .TrimStart('?')
+            .Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Select(part =>
+            {
+                var index = part.IndexOf('=');
+                var key = index >= 0 ? part[..index] : part;
+                var value = index >= 0 ? part[(index + 1)..] : string.Empty;
+                return new KeyValuePair<string, string>(
+                    WebUtility.UrlDecode(key),
+                    WebUtility.UrlDecode(value));
+            })
+            .Where(x => !string.IsNullOrWhiteSpace(x.Key))
+            .ToDictionary(x => x.Key, x => x.Value);
     }
 }

@@ -27,6 +27,9 @@ public class SavingsEntry
         get; set;
     }
 
+    [Required, Column("currency", TypeName = "varchar(5)"), MaxLength(5)]
+    public string Currency { get; set; } = "PLN";
+
     [Required, Column("date")]
     public DateTime Date
     {

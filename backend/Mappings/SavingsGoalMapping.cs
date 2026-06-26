@@ -25,6 +25,7 @@ public static class SavingsGoalMapping
     {
         Id = entry.Id,
         Amount = entry.Amount,
+        Currency = entry.Currency,
         Date = entry.Date,
         Note = entry.Note,
     };
@@ -43,13 +44,17 @@ public static class SavingsGoalMapping
         CreatedAt = DateTime.UtcNow,
     };
 
-    public static SavingsEntry ToEntity(this SavingsEntryDto dto) => new()
+    public static SavingsEntry ToEntity(this SavingsEntryDto dto, string goalCurrency) => new()
     {
         Amount = dto.Amount,
+        Currency = NormalizeCurrency(dto.Currency, goalCurrency),
         Date = dto.Date,
         Note = dto.Note.Trim(),
         CreatedAt = DateTime.UtcNow,
     };
+
+    public static string NormalizeCurrency(string? currency, string fallback) =>
+        (string.IsNullOrWhiteSpace(currency) ? fallback : currency).Trim().ToUpperInvariant();
 
     public static IEnumerable<string> NormalizeTags(IEnumerable<string>? tags) =>
         (tags ?? [])

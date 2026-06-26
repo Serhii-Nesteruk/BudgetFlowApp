@@ -44,6 +44,9 @@ public class SavingsEntryDto
         get; set;
     }
 
+    [MaxLength(5)]
+    public string? Currency { get; set; }
+
     [Required]
     public DateTime Date
     {

@@ -67,7 +67,7 @@ public class SavingsGoalService : CrudService<SavingsGoal>, ISavingsGoalService
         if (goal == null)
             return null;
 
-        goal.Entries.Add(dto.ToEntity());
+        goal.Entries.Add(dto.ToEntity(goal.Currency));
         goal.UpdatedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(goal);
         return await _repository.GetByIdForUserIdAsync(id, userId);
