@@ -139,3 +139,25 @@
 :global(html[data-theme="dark"]) .chipActive {
   color: #fff !important;
 }
+
+/* UI/UX Pro Max dark redesign: tactile controls */
+:global(html[data-theme="dark"]) .btn,
+:global(html[data-theme="dark"]) .chip,
+:global(html[data-theme="dark"]) .tag {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+:global(html[data-theme="dark"]) .btn:hover,
+:global(html[data-theme="dark"]) .chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56, 189, 248, 0.26);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:global(html[data-theme="dark"]) .primary,
+:global(html[data-theme="dark"]) .chipActive {
+  background: var(--primary-gradient);
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18), 0 0 22px rgba(56, 189, 248, 0.08);
+}
+

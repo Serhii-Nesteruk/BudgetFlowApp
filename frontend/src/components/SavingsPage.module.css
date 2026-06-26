@@ -793,3 +793,59 @@
     transform: translateY(0);
   }
 }
+
+/* UI/UX Pro Max dark redesign: savings dashboard */
+:global(html[data-theme="dark"]) .hero,
+:global(html[data-theme="dark"]) .summaryRow article,
+:global(html[data-theme="dark"]) .goalCard,
+:global(html[data-theme="dark"]) .error,
+:global(html[data-theme="dark"]) .empty,
+:global(html[data-theme="dark"]) .modal,
+:global(html[data-theme="dark"]) .modalHeader,
+:global(html[data-theme="dark"]) .modalFooter,
+:global(html[data-theme="dark"]) .historyItem {
+  background: linear-gradient(145deg, rgba(12, 20, 32, 0.8), rgba(6, 10, 17, 0.74));
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-card);
+}
+
+:global(html[data-theme="dark"]) .hero {
+  background:
+    radial-gradient(circle at 86% 14%, rgba(56, 189, 248, 0.2), transparent 36%),
+    radial-gradient(circle at 14% 88%, rgba(34, 197, 94, 0.14), transparent 38%),
+    linear-gradient(145deg, rgba(12, 20, 32, 0.88), rgba(4, 8, 14, 0.82));
+}
+
+:global(html[data-theme="dark"]) .goalCard:hover,
+:global(html[data-theme="dark"]) .summaryRow article:hover {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.22);
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.42), 0 0 30px rgba(56, 189, 248, 0.08);
+}
+
+:global(html[data-theme="dark"]) .primaryButton,
+:global(html[data-theme="dark"]) .progress span,
+:global(html[data-theme="dark"]) .iconPicker .iconActive,
+:global(html[data-theme="dark"]) .suggestionTags .tagSelected,
+:global(html[data-theme="dark"]) .sourceAuto {
+  background: var(--primary-gradient) !important;
+  color: #fff !important;
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18);
+}
+
+:global(html[data-theme="dark"]) .secondaryButton,
+:global(html[data-theme="dark"]) .modalHeader > button,
+:global(html[data-theme="dark"]) .deleteEntry,
+:global(html[data-theme="dark"]) .customTagRow button,
+:global(html[data-theme="dark"]) .historyHeader > span,
+:global(html[data-theme="dark"]) .sourceManual,
+:global(html[data-theme="dark"]) .modalBody input,
+:global(html[data-theme="dark"]) .modalBody textarea,
+:global(html[data-theme="dark"]) .modalBody select,
+:global(html[data-theme="dark"]) .entryForm input,
+:global(html[data-theme="dark"]) .iconPicker button,
+:global(html[data-theme="dark"]) .suggestionTags button {
+  background: rgba(13, 21, 33, 0.78);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+

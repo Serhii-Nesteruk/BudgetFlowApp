@@ -8,6 +8,10 @@ services:
     container_name: frontend
     ports: 
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/letsencrypt:/var/www/letsencrypt:ro
     depends_on: 
       - api
     restart: unless-stopped
@@ -22,16 +26,35 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       Jwt__Key: ${JWT_KEY}
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN}
+      Telegram__BotLink: https://t.me/${TELEGRAM_BOT_USERNAME}
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       ReceiptScanner__BaseUrl: http://receipt_scanner:8080/
+      ReceiptScanner__TimeoutSeconds: 300
       Cors__AllowedOrigins__0: http://localhost
       Cors__AllowedOrigins__1: http://127.0.0.1
-      # Cors__AllowedOrigins__0: http://SERVER_IP
-      # Cors__AllowedOrigins__1: http://domain.com
+      # Cors__AllowedOrigins__0: https://SERVER_IP
+      # Cors__AllowedOrigins__1: http://SERVER_IP
     depends_on:
       db:
         condition: service_healthy
       receipt_scanner:
+        condition: service_started
+    restart: unless-stopped
+
+  telegram_bot:
+    build:
+      context: ./telegram_bot
+      dockerfile: Dockerfile
+    container_name: telegram_bot
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_WEB_APP_URL: ${TELEGRAM_WEB_APP_URL}
+      BACKEND_BASE_URL: http://api:8080
+      TELEGRAM_HTTP_TIMEOUT_SECONDS: 120
+      BACKEND_HTTP_TIMEOUT_SECONDS: 300
+    depends_on:
+      api:
         condition: service_started
     restart: unless-stopped
 
@@ -45,10 +68,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      RECEIPT_SCANNER_MODEL_PATH: /app/models/frozen_east_text_detection.pb
-      RECEIPT_SCANNER_DEBUG_ARTIFACTS: "false"
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_RECEIPT_MODEL: ${OPENAI_RECEIPT_MODEL:-gpt-4.1-mini}
+      OPENAI_RECEIPT_TIMEOUT_SECONDS: 300
     restart: unless-stopped
 
   db:

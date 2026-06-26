@@ -19,6 +19,23 @@ export async function loginRequest(email, password) {
   return normalizeAuthResponse(data);
 }
 
+export async function telegramWebAppLoginRequest(initData) {
+  const res = await fetch(`${API_URL}/auth/telegram-webapp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ initData }),
+  });
+
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message || "Telegram-акаунт не підключено");
+  }
+
+  return normalizeAuthResponse(await res.json());
+}
+
 export async function refreshTokenRequest(refreshToken) {
   const res = await fetch(`${API_URL}/auth/refresh`, {
     method: "POST",

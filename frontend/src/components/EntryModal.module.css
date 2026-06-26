@@ -639,3 +639,50 @@
     min-height: 44px;
   }
 }
+
+/* UI/UX Pro Max dark redesign: transaction modal */
+:global(html[data-theme="dark"]) .overlay {
+  background: rgba(0, 5, 12, 0.62);
+}
+
+:global(html[data-theme="dark"]) .modal {
+  background: rgba(7, 12, 20, 0.84);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-float);
+}
+
+:global(html[data-theme="dark"]) .header,
+:global(html[data-theme="dark"]) .footer {
+  background: rgba(7, 12, 20, 0.66);
+  border-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+
+:global(html[data-theme="dark"]) .input,
+:global(html[data-theme="dark"]) .comboInput,
+:global(html[data-theme="dark"]) .comboList,
+:global(html[data-theme="dark"]) .placeCard,
+:global(html[data-theme="dark"]) .footerBtn {
+  background: rgba(13, 21, 33, 0.78);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(html[data-theme="dark"]) .input:focus,
+:global(html[data-theme="dark"]) .comboInput:focus {
+  background: rgba(16, 26, 42, 0.92);
+  border-color: rgba(56, 189, 248, 0.52);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+}
+
+:global(html[data-theme="dark"]) .addBtn,
+:global(html[data-theme="dark"]) .footerBtnPrimary {
+  background: var(--primary-gradient);
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18);
+}
+
+:global(html[data-theme="dark"]) .placeCard:hover,
+:global(html[data-theme="dark"]) .footerBtn:hover {
+  border-color: rgba(56, 189, 248, 0.24);
+  transform: translateY(-1px);
+}
+

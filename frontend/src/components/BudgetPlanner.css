@@ -2023,3 +2023,112 @@ html[data-theme="dark"] .categoryModalActions {
     width: 100%;
   }
 }
+
+/* UI/UX Pro Max dark redesign: budget planning dashboard */
+html[data-theme="dark"] .budgetPlanner {
+  --bp-navy: #07111f;
+  --bp-navy-deep: #020711;
+  --bp-green: #22c55e;
+  --bp-blue: #38bdf8;
+  --bp-line: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(
+  .budgetTile,
+  .createTile,
+  .portfolioHero,
+  .heroCard,
+  .budgetHero,
+  .dashboardHero,
+  .eventTabs,
+  .sectionCard,
+  .budgetPanel,
+  .categoryPanel,
+  .plannedExpenseRow,
+  .incomeSourceRow,
+  .mandatoryRow,
+  .sharedUserRow,
+  .categoryModal,
+  .categoryModalHeader,
+  .categoryModalFooter,
+  .drawer,
+  .softButton,
+  .rowActions button
+) {
+  background: linear-gradient(145deg, rgba(12, 20, 32, 0.8), rgba(6, 10, 17, 0.74));
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-card);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.dashboardHero, .portfolioHero, .heroCard, .budgetHero) {
+  background:
+    radial-gradient(circle at 86% 14%, rgba(56, 189, 248, 0.22), transparent 36%),
+    radial-gradient(circle at 16% 86%, rgba(34, 197, 94, 0.15), transparent 38%),
+    linear-gradient(145deg, rgba(12, 20, 32, 0.9), rgba(4, 8, 14, 0.84));
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.budgetTile:hover, .createTile:hover, .softButton:hover, .rowActions button:hover) {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.22);
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.42), 0 0 30px rgba(56, 189, 248, 0.08);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(input, select, textarea, .eventTabs button, .categoryChip, .tileProgress) {
+  background: rgba(13, 21, 33, 0.78);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.primaryButton, .createButton, .saveButton, .heroProgress span, .tileProgress span, .eventTabs .active) {
+  background: var(--primary-gradient) !important;
+  color: #fff !important;
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.18);
+}
+
+
+/* Fix: dark theme chips/categories that still used light hard-coded backgrounds */
+html[data-theme="dark"] .budgetPlanner :is(.categoryCard, .labelPicker, .copyPreviousChoice) {
+  background: linear-gradient(145deg, rgba(12, 20, 32, 0.82), rgba(6, 10, 17, 0.76)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .budgetPlanner :is(.labelOptions button, .tagRow span, .selectedLabels span, .planPreview span) {
+  background: rgba(13, 21, 33, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] .budgetPlanner .labelOptions button.selected,
+html[data-theme="dark"] .budgetPlanner .selectedLabels span {
+  background: rgba(34, 197, 94, 0.13) !important;
+  border-color: rgba(34, 197, 94, 0.28) !important;
+  color: #86efac !important;
+}
+
+html[data-theme="dark"] .budgetPlanner .categoryProgress {
+  background: rgba(148, 163, 184, 0.14) !important;
+}
+
+/* Fix: budget detail panels still used the light glassSection background in dark theme */
+html[data-theme="dark"] .budgetPlanner :is(.glassSection, .telegramCard) {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.08), transparent 34%),
+    linear-gradient(145deg, rgba(12, 20, 32, 0.86), rgba(6, 10, 17, 0.78)) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+html[data-theme="dark"] .budgetPlanner .glassSection .sectionHeader,
+html[data-theme="dark"] .budgetPlanner .telegramCard {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .budgetPlanner .simpleRow {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .budgetPlanner .telegramCard p,
+html[data-theme="dark"] .budgetPlanner .glassSection .sectionHeader p {
+  color: var(--muted) !important;
+}

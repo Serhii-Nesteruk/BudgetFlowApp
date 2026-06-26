@@ -104,7 +104,10 @@ export default function SettingsPage() {
 
   const hasTelegram = accounts.length > 0;
   const telegramLink = useMemo(
-    () => connectData?.botLink || "https://t.me/finance_tracker_demo_bot",
+    () =>
+      connectData?.code && connectData?.botLink
+        ? `${connectData.botLink}?start=${connectData.code}`
+        : connectData?.botLink || "https://t.me/finance_tracker_demo_bot",
     [connectData]
   );
 
@@ -458,7 +461,8 @@ export default function SettingsPage() {
               </div>
               <h2>Підключення Telegram-бота</h2>
               <p className={styles.modalText}>
-                Перейдіть за посиланням і надішліть боту одноразовий код. Код діє до{" "}
+                Перейдіть за посиланням: код передасться боту автоматично. Якщо Telegram не
+                підставить код, надішліть його вручну. Код діє до{" "}
                 {new Date(connectData.expiresAt).toLocaleTimeString("uk-UA", {
                   hour: "2-digit",
                   minute: "2-digit",

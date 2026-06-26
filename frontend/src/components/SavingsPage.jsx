@@ -63,16 +63,18 @@ function automaticEntries(goal, expenses, rates) {
     }));
 }
 
-function manualEntries(goal) {
+function manualEntries(goal, rates) {
   return (goal.entries || []).map((entry) => ({
     ...entry,
     source: "manual",
-    amount: Number(entry.amount || 0),
+    amount: convertAmount(entry.amount, entry.currency || goal.currency, goal.currency, rates),
+    originalAmount: Number(entry.amount || 0),
+    originalCurrency: entry.currency || goal.currency,
   }));
 }
 
 function buildGoalView(goal, expenses, rates) {
-  const history = [...manualEntries(goal), ...automaticEntries(goal, expenses, rates)].sort(
+  const history = [...manualEntries(goal, rates), ...automaticEntries(goal, expenses, rates)].sort(
     (a, b) => String(b.date).localeCompare(String(a.date))
   );
 
@@ -416,7 +418,12 @@ function GoalDetails({ goal, onClose, onEdit, onDelete, onAddEntry, onDeleteEntr
   async function submit(event) {
     event.preventDefault();
     if (!Number(amount)) return;
-    await onAddEntry({ amount: Number(amount), date: `${date}T00:00:00Z`, note: note.trim() });
+    await onAddEntry({
+      amount: Number(amount),
+      currency: goal.currency,
+      date: `${date}T00:00:00Z`,
+      note: note.trim(),
+    });
     setAmount("");
     setNote("");
   }
@@ -450,7 +457,7 @@ function GoalDetails({ goal, onClose, onEdit, onDelete, onAddEntry, onDeleteEntr
         </div>
         <form className={styles.entryForm} onSubmit={submit}>
           <label>
-            <span>Сума внеску</span>
+            <span>Сума внеску ({goal.currency})</span>
             <input
               type="number"
               min="0.01"

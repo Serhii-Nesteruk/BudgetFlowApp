@@ -497,3 +497,65 @@
     border-radius: 14px;
   }
 }
+
+/* UI/UX Pro Max dark redesign: data table glass */
+:global(html[data-theme="dark"]) .tableCard,
+:global(html[data-theme="dark"]) .mobileCard,
+:global(html[data-theme="dark"]) .empty,
+:global(html[data-theme="dark"]) .mobileEmpty,
+:global(html[data-theme="dark"]) .pager {
+  background: rgba(8, 14, 23, 0.72);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-card);
+}
+
+:global(html[data-theme="dark"]) .table thead {
+  background: rgba(56, 189, 248, 0.08);
+}
+
+:global(html[data-theme="dark"]) .table th,
+:global(html[data-theme="dark"]) .table td,
+:global(html[data-theme="dark"]) .row > td {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:global(html[data-theme="dark"]) .dataRow:hover,
+:global(html[data-theme="dark"]) .mobileCard:hover {
+  background: rgba(56, 189, 248, 0.06);
+  transform: translateY(-1px);
+}
+
+:global(html[data-theme="dark"]) .expanded,
+:global(html[data-theme="dark"]) .mobileCardExpanded {
+  background: rgba(34, 197, 94, 0.055);
+}
+
+:global(html[data-theme="dark"]) .amount,
+:global(html[data-theme="dark"]) .mobileAmount {
+  color: #fda4af;
+  text-shadow: 0 0 20px rgba(251, 113, 133, 0.14);
+}
+
+:global(html[data-theme="dark"]) .btnSm,
+:global(html[data-theme="dark"]) .pagerBtn,
+:global(html[data-theme="dark"]) .mobileBtn,
+:global(html[data-theme="dark"]) .mobilePagerBtn {
+  background: rgba(13, 21, 33, 0.82);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(html[data-theme="dark"]) .btnSm:hover,
+:global(html[data-theme="dark"]) .pagerBtn:hover:not(:disabled),
+:global(html[data-theme="dark"]) .mobileBtn:hover,
+:global(html[data-theme="dark"]) .mobilePagerBtn:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.24);
+  transform: translateY(-1px);
+}
+
+:global(html[data-theme="dark"]) .pagerBtnActive {
+  background: var(--primary-gradient) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 24px rgba(34, 197, 94, 0.16);
+}
+

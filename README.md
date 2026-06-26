@@ -15,7 +15,9 @@ The project is built as a monorepo: the React frontend, .NET API, PostgreSQL dat
 
 ## Telegram Bot
 
-**Planned soon:** the Telegram bot is not the main user flow yet, but it is planned as a visible part of BudgetFlow. It will send alerts when spending in a budget category gets close to its limit, open the app as a Telegram Web App, and support quick operations such as basic CRUD actions for expenses, debts, savings, and budget items.
+The Telegram bot runs as a separate Docker Compose service. Its current job is intentionally narrow: connect a Telegram account with a one-time code from settings, then open BudgetFlow as a Telegram Web App. When the app opens inside Telegram, the frontend sends Telegram Web App init data to the API, and the API verifies Telegram's HMAC signature before issuing the normal JWT and refresh token pair.
+
+Budget alerts and quick CRUD actions can be added later on top of the connected-account model.
 
 ## Interface
 
@@ -54,9 +56,12 @@ POSTGRES_PASSWORD=change_this_password
 JWT_KEY=change_this_to_a_long_secure_secret_key
 OPENAI_RECEIPT_MODEL="gpt-4.1-mini"
 OPENAI_API_KEY=...
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_BOT_USERNAME=your_budgetflow_bot
+TELEGRAM_WEB_APP_URL=https://domain.com
 ```
 
-Use strong production values for `POSTGRES_PASSWORD` and `JWT_KEY`.
+Use strong production values for `POSTGRES_PASSWORD` and `JWT_KEY`. `TELEGRAM_WEB_APP_URL` must be the public HTTPS URL configured for the bot's Web App in BotFather.
 
 ### 3. Configure allowed origins
 

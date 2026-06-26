@@ -281,3 +281,63 @@
     transform: translateY(-1px);
   }
 }
+
+/* UI/UX Pro Max dark redesign: OLED navigation rail */
+:global(html[data-theme="dark"]) .sidebar {
+  background:
+    radial-gradient(circle at 18% 8%, rgba(56, 189, 248, 0.22), transparent 30%),
+    radial-gradient(circle at 82% 92%, rgba(34, 197, 94, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(5, 11, 19, 0.96), rgba(3, 7, 12, 0.98));
+  border-right: 1px solid var(--border2);
+  box-shadow: 18px 0 54px rgba(0, 0, 0, 0.34), inset -1px 0 rgba(255, 255, 255, 0.035);
+}
+
+:global(html[data-theme="dark"]) .logo,
+:global(html[data-theme="dark"]) .bottom {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:global(html[data-theme="dark"]) .logoTitle {
+  color: #f8fbff;
+  text-shadow: 0 0 24px rgba(56, 189, 248, 0.24);
+}
+
+:global(html[data-theme="dark"]) .logoSub,
+:global(html[data-theme="dark"]) .sectionLabel {
+  color: rgba(226, 232, 240, 0.38);
+}
+
+:global(html[data-theme="dark"]) .navItem,
+:global(html[data-theme="dark"]) .scanBtn,
+:global(html[data-theme="dark"]) .logoutBtn {
+  border: 1px solid transparent;
+  color: rgba(226, 232, 240, 0.62);
+  transition:
+    transform var(--dur-mid) var(--ease-spring),
+    background var(--dur-mid) var(--ease-out),
+    border-color var(--dur-mid) var(--ease-out),
+    color var(--dur-mid) var(--ease-out),
+    box-shadow var(--dur-mid) var(--ease-out);
+}
+
+:global(html[data-theme="dark"]) .navItem:hover,
+:global(html[data-theme="dark"]) .scanBtn:hover,
+:global(html[data-theme="dark"]) .logoutBtn:hover {
+  transform: translateX(3px);
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f8fbff;
+}
+
+:global(html[data-theme="dark"]) .navItemActive {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(56, 189, 248, 0.16)) !important;
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #ffffff !important;
+  box-shadow: 0 12px 34px rgba(34, 197, 94, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+:global(html[data-theme="dark"]) .navBadge {
+  background: rgba(56, 189, 248, 0.14);
+  color: rgba(191, 219, 254, 0.78);
+}
+

@@ -100,3 +100,42 @@
     gap: 12px;
   }
 }
+
+/* UI/UX Pro Max dark redesign: OLED aurora shell */
+.layout {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+:global(html[data-theme="dark"]) .layout::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at 50% 20%, #000 0%, transparent 72%);
+  opacity: 0.5;
+  animation: ambientGridDrift 22s linear infinite;
+}
+
+:global(html[data-theme="dark"]) .content {
+  position: relative;
+}
+
+:global(html[data-theme="dark"]) .error,
+:global(html[data-theme="dark"]) .loading {
+  background: var(--glass-surface);
+  border-color: var(--dark-card-border);
+  box-shadow: var(--shadow-card);
+}
+
+@keyframes ambientGridDrift {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 46px 46px, 46px 46px; }
+}
+

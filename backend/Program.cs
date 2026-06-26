@@ -83,8 +83,10 @@ builder.Services.AddHttpClient<IReceiptApiClient<ReceiptDto>, ReceiptApiClient>(
 {
     var receiptScannerBaseUrl = builder.Configuration.GetValue<string>("ReceiptScanner:BaseUrl")
         ?? "http://receipt_scanner:8080/";
+    var receiptScannerTimeoutSeconds = builder.Configuration.GetValue<int?>("ReceiptScanner:TimeoutSeconds") ?? 300;
 
     client.BaseAddress = new Uri(receiptScannerBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(receiptScannerTimeoutSeconds);
 });
 builder.Services.AddScoped<IReceiptService, ReceiptService>();
 

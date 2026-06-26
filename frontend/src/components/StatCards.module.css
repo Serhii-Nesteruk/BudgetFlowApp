@@ -166,3 +166,33 @@
     radial-gradient(circle at 85% 10%, rgba(34, 197, 94, 0.26), transparent 34%),
     linear-gradient(135deg, #0f766e, #0b1218);
 }
+
+/* UI/UX Pro Max dark redesign: financial metric cards */
+:global(html[data-theme="dark"]) .card {
+  background: linear-gradient(145deg, rgba(12, 20, 32, 0.78), rgba(6, 10, 17, 0.72));
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-card);
+}
+
+:global(html[data-theme="dark"]) .card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(56, 189, 248, 0.2);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), 0 0 34px rgba(56, 189, 248, 0.08);
+}
+
+:global(html[data-theme="dark"]) .card:first-child {
+  background:
+    radial-gradient(circle at 85% 14%, rgba(56, 189, 248, 0.2), transparent 38%),
+    linear-gradient(145deg, rgba(20, 184, 166, 0.24), rgba(10, 16, 25, 0.78));
+  border-color: rgba(56, 189, 248, 0.22);
+}
+
+:global(html[data-theme="dark"]) .icon {
+  background: rgba(56, 189, 248, 0.1);
+  color: #7dd3fc;
+}
+
+:global(html[data-theme="dark"]) .value {
+  color: #f8fbff;
+}
+
